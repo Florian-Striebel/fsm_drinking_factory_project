@@ -1,0 +1,20 @@
+INDEX VERSION 1.131+C:\Users\sylva\Desktop\SI4\StateMachine\fsm_drinking_factory_project\.metadata\.plugins\org.eclipse.jdt.core
+2644853798.index
+950214072.index
+622109518.index
+3412642429.index
+243378489.index
+3331950320.index
+2188323628.index
+2091167133.index
+2523441988.index
+3097551178.index
+1073200357.index
+3735937337.index
+1932932046.index
+3392267430.index
+4209169719.index
+2082346715.index
+2727622639.index
+1232871785.index
+546958798.index
