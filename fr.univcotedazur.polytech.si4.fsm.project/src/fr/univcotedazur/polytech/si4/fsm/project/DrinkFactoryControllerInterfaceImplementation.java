@@ -7,6 +7,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	double coins;
 	double price;
 	boolean nfc;
+	
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
