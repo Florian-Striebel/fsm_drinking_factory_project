@@ -22,8 +22,6 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseCancel();
 		
-		public void raiseIsPaid();
-		
 		public void raiseMoneyBack();
 		
 		public void raiseRefunded();
@@ -43,6 +41,14 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		public boolean isRaisedDoSelection();
 		
 		public boolean isRaisedAddedCoin();
+		
+		public boolean getIsSelected();
+		
+		public void setIsSelected(boolean value);
+		
+		public boolean getIsPaid();
+		
+		public void setIsPaid(boolean value);
 		
 		public long getCoin();
 		

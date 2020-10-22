@@ -37,7 +37,7 @@ public class DrinkFactoryMachine extends JFrame {
 	protected JButton coffeeButton,expressoButton,teaButton,soupButton,money50centsButton
 	,money10centsButton,money25centsButton;
 	protected JSlider sugarSlider,sizeSlider,temperatureSlider;
-	
+	protected double coin;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -340,7 +340,7 @@ public class DrinkFactoryMachine extends JFrame {
 		money10centsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setCoin(10);
+				coin =0.1;
 				theFSM.raiseAddCoin();
 				theFSM.raiseDoAction();
 
@@ -349,7 +349,7 @@ public class DrinkFactoryMachine extends JFrame {
 		money25centsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setCoin(25);
+				coin =0.25;
 				theFSM.raiseAddCoin();
 				theFSM.raiseDoAction();
 
@@ -358,7 +358,7 @@ public class DrinkFactoryMachine extends JFrame {
 		money50centsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setCoin(50);
+				coin =0.5;
 				theFSM.raiseAddCoin();
 				theFSM.raiseDoAction();
 

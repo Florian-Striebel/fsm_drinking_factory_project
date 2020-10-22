@@ -1,18 +1,20 @@
 package fr.univcotedazur.polytech.si4.fsm.project;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
 
 public class DrinkFactoryControllerInterfaceImplementation implements SCInterfaceListener/*SCInterfaceOperationCallback*/ {
 	DrinkFactoryMachine factory;
 	double coins;
 	double price;
-	boolean nfc;
-	
+	DecimalFormat df;
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
-		price = 0;
-		nfc = false;
+		price = 1000;
+		df = new DecimalFormat("0.00");
 	}
 
 	@Override
@@ -26,37 +28,31 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoPaymentByNFCRaised() {
 		factory.messagesToUser.setText("<html>Paiement par NFC");
-		nfc=true;
-		if(price != 0) {
-			factory.theFSM.raiseIsPaid();
-		}
 
 	}
 	@Override
 	public void onDoSelectionRaised() {
 		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.theFSM.getSelection());
-		price = 50;
-		if(coins >= price || nfc)
-			factory.theFSM.raiseIsPaid();
+		price = 0.5;
 
 	}
 	@Override
 	public void onAddedCoinRaised() {
-		coins += factory.theFSM.getCoin();
-		if(coins <= price || price==0)
-			factory.messagesToUser.setText("<html>Payment par espèce  "+coins/100);
-		if(coins>= price || price!=0 )
-			factory.theFSM.raiseIsPaid();
+		coins += factory.coin;
+		if(coins <= price)
+			factory.messagesToUser.setText("<html>Payment par espèce  "+df.format(coins)+"€");
+		if(coins>= price)
+			factory.theFSM.setIsPaid(true);
 	}
 	@Override
 	public void onDoBackCoinRaised() {
-		factory.messagesToUser.setText("<html>Vous avez payé par NFC<br> rendu  "+factory.theFSM.getCoin());
+		factory.messagesToUser.setText("<html>Vous avez payé par NFC<br> rendu  "+factory.coin);
 
 	}
 	@Override
 	public void onDoMoneyBackRaised() {
 		if (coins > price)
-			factory.messagesToUser.setText("<html> rendu  "+((coins/100)-price/100));
+			factory.messagesToUser.setText("<html> Rendu de "+(coins-price)+"€");
 		factory.theFSM.raiseMoneyBack();
 
 	}
@@ -68,9 +64,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoRefundRaised() {
-		factory.messagesToUser.setText("<html>Operation annulée  ");
-		factory.theFSM.raiseRefunded();
-
+			factory.messagesToUser.setText("<html>Operation annulée<br/>Remboursement de "+df.format(coins)+"€");
+			factory.theFSM.raiseRefunded();
 
 	}
 

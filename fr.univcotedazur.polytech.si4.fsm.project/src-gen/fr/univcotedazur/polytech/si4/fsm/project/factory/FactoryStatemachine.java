@@ -106,24 +106,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
-		private boolean isPaid;
-		
-		
-		public void raiseIsPaid() {
-			synchronized(FactoryStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							isPaid = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
 		private boolean moneyBack;
 		
 		
@@ -304,6 +286,34 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean isSelected;
+		
+		public synchronized boolean getIsSelected() {
+			synchronized(FactoryStatemachine.this) {
+				return isSelected;
+			}
+		}
+		
+		public void setIsSelected(boolean value) {
+			synchronized(FactoryStatemachine.this) {
+				this.isSelected = value;
+			}
+		}
+		
+		private boolean isPaid;
+		
+		public synchronized boolean getIsPaid() {
+			synchronized(FactoryStatemachine.this) {
+				return isPaid;
+			}
+		}
+		
+		public void setIsPaid(boolean value) {
+			synchronized(FactoryStatemachine.this) {
+				this.isPaid = value;
+			}
+		}
+		
 		private long coin;
 		
 		public synchronized long getCoin() {
@@ -338,7 +348,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			selected = false;
 			addCoin = false;
 			cancel = false;
-			isPaid = false;
 			moneyBack = false;
 			refunded = false;
 		}
@@ -401,6 +410,10 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		}
 		clearEvents();
 		clearOutEvents();
+		sCInterface.setIsSelected(false);
+		
+		sCInterface.setIsPaid(false);
+		
 		sCInterface.setCoin(0);
 		
 		sCInterface.setSelection("");
@@ -627,10 +640,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.raiseCancel();
 	}
 	
-	public synchronized void raiseIsPaid() {
-		sCInterface.raiseIsPaid();
-	}
-	
 	public synchronized void raiseMoneyBack() {
 		sCInterface.raiseMoneyBack();
 	}
@@ -671,6 +680,22 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		return sCInterface.isRaisedAddedCoin();
 	}
 	
+	public synchronized boolean getIsSelected() {
+		return sCInterface.getIsSelected();
+	}
+	
+	public synchronized void setIsSelected(boolean value) {
+		sCInterface.setIsSelected(value);
+	}
+	
+	public synchronized boolean getIsPaid() {
+		return sCInterface.getIsPaid();
+	}
+	
+	public synchronized void setIsPaid(boolean value) {
+		sCInterface.setIsPaid(value);
+	}
+	
 	public synchronized long getCoin() {
 		return sCInterface.getCoin();
 	}
@@ -690,6 +715,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	/* Entry action for state 'Timer'. */
 	private void entryAction_main_region_Ready_r1_Timer() {
 		timer.setTimer(this, 0, (45 * 1000), false);
+	}
+	
+	/* Entry action for state 'selected'. */
+	private void entryAction_main_region_Ready_r2_ordering_r3_selected() {
+		sCInterface.raiseDoSelection();
 	}
 	
 	/* Entry action for state 'refund'. */
@@ -750,6 +780,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	/* 'default' enter sequence for state selected */
 	private void enterSequence_main_region_Ready_r2_ordering_r3_selected_default() {
+		entryAction_main_region_Ready_r2_ordering_r3_selected();
 		nextStateIndex = 1;
 		stateVector[1] = State.main_region_Ready_r2_ordering_r3_selected;
 	}
@@ -1129,7 +1160,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		if (try_transition) {
 			if (sCInterface.selected) {
 				exitSequence_main_region_Ready_r2_ordering_r3_waitingSelection();
-				sCInterface.raiseDoSelection();
+				sCInterface.setIsSelected(true);
 				
 				enterSequence_main_region_Ready_r2_ordering_r3_selected_default();
 			} else {
@@ -1145,8 +1176,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		if (try_transition) {
 			if (sCInterface.selected) {
 				exitSequence_main_region_Ready_r2_ordering_r3_selected();
-				sCInterface.raiseDoSelection();
-				
 				enterSequence_main_region_Ready_r2_ordering_r3_selected_default();
 			} else {
 				did_transition = false;
@@ -1194,7 +1223,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				enterSequence_main_region_Ready_r2_ordering_r4_paidWithCoin_default();
 				main_region_Ready_r2_ordering_react(false);
 			} else {
-				if (sCInterface.isPaid) {
+				if ((sCInterface.getIsPaid() && sCInterface.getIsSelected())) {
 					exitSequence_main_region_Ready_r2_ordering();
 					sCInterface.raiseDoMoneyBack();
 					
@@ -1222,7 +1251,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				enterSequence_main_region_Ready_r2_ordering_r4_paidByNFC_default();
 				main_region_Ready_r2_ordering_react(false);
 			} else {
-				if (sCInterface.isPaid) {
+				if (sCInterface.getIsSelected()) {
 					exitSequence_main_region_Ready();
 					enterSequence_main_region_preparation_default();
 					react();
