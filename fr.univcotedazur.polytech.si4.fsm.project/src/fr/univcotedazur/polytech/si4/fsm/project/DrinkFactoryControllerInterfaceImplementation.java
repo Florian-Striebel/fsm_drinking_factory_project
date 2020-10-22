@@ -32,8 +32,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	}
 	@Override
 	public void onDoSelectionRaised() {
-		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.theFSM.getSelection());
 		price = 0.5;
+		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.theFSM.getSelection());
 
 	}
 	@Override
