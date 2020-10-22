@@ -38,7 +38,7 @@
                 <outgoingTransitions xmi:id="_sRhQgRFiEeub2qThBzZxiw" specification="paidNFC/raise doPaymentByNFC" target="_sRkT0hFiEeub2qThBzZxiw"/>
                 <outgoingTransitions xmi:id="_sRh3kxFiEeub2qThBzZxiw" specification="addCoin/raise addedCoin" target="_sRjFsBFiEeub2qThBzZxiw"/>
               </vertices>
-              <vertices xsi:type="sgraph:State" xmi:id="_sRjFsBFiEeub2qThBzZxiw" name="paidWithCoin" incomingTransitions="_sRh3kxFiEeub2qThBzZxiw _sRjFshFiEeub2qThBzZxiw">
+              <vertices xsi:type="sgraph:State" xmi:id="_sRjFsBFiEeub2qThBzZxiw" specification="" name="paidWithCoin" incomingTransitions="_sRh3kxFiEeub2qThBzZxiw _sRjFshFiEeub2qThBzZxiw">
                 <outgoingTransitions xmi:id="_sRjFshFiEeub2qThBzZxiw" specification="addCoin/raise addedCoin" target="_sRjFsBFiEeub2qThBzZxiw"/>
                 <outgoingTransitions xmi:id="_sRjswBFiEeub2qThBzZxiw" specification="[isPaid &amp;&amp; isSelected ] /raise doMoneyBack" target="_sRlh9BFiEeub2qThBzZxiw"/>
               </vertices>
@@ -262,7 +262,7 @@
                             <styles xsi:type="notation:ShapeStyle" xmi:id="_sRKEVxFiEeub2qThBzZxiw"/>
                             <layoutConstraint xsi:type="notation:Location" xmi:id="_sRKEWBFiEeub2qThBzZxiw"/>
                           </children>
-                          <children xsi:type="notation:Compartment" xmi:id="_sRKEWRFiEeub2qThBzZxiw" type="StateTextCompartment" collapsed="true">
+                          <children xsi:type="notation:Compartment" xmi:id="_sRKEWRFiEeub2qThBzZxiw" type="StateTextCompartment">
                             <children xsi:type="notation:Shape" xmi:id="_sRKEWhFiEeub2qThBzZxiw" type="StateTextCompartmentExpression" fontName="Verdana" lineColor="4210752">
                               <layoutConstraint xsi:type="notation:Bounds" xmi:id="_sRKEWxFiEeub2qThBzZxiw"/>
                             </children>
