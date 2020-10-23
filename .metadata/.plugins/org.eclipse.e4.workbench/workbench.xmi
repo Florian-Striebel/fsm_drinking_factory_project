@@ -120,7 +120,7 @@
           <tags>persp.newWizSC:org.yakindu.sct.examples.ui.wizards.ExampleWizard</tags>
           <tags>persp.newWizSC:org.yakindu.sctunit.testClassWizard</tags>
           <tags>persp.newWizSC:org.yakindu.sctunit.testSuiteWizard</tags>
-          <children xsi:type="basic:PartSashContainer" xmi:id="__df6mBUCEeu9gJ48n5TAkA" selectedElement="__df6oBUCEeu9gJ48n5TAkA" horizontal="true">
+          <children xsi:type="basic:PartSashContainer" xmi:id="__df6mBUCEeu9gJ48n5TAkA" selectedElement="__df6mRUCEeu9gJ48n5TAkA" horizontal="true">
             <children xsi:type="basic:PartSashContainer" xmi:id="__df6mRUCEeu9gJ48n5TAkA" containerData="1600" selectedElement="__df6mhUCEeu9gJ48n5TAkA">
               <children xsi:type="basic:PartStack" xmi:id="__df6mhUCEeu9gJ48n5TAkA" elementId="left" containerData="6800" selectedElement="__df6mxUCEeu9gJ48n5TAkA">
                 <tags>active</tags>
@@ -144,7 +144,7 @@
                 </children>
               </children>
             </children>
-            <children xsi:type="basic:PartSashContainer" xmi:id="__df6oBUCEeu9gJ48n5TAkA" containerData="8400" selectedElement="__df6ohUCEeu9gJ48n5TAkA" horizontal="true">
+            <children xsi:type="basic:PartSashContainer" xmi:id="__df6oBUCEeu9gJ48n5TAkA" containerData="8400" selectedElement="__df6oRUCEeu9gJ48n5TAkA" horizontal="true">
               <children xsi:type="advanced:Placeholder" xmi:id="__df6oRUCEeu9gJ48n5TAkA" elementId="org.eclipse.ui.editorss" containerData="7600" ref="__df7yBUCEeu9gJ48n5TAkA"/>
               <children xsi:type="basic:PartStack" xmi:id="__df6ohUCEeu9gJ48n5TAkA" elementId="right" containerData="2400" selectedElement="__df6pxUCEeu9gJ48n5TAkA">
                 <tags>General</tags>
@@ -223,9 +223,8 @@
       <children xsi:type="basic:PartStack" xmi:id="__df7yRUCEeu9gJ48n5TAkA" elementId="org.eclipse.e4.primaryDataStack" selectedElement="__df7yhUCEeu9gJ48n5TAkA">
         <tags>org.eclipse.e4.primaryDataStack</tags>
         <tags>EditorStack</tags>
-        <tags>noFocus</tags>
         <children xsi:type="basic:Part" xmi:id="__df7yhUCEeu9gJ48n5TAkA" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="factory.sgen" iconURI="platform:/plugin/org.yakindu.sct.generator.genmodel.ui/icons/GenModel-16.png" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.yakindu.sct.generator.genmodel.SGen&quot; name=&quot;factory.sgen&quot; partName=&quot;factory.sgen&quot; title=&quot;factory.sgen&quot; tooltip=&quot;fr.univcotedazur.polytech.si4.fsm.project/src/fr/univcotedazur/polytech/si4/fsm/project/factory.sgen&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/fr.univcotedazur.polytech.si4.fsm.project/src/fr/univcotedazur/polytech/si4/fsm/project/factory.sgen&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;766&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.yakindu.sct.generator.genmodel.SGen&quot; name=&quot;factory.sgen&quot; partName=&quot;factory.sgen&quot; title=&quot;factory.sgen&quot; tooltip=&quot;fr.univcotedazur.polytech.si4.fsm.project/src/fr/univcotedazur/polytech/si4/fsm/project/factory.sgen&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/fr.univcotedazur.polytech.si4.fsm.project/src/fr/univcotedazur/polytech/si4/fsm/project/factory.sgen&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;647&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.yakindu.sct.generator.genmodel.SGen</tags>
@@ -428,7 +427,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="__dgi0BUCEeu9gJ48n5TAkA" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_vBcQYBUFEeu0Y4U0HFsRgw" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="__dhyHxUCEeu9gJ48n5TAkA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_ZtHhsBUGEeuwno3hVgQt9g" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="__dhyHxUCEeu9gJ48n5TAkA"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="__dgi3RUCEeu9gJ48n5TAkA" elementId="group.edit" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -456,7 +455,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="__dgjExUCEeu9gJ48n5TAkA" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_vBfTsBUFEeu0Y4U0HFsRgw" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" type="Check" command="__dhxqBUCEeu9gJ48n5TAkA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_ZtJ98RUGEeuwno3hVgQt9g" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" enabled="false" type="Check" command="__dhxqBUCEeu9gJ48n5TAkA"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="__dgjHRUCEeu9gJ48n5TAkA" elementId="org.eclipse.jdt.ui.CompilationUnitEditor" visible="false">
         <tags>Draggable</tags>
