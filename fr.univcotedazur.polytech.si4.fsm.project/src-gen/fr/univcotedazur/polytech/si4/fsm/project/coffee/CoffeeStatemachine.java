@@ -16,24 +16,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		public List<SCInterfaceListener> getListeners() {
 			return listeners;
 		}
-		private boolean podIsPlaced;
-		
-		
-		public void raisePodIsPlaced() {
-			synchronized(CoffeeStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							podIsPlaced = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
 		private boolean isHot;
 		
 		
@@ -44,24 +26,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 						@Override
 						public void run() {
 							isHot = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
-		private boolean cupIsPlaced;
-		
-		
-		public void raiseCupIsPlaced() {
-			synchronized(CoffeeStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							cupIsPlaced = true;
 							singleCycle();
 						}
 					}
@@ -116,6 +80,24 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 						@Override
 						public void run() {
 							drinkPickedUp = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
+		private boolean prepare;
+		
+		
+		public void raisePrepare() {
+			synchronized(CoffeeStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							prepare = true;
 							singleCycle();
 						}
 					}
@@ -214,13 +196,30 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			}
 		}
 		
+		private boolean preparationFinished;
+		
+		
+		public boolean isRaisedPreparationFinished() {
+			synchronized(CoffeeStatemachine.this) {
+				return preparationFinished;
+			}
+		}
+		
+		protected void raisePreparationFinished() {
+			synchronized(CoffeeStatemachine.this) {
+				preparationFinished = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onPreparationFinishedRaised();
+				}
+			}
+		}
+		
 		protected void clearEvents() {
-			podIsPlaced = false;
 			isHot = false;
-			cupIsPlaced = false;
 			sugarFinishPoored = false;
 			drinkFinishPoored = false;
 			drinkPickedUp = false;
+			prepare = false;
 		}
 		protected void clearOutEvents() {
 		
@@ -229,6 +228,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		heating = false;
 		pooringSugar = false;
 		pooringDrink = false;
+		preparationFinished = false;
 		}
 		
 	}
@@ -252,6 +252,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		main_region_poorIngredient_r2_drinkPoored,
 		main_region_DrinkDistribute,
 		main_region__final_,
+		main_region_Ready,
 		$NullState$
 	};
 	
@@ -355,6 +356,9 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			case main_region__final_:
 				main_region__final__react(true);
 				break;
+			case main_region_Ready:
+				main_region_Ready_react(true);
+				break;
 			default:
 				// $NullState$
 			}
@@ -445,6 +449,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			return stateVector[0] == State.main_region_DrinkDistribute;
 		case main_region__final_:
 			return stateVector[0] == State.main_region__final_;
+		case main_region_Ready:
+			return stateVector[0] == State.main_region_Ready;
 		default:
 			return false;
 		}
@@ -485,16 +491,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		return sCInterface;
 	}
 	
-	public synchronized void raisePodIsPlaced() {
-		sCInterface.raisePodIsPlaced();
-	}
-	
 	public synchronized void raiseIsHot() {
 		sCInterface.raiseIsHot();
-	}
-	
-	public synchronized void raiseCupIsPlaced() {
-		sCInterface.raiseCupIsPlaced();
 	}
 	
 	public synchronized void raiseSugarFinishPoored() {
@@ -507,6 +505,10 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	public synchronized void raiseDrinkPickedUp() {
 		sCInterface.raiseDrinkPickedUp();
+	}
+	
+	public synchronized void raisePrepare() {
+		sCInterface.raisePrepare();
 	}
 	
 	public synchronized boolean isRaisedPlacePod() {
@@ -529,14 +531,22 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		return sCInterface.isRaisedPooringDrink();
 	}
 	
+	public synchronized boolean isRaisedPreparationFinished() {
+		return sCInterface.isRaisedPreparationFinished();
+	}
+	
 	/* Entry action for state 'positionningCup'. */
 	private void entryAction_main_region_prepareIngredient_r1_positionningCup() {
 		timer.setTimer(this, 0, (2 * 1000), false);
+		
+		sCInterface.raisePlaceCup();
 	}
 	
 	/* Entry action for state 'getPodCoffee'. */
 	private void entryAction_main_region_prepareIngredient_r1_getPodCoffee() {
 		timer.setTimer(this, 1, (1 * 1000), false);
+		
+		sCInterface.raisePlacePod();
 	}
 	
 	/* Entry action for state 'beginHeating'. */
@@ -552,6 +562,11 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	/* Entry action for state 'poorDrink'. */
 	private void entryAction_main_region_poorIngredient_r2_poorDrink() {
 		sCInterface.raisePooringDrink();
+	}
+	
+	/* Entry action for state 'DrinkDistribute'. */
+	private void entryAction_main_region_DrinkDistribute() {
+		sCInterface.raisePreparationFinished();
 	}
 	
 	/* Exit action for state 'positionningCup'. */
@@ -637,6 +652,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	/* 'default' enter sequence for state DrinkDistribute */
 	private void enterSequence_main_region_DrinkDistribute_default() {
+		entryAction_main_region_DrinkDistribute();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_DrinkDistribute;
 	}
@@ -645,6 +661,12 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	private void enterSequence_main_region__final__default() {
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region__final_;
+	}
+	
+	/* 'default' enter sequence for state Ready */
+	private void enterSequence_main_region_Ready_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_Ready;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -754,6 +776,12 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		stateVector[0] = State.$NullState$;
 	}
 	
+	/* Default exit sequence for state Ready */
+	private void exitSequence_main_region_Ready() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -777,6 +805,9 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			break;
 		case main_region__final_:
 			exitSequence_main_region__final_();
+			break;
+		case main_region_Ready:
+			exitSequence_main_region_Ready();
 			break;
 		default:
 			break;
@@ -861,7 +892,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	/* Default react sequence for initial entry  */
 	private void react_main_region__entry_Default() {
-		enterSequence_main_region_prepareIngredient_default();
+		enterSequence_main_region_Ready_default();
 	}
 	
 	/* Default react sequence for initial entry  */
@@ -914,16 +945,11 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.cupIsPlaced) {
+			if (timeEvents[0]) {
 				exitSequence_main_region_prepareIngredient_r1_positionningCup();
 				enterSequence_main_region_prepareIngredient_r1_cupPositionned_default();
 			} else {
 				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-			if (timeEvents[0]) {
-				sCInterface.raisePlaceCup();
 			}
 		}
 		return did_transition;
@@ -933,16 +959,11 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.podIsPlaced) {
+			if (timeEvents[1]) {
 				exitSequence_main_region_prepareIngredient_r1_getPodCoffee();
 				enterSequence_main_region_prepareIngredient_r1_positionningCup_default();
 			} else {
 				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-			if (timeEvents[1]) {
-				sCInterface.raisePlacePod();
 			}
 		}
 		return did_transition;
@@ -1094,6 +1115,24 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		
 		if (try_transition) {
 			did_transition = false;
+		}
+		if (did_transition==false) {
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_Ready_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.prepare) {
+				exitSequence_main_region_Ready();
+				enterSequence_main_region_prepareIngredient_default();
+				react();
+			} else {
+				did_transition = false;
+			}
 		}
 		if (did_transition==false) {
 			did_transition = react();

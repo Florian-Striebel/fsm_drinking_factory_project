@@ -7,11 +7,6 @@ import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCIn
 
 public class ExpressoPreparationControllerInterfaceImplementation implements SCInterface {
 
-	@Override
-	public void raisePodIsPlaced() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void raiseIsHot() {
@@ -19,11 +14,6 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 		
 	}
 
-	@Override
-	public void raiseCupIsPlaced() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void raiseSugarFinishPoored() {
@@ -77,6 +67,20 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 	public List<SCInterfaceListener> getListeners() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public void raisePrepare() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public boolean isRaisedPreparationFinished() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

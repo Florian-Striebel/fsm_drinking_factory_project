@@ -2,9 +2,9 @@ package preparation;
 
 public class Preparation {
 	private final int normalTemperature= 16;
-	private int sugarNumber;
-	private DrinkSize drinkSize;
-	private int temperature;
+	protected int sugarNumber;
+	protected DrinkSize drinkSize;
+	protected int temperature;
 	
 	public Preparation(int sugarNumber, DrinkSize drinkSize, int temprature) {
 		this.drinkSize=drinkSize;
@@ -12,16 +12,18 @@ public class Preparation {
 		this.temperature= temprature;
 	}
 	
-	double timeToPoorSugarInMs(){
-		return 10*sugarNumber;//10ms pour 1 sucre
+	protected double timeToPoorSugarInMs(){
+		return 10*sugarNumber;//100ms pour 1 sucre
 	}
 	
-	double timeToPoorDrinkInMs() {
-		return drinkSize.cl*10;//10ms pour 1cl 
+	protected long timeToPoorDrinkInMs() {
+		return drinkSize.cl*300;//300ms pour 1cl 
 	}
 	
-	double timeToHeatingWaterinMS() {
-		return (normalTemperature-temperature)*100;
+	protected long timeToHeatingWaterinMS() {
+		return (normalTemperature-temperature)*1000;
 	}
+	
+	
 	
 }

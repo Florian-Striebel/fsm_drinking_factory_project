@@ -9,4 +9,7 @@ public enum DrinkSize {
 	DrinkSize(int val) {
 		this.cl=val;
 	}
+	public String toString() {
+		return ""+cl;
+	}
 }

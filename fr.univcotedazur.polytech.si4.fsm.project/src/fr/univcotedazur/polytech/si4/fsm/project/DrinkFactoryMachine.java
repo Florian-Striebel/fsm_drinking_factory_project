@@ -22,9 +22,11 @@ import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.ProgressBarUI;
 
 import fr.univcotedazur.polytech.si4.fsm.project.factory.FactoryStatemachine;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
+import preparation.DrinkSize;
 public class DrinkFactoryMachine extends JFrame {
 
 	/**
@@ -38,6 +40,7 @@ public class DrinkFactoryMachine extends JFrame {
 	,money10centsButton,money25centsButton;
 	protected JSlider sugarSlider,sizeSlider,temperatureSlider;
 	protected double coin;
+	protected JProgressBar progressBar;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -58,7 +61,19 @@ public class DrinkFactoryMachine extends JFrame {
 			}
 		});
 	}
-
+	public JProgressBar getProgressBar() {
+		return progressBar;
+	}
+	public int getSugarSize() {
+		return sugarSlider.getValue();
+	}
+	
+	public DrinkSize getDrinkSize() {
+		return DrinkSize.values()[sizeSlider.getValue()];
+	}
+	public int getTemperature() {
+		return temperatureSlider.getValue();
+	}
 	/**
 	 * Create the frame.
 	 */
@@ -99,7 +114,7 @@ public class DrinkFactoryMachine extends JFrame {
 		lblCoins.setBounds(538, 12, 44, 15);
 		contentPane.add(lblCoins);
 
-		 coffeeButton = new JButton("Coffee");
+		coffeeButton = new JButton("Coffee");
 		coffeeButton.setForeground(Color.WHITE);
 		coffeeButton.setBackground(Color.DARK_GRAY);
 		coffeeButton.setBounds(12, 34, 96, 25);
@@ -123,7 +138,7 @@ public class DrinkFactoryMachine extends JFrame {
 		soupButton.setBounds(12, 145, 96, 25);
 		contentPane.add(soupButton);
 
-		JProgressBar progressBar = new JProgressBar();
+		progressBar = new JProgressBar();
 		progressBar.setStringPainted(true);
 		progressBar.setValue(10);
 		progressBar.setForeground(Color.LIGHT_GRAY);
@@ -155,7 +170,7 @@ public class DrinkFactoryMachine extends JFrame {
 		sizeSlider.setBounds(301, 125, 200, 36);
 		contentPane.add(sizeSlider);
 
-		 temperatureSlider = new JSlider();
+		temperatureSlider = new JSlider();
 		temperatureSlider.setPaintLabels(true);
 		temperatureSlider.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		temperatureSlider.setValue(2);

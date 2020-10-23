@@ -6,7 +6,7 @@ import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterface;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterfaceListener;
 
-public class CoffeePreparationControllerInterfaceImplementation  implements SCInterface{
+public class CoffeePreparationControllerInterfaceImplementation  implements SCInterfaceListener{
 	CoffeePreparation coffee;
 	DrinkFactoryMachine factory;
 	
@@ -14,75 +14,45 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 		this.coffee=coffee;
 		this.factory=factory;
 	}
+
 	@Override
-	public void raisePodIsPlaced() {
+	public void onPlacePodRaised() {
 		// TODO Auto-generated method stub
+		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
-	public void raiseIsHot() {
+	public void onPlaceCupRaised() {
 		// TODO Auto-generated method stub
-		
+		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
-	public void raiseCupIsPlaced() {
-		// TODO Auto-generated method stub
-		
+	public void onHeatingRaised() {
+		coffee.heatingWater();
+		System.out.println("water Hot");
 	}
 
 	@Override
-	public void raiseSugarFinishPoored() {
-		// TODO Auto-generated method stub
-		
+	public void onPooringSugarRaised() {
+
+		System.out.println("pooring sugar");
+		coffee.poorSugar();
+		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
-	public void raiseDrinkFinishPoored() {
-		// TODO Auto-generated method stub
-		
+	public void onPooringDrinkRaised() {
+		System.out.println("pooring Drink");
+		coffee.poorDrink();
+		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
-	public void raiseDrinkPickedUp() {
+	public void onPreparationFinishedRaised() {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isRaisedPlacePod() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedPlaceCup() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedHeating() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedPooringSugar() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedPooringDrink() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public List<SCInterfaceListener> getListeners() {
-		// TODO Auto-generated method stub
-		return null;
+		System.out.println("finish Drink");
+		factory.getProgressBar().setValue(100);
 	}
 
 }

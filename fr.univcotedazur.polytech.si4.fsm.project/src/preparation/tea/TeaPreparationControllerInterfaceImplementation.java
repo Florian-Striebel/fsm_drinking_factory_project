@@ -7,20 +7,10 @@ import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCIn
 
 public class TeaPreparationControllerInterfaceImplementation implements SCInterface{
 
-	@Override
-	public void raisePodIsPlaced() {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	@Override
 	public void raiseIsHot() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void raiseCupIsPlaced() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -77,6 +67,18 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 	public List<SCInterfaceListener> getListeners() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void raisePrepare() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isRaisedPreparationFinished() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

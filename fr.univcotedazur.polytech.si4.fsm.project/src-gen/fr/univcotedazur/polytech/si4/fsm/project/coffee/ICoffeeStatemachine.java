@@ -12,17 +12,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 public interface ICoffeeStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterface {
 	
-		public void raisePodIsPlaced();
-		
 		public void raiseIsHot();
-		
-		public void raiseCupIsPlaced();
 		
 		public void raiseSugarFinishPoored();
 		
 		public void raiseDrinkFinishPoored();
 		
 		public void raiseDrinkPickedUp();
+		
+		public void raisePrepare();
 		
 		public boolean isRaisedPlacePod();
 		
@@ -34,6 +32,8 @@ public interface ICoffeeStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedPooringDrink();
 		
+		public boolean isRaisedPreparationFinished();
+		
 	public List<SCInterfaceListener> getListeners();
 	}
 	
@@ -44,6 +44,7 @@ public interface ICoffeeStatemachine extends ITimerCallback,IStatemachine {
 		public void onHeatingRaised();
 		public void onPooringSugarRaised();
 		public void onPooringDrinkRaised();
+		public void onPreparationFinishedRaised();
 		}
 	
 	public SCInterface getSCInterface();

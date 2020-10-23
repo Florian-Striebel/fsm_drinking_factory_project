@@ -3,18 +3,22 @@ package fr.univcotedazur.polytech.si4.fsm.project;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
+import drink.Drink;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
+import preparation.coffee.CoffeePreparation;
 
 public class DrinkFactoryControllerInterfaceImplementation implements SCInterfaceListener/*SCInterfaceOperationCallback*/ {
 	DrinkFactoryMachine factory;
 	double coins;
 	double price;
 	DecimalFormat df;
+	CoffeePreparation coffee;
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
 		price = 1000;
 		df = new DecimalFormat("0.00");
+		coffee= new CoffeePreparation(fact);
 	}
 
 	@Override
@@ -61,7 +65,11 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoStartPreparationRaised() {
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.theFSM.getSelection());
-		
+		if(factory.theFSM.getSelection().equals(Drink.COFFE.getName())) {
+			factory.getProgressBar().setValue(0);
+			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+			System.out.println("in");
+		}
 	}
 
 	@Override
