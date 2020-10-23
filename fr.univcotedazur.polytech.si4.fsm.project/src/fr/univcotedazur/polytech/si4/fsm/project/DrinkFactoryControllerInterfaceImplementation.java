@@ -61,7 +61,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoStartPreparationRaised() {
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.theFSM.getSelection());
-
+		
 	}
 
 	@Override

@@ -2,11 +2,18 @@ package preparation.coffee;
 
 import java.util.List;
 
+import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterface;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterfaceListener;
 
 public class CoffeePreparationControllerInterfaceImplementation  implements SCInterface{
-
+	CoffeePreparation coffee;
+	DrinkFactoryMachine factory;
+	
+	public CoffeePreparationControllerInterfaceImplementation(CoffeePreparation coffee, DrinkFactoryMachine factory) {
+		this.coffee=coffee;
+		this.factory=factory;
+	}
 	@Override
 	public void raisePodIsPlaced() {
 		// TODO Auto-generated method stub
