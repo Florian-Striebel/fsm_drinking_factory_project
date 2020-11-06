@@ -6,6 +6,8 @@ import java.text.DecimalFormat;
 import drink.Drink;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
 import preparation.coffee.CoffeePreparation;
+import preparation.expresso.ExpressoPreparation;
+import preparation.tea.TeaPreparation;
 
 public class DrinkFactoryControllerInterfaceImplementation implements SCInterfaceListener/*SCInterfaceOperationCallback*/ {
 	DrinkFactoryMachine factory;
@@ -13,12 +15,17 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	double price;
 	DecimalFormat df;
 	CoffeePreparation coffee;
+	ExpressoPreparation expresso;
+	TeaPreparation tea;
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
 		price = 1000;
 		df = new DecimalFormat("0.00");
 		coffee= new CoffeePreparation(fact);
+		tea = new TeaPreparation(fact);
+		expresso = new ExpressoPreparation(fact);
+	    
 	}
 
 	@Override
@@ -68,7 +75,12 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		if(factory.selection.equals(Drink.COFFE.getName())) {
 			factory.getProgressBar().setValue(0);
 			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
-			System.out.println("in");
+		}else if(factory.selection.equals(Drink.EXPRESSO.getName())) {
+			factory.getProgressBar().setValue(0);
+			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+		}else if(factory.selection.equals(Drink.TEA.getName())) {
+			factory.getProgressBar().setValue(0);
+			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		}
 	}
 

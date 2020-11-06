@@ -2,19 +2,21 @@
 package fr.univcotedazur.polytech.si4.fsm.project.tea;
 
 import fr.univcotedazur.polytech.si4.fsm.project.IStatemachine;
+import fr.univcotedazur.polytech.si4.fsm.project.ITimerCallback;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public interface ITeaStatemachine extends IStatemachine {
+public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterface {
 	
-		public void raiseTeaBagIsPlaced();
+		public void raiseTeaBagDropped();
+		
+		public void raiseIsInfused();
 		
 		public void raiseIsHot();
-		
-		public void raiseCupIsPlaced();
 		
 		public void raiseSugarFinishPoored();
 		
@@ -22,11 +24,38 @@ public interface ITeaStatemachine extends IStatemachine {
 		
 		public void raiseDrinkPickedUp();
 		
-		public void raiseTeaBagDropped();
+		public void raisePrepare();
 		
-		public void raiseIsInfused();
+		public boolean isRaisedPlaceTeaBag();
 		
+		public boolean isRaisedPlaceCup();
+		
+		public boolean isRaisedHeating();
+		
+		public boolean isRaisedPooringSugar();
+		
+		public boolean isRaisedPooringDrink();
+		
+		public boolean isRaisedPreparationFinished();
+		
+		public boolean isRaisedBrewing();
+		
+		public boolean isRaisedDropTeaBag();
+		
+	public List<SCInterfaceListener> getListeners();
 	}
+	
+	public interface SCInterfaceListener {
+	
+		public void onPlaceTeaBagRaised();
+		public void onPlaceCupRaised();
+		public void onHeatingRaised();
+		public void onPooringSugarRaised();
+		public void onPooringDrinkRaised();
+		public void onPreparationFinishedRaised();
+		public void onBrewingRaised();
+		public void onDropTeaBagRaised();
+		}
 	
 	public SCInterface getSCInterface();
 	

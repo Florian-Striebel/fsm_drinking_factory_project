@@ -2,28 +2,23 @@
 package fr.univcotedazur.polytech.si4.fsm.project.expresso;
 
 import fr.univcotedazur.polytech.si4.fsm.project.IStatemachine;
+import fr.univcotedazur.polytech.si4.fsm.project.ITimerCallback;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public interface IExpressoStatemachine extends IStatemachine {
+public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterface {
 	
-		public void raiseCoffeeIsGrinded();
-		
 		public void raiseIsHot();
-		
-		public void raiseCupIsPlaced();
 		
 		public void raiseSugarFinishPoored();
 		
 		public void raiseDrinkFinishPoored();
 		
 		public void raiseDrinkPickedUp();
-		
-		public void raiseCoffeeIsGround();
 		
 		public boolean isRaisedGrindingCoffee();
 		

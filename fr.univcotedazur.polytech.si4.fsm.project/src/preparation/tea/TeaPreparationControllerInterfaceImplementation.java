@@ -2,83 +2,65 @@ package preparation.tea;
 
 import java.util.List;
 
-import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterface;
-import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterfaceListener;
+import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
+import fr.univcotedazur.polytech.si4.fsm.project.tea.ITeaStatemachine.SCInterfaceListener;
 
-public class TeaPreparationControllerInterfaceImplementation implements SCInterface{
-
-
+public class TeaPreparationControllerInterfaceImplementation implements SCInterfaceListener{
+	TeaPreparation tea;
+	DrinkFactoryMachine factory;
+	
+	public TeaPreparationControllerInterfaceImplementation(TeaPreparation teaPreparation, DrinkFactoryMachine fact) {
+		this.tea = teaPreparation;
+		this.factory = fact;
+	}
 
 	@Override
-	public void raiseIsHot() {
+	public void onPlaceTeaBagRaised() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void raiseSugarFinishPoored() {
+	public void onPlaceCupRaised() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void raiseDrinkFinishPoored() {
+	public void onHeatingRaised() {
+		// TODO Auto-generated method stub
+		tea.heatingWater();
+	}
+
+	@Override
+	public void onPooringSugarRaised() {
+		// TODO Auto-generated method stub
+		tea.poorSugar();
+	}
+
+	@Override
+	public void onPooringDrinkRaised() {
+		// TODO Auto-generated method stub
+		tea.poorDrink();
+	}
+
+	@Override
+	public void onPreparationFinishedRaised() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void raiseDrinkPickedUp() {
+	public void onBrewingRaised() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public boolean isRaisedPlacePod() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedPlaceCup() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedHeating() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedPooringSugar() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isRaisedPooringDrink() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public List<SCInterfaceListener> getListeners() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void raisePrepare() {
+	public void onDropTeaBagRaised() {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
-	public boolean isRaisedPreparationFinished() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }

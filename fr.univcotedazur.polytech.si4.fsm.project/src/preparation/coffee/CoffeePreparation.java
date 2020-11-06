@@ -1,6 +1,5 @@
 package preparation.coffee;
 
-import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryControllerInterfaceImplementation;
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.TimerService;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.CoffeeStatemachine;

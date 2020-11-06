@@ -3,7 +3,6 @@ package preparation.coffee;
 import java.util.List;
 
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
-import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterface;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.ICoffeeStatemachine.SCInterfaceListener;
 
 public class CoffeePreparationControllerInterfaceImplementation  implements SCInterfaceListener{
@@ -17,26 +16,22 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 
 	@Override
 	public void onPlacePodRaised() {
-		// TODO Auto-generated method stub
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
 	public void onPlaceCupRaised() {
-		// TODO Auto-generated method stub
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
 	public void onHeatingRaised() {
 		coffee.heatingWater();
-		System.out.println("water Hot");
 	}
 
 	@Override
 	public void onPooringSugarRaised() {
 
-		System.out.println("pooring sugar");
 		coffee.poorSugar();
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
