@@ -262,7 +262,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[2];
+	private final boolean[] timeEvents = new boolean[4];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -554,6 +554,11 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		sCInterface.raiseHeating();
 	}
 	
+	/* Entry action for state 'IsHot'. */
+	private void entryAction_main_region_prepareIngredient_r2_IsHot() {
+		timer.setTimer(this, 2, 100, true);
+	}
+	
 	/* Entry action for state 'poorSugar'. */
 	private void entryAction_main_region_poorIngredient_r1_poorSugar() {
 		sCInterface.raisePooringSugar();
@@ -562,6 +567,11 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	/* Entry action for state 'poorDrink'. */
 	private void entryAction_main_region_poorIngredient_r2_poorDrink() {
 		sCInterface.raisePooringDrink();
+	}
+	
+	/* Entry action for state 'drinkPoored'. */
+	private void entryAction_main_region_poorIngredient_r2_drinkPoored() {
+		timer.setTimer(this, 3, 100, true);
 	}
 	
 	/* Entry action for state 'DrinkDistribute'. */
@@ -577,6 +587,16 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	/* Exit action for state 'getPodCoffee'. */
 	private void exitAction_main_region_prepareIngredient_r1_getPodCoffee() {
 		timer.unsetTimer(this, 1);
+	}
+	
+	/* Exit action for state 'IsHot'. */
+	private void exitAction_main_region_prepareIngredient_r2_IsHot() {
+		timer.unsetTimer(this, 2);
+	}
+	
+	/* Exit action for state 'drinkPoored'. */
+	private void exitAction_main_region_poorIngredient_r2_drinkPoored() {
+		timer.unsetTimer(this, 3);
 	}
 	
 	/* 'default' enter sequence for state prepareIngredient */
@@ -614,6 +634,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	/* 'default' enter sequence for state IsHot */
 	private void enterSequence_main_region_prepareIngredient_r2_IsHot_default() {
+		entryAction_main_region_prepareIngredient_r2_IsHot();
 		nextStateIndex = 1;
 		stateVector[1] = State.main_region_prepareIngredient_r2_IsHot;
 	}
@@ -646,6 +667,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	/* 'default' enter sequence for state drinkPoored */
 	private void enterSequence_main_region_poorIngredient_r2_drinkPoored_default() {
+		entryAction_main_region_poorIngredient_r2_drinkPoored();
 		nextStateIndex = 1;
 		stateVector[1] = State.main_region_poorIngredient_r2_drinkPoored;
 	}
@@ -732,6 +754,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	private void exitSequence_main_region_prepareIngredient_r2_IsHot() {
 		nextStateIndex = 1;
 		stateVector[1] = State.$NullState$;
+		
+		exitAction_main_region_prepareIngredient_r2_IsHot();
 	}
 	
 	/* Default exit sequence for state poorIngredient */
@@ -762,6 +786,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	private void exitSequence_main_region_poorIngredient_r2_drinkPoored() {
 		nextStateIndex = 1;
 		stateVector[1] = State.$NullState$;
+		
+		exitAction_main_region_poorIngredient_r2_drinkPoored();
 	}
 	
 	/* Default exit sequence for state DrinkDistribute */
@@ -973,7 +999,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_prepareIngredient_r2_IsHot)) && true)) {
+			if (((true && isStateActive(State.main_region_prepareIngredient_r2_IsHot)) && timeEvents[2])) {
 				exitSequence_main_region_prepareIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1005,7 +1031,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_prepareIngredient_r1_cupPositionned)) && true)) {
+			if (((timeEvents[2] && isStateActive(State.main_region_prepareIngredient_r1_cupPositionned)) && true)) {
 				exitSequence_main_region_prepareIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1048,7 +1074,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_poorIngredient_r2_drinkPoored)) && true)) {
+			if (((true && isStateActive(State.main_region_poorIngredient_r2_drinkPoored)) && timeEvents[3])) {
 				exitSequence_main_region_poorIngredient();
 				react_main_region__sync1();
 			} else {
@@ -1080,7 +1106,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_poorIngredient_r1_sugarPoored)) && true)) {
+			if (((timeEvents[3] && isStateActive(State.main_region_poorIngredient_r1_sugarPoored)) && true)) {
 				exitSequence_main_region_poorIngredient();
 				react_main_region__sync1();
 			} else {

@@ -16,7 +16,7 @@
           <vertices xsi:type="sgraph:Entry" xmi:id="_QCxYMArSEeuhJcSyBJ07Sw">
             <outgoingTransitions xmi:id="_RGJgwArSEeuhJcSyBJ07Sw" target="_gIFWTQrPEeuhJcSyBJ07Sw"/>
           </vertices>
-          <vertices xsi:type="sgraph:State" xmi:id="_gvx64BUAEeu9gJ48n5TAkA" name="cupPositionned" incomingTransitions="_WQTeUAvLEeu2UptfTYgoKA">
+          <vertices xsi:type="sgraph:State" xmi:id="_gvx64BUAEeu9gJ48n5TAkA" specification="" name="cupPositionned" incomingTransitions="_WQTeUAvLEeu2UptfTYgoKA">
             <outgoingTransitions xmi:id="_kalYsBUAEeu9gJ48n5TAkA" specification="always" target="_Uu2foBUAEeu9gJ48n5TAkA"/>
           </vertices>
         </regions>
@@ -28,7 +28,7 @@
             <outgoingTransitions xmi:id="_PGbrwArSEeuhJcSyBJ07Sw" target="_1qlY8ArQEeuhJcSyBJ07Sw"/>
           </vertices>
           <vertices xsi:type="sgraph:State" xmi:id="_Zqn2EBUAEeu9gJ48n5TAkA" name="IsHot" incomingTransitions="_gq-RoA-VEeuSodrqa4-Ntw">
-            <outgoingTransitions xmi:id="_e6racBUAEeu9gJ48n5TAkA" specification="always" target="_Uu2foBUAEeu9gJ48n5TAkA"/>
+            <outgoingTransitions xmi:id="_e6racBUAEeu9gJ48n5TAkA" specification="every 100ms" target="_Uu2foBUAEeu9gJ48n5TAkA"/>
           </vertices>
         </regions>
       </vertices>
@@ -52,7 +52,7 @@
             <outgoingTransitions xmi:id="_SRyJEA-WEeuSodrqa4-Ntw" specification="" target="_3vyF0AvLEeu2UptfTYgoKA"/>
           </vertices>
           <vertices xsi:type="sgraph:State" xmi:id="_0e5w4BUAEeu9gJ48n5TAkA" name="drinkPoored" incomingTransitions="_2m3Y0A-jEeuSodrqa4-Ntw">
-            <outgoingTransitions xmi:id="_9p_ncBUAEeu9gJ48n5TAkA" specification="always" target="_7rQC0BUAEeu9gJ48n5TAkA"/>
+            <outgoingTransitions xmi:id="_9p_ncBUAEeu9gJ48n5TAkA" specification="every 100ms" target="_7rQC0BUAEeu9gJ48n5TAkA"/>
           </vertices>
         </regions>
       </vertices>
@@ -548,7 +548,7 @@
     <edges xmi:id="_kal_wBUAEeu9gJ48n5TAkA" type="Transition" element="_kalYsBUAEeu9gJ48n5TAkA" source="_NTPwNxUIEeu2hOnxZQ2Bsg" target="_Uu3GsBUAEeu9gJ48n5TAkA">
       <children xsi:type="notation:DecorationNode" xmi:id="_kal_xBUAEeu9gJ48n5TAkA" type="TransitionExpression">
         <styles xsi:type="notation:ShapeStyle" xmi:id="_kal_xRUAEeu9gJ48n5TAkA"/>
-        <layoutConstraint xsi:type="notation:Location" xmi:id="_kal_xhUAEeu9gJ48n5TAkA" x="54" y="5"/>
+        <layoutConstraint xsi:type="notation:Location" xmi:id="_kal_xhUAEeu9gJ48n5TAkA" x="-12" y="32"/>
       </children>
       <styles xsi:type="notation:ConnectorStyle" xmi:id="_kal_wRUAEeu9gJ48n5TAkA" routing="Rectilinear" lineColor="4210752"/>
       <styles xsi:type="notation:FontStyle" xmi:id="_kal_wxUAEeu9gJ48n5TAkA" fontName="Verdana"/>
