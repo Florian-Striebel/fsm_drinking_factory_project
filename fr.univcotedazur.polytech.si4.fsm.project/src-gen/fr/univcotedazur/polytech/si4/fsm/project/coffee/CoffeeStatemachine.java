@@ -549,11 +549,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		sCInterface.raisePlacePod();
 	}
 	
-	/* Entry action for state 'cupPositionned'. */
-	private void entryAction_main_region_prepareIngredient_r1_cupPositionned() {
-		timer.setTimer(this, 2, (5 * 1000), true);
-	}
-	
 	/* Entry action for state 'beginHeating'. */
 	private void entryAction_main_region_prepareIngredient_r2_beginHeating() {
 		sCInterface.raiseHeating();
@@ -626,7 +621,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	/* 'default' enter sequence for state cupPositionned */
 	private void enterSequence_main_region_prepareIngredient_r1_cupPositionned_default() {
-		entryAction_main_region_prepareIngredient_r1_cupPositionned();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_prepareIngredient_r1_cupPositionned;
 	}
@@ -748,8 +742,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	private void exitSequence_main_region_prepareIngredient_r1_cupPositionned() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
-		
-		exitAction_main_region_prepareIngredient_r1_cupPositionned();
 	}
 	
 	/* Default exit sequence for state beginHeating */

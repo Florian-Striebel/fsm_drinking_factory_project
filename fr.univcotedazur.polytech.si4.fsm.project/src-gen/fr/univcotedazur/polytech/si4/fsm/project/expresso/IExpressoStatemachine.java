@@ -20,6 +20,8 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseDrinkPickedUp();
 		
+		public void raisePrepare();
+		
 		public boolean isRaisedGrindingCoffee();
 		
 		public boolean isRaisedGroundingCoffee();

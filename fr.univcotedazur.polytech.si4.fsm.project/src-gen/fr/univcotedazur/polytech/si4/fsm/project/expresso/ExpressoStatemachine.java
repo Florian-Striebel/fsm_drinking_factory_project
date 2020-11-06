@@ -88,6 +88,24 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		
+		private boolean prepare;
+		
+		
+		public void raisePrepare() {
+			synchronized(ExpressoStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							prepare = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
 		private boolean grindingCoffee;
 		
 		
@@ -201,6 +219,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			sugarFinishPoored = false;
 			drinkFinishPoored = false;
 			drinkPickedUp = false;
+			prepare = false;
 		}
 		protected void clearOutEvents() {
 		
@@ -236,6 +255,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		main_region_poorIngredient_r2_drinkPoored,
 		main_region_expressoDistributed,
 		main_region__final_,
+		main_region_Ready,
 		$NullState$
 	};
 	
@@ -345,6 +365,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			case main_region__final_:
 				main_region__final__react(true);
 				break;
+			case main_region_Ready:
+				main_region_Ready_react(true);
+				break;
 			default:
 				// $NullState$
 			}
@@ -442,6 +465,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			return stateVector[0] == State.main_region_expressoDistributed;
 		case main_region__final_:
 			return stateVector[0] == State.main_region__final_;
+		case main_region_Ready:
+			return stateVector[0] == State.main_region_Ready;
 		default:
 			return false;
 		}
@@ -496,6 +521,10 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	public synchronized void raiseDrinkPickedUp() {
 		sCInterface.raiseDrinkPickedUp();
+	}
+	
+	public synchronized void raisePrepare() {
+		sCInterface.raisePrepare();
 	}
 	
 	public synchronized boolean isRaisedGrindingCoffee() {
@@ -702,6 +731,12 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		stateVector[0] = State.main_region__final_;
 	}
 	
+	/* 'default' enter sequence for state Ready */
+	private void enterSequence_main_region_Ready_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_Ready;
+	}
+	
 	/* 'default' enter sequence for region main region */
 	private void enterSequence_main_region_default() {
 		react_main_region__entry_Default();
@@ -845,6 +880,12 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		stateVector[0] = State.$NullState$;
 	}
 	
+	/* Default exit sequence for state Ready */
+	private void exitSequence_main_region_Ready() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -868,6 +909,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			break;
 		case main_region__final_:
 			exitSequence_main_region__final_();
+			break;
+		case main_region_Ready:
+			exitSequence_main_region_Ready();
 			break;
 		default:
 			break;
@@ -1002,7 +1046,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* Default react sequence for initial entry  */
 	private void react_main_region__entry_Default() {
-		enterSequence_main_region_PlacingPod_default();
+		enterSequence_main_region_Ready_default();
 	}
 	
 	/* Default react sequence for initial entry  */
@@ -1285,6 +1329,24 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		
 		if (try_transition) {
 			did_transition = false;
+		}
+		if (did_transition==false) {
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_Ready_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.prepare) {
+				exitSequence_main_region_Ready();
+				enterSequence_main_region_PlacingPod_default();
+				react();
+			} else {
+				did_transition = false;
+			}
 		}
 		if (did_transition==false) {
 			did_transition = react();
