@@ -53,6 +53,7 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 		// TODO Auto-generated method stub
 		System.out.println("finish Drink");
 		factory.getProgressBar().setValue(100);
+		factory.theFSM.raiseFinished();
 	}
 
 }

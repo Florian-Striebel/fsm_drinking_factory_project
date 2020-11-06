@@ -34,7 +34,7 @@ public class DrinkFactoryMachine extends JFrame {
 	 */
 	private static final long serialVersionUID = 2030629304432075314L;
 	private JPanel contentPane;
-	protected FactoryStatemachine theFSM;
+	public FactoryStatemachine theFSM;
 	protected JLabel messagesToUser;
 	protected JButton coffeeButton,expressoButton,teaButton,soupButton,money50centsButton
 	,money10centsButton,money25centsButton;
