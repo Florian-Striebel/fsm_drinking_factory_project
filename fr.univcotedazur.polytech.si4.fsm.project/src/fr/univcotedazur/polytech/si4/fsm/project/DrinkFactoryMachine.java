@@ -40,6 +40,7 @@ public class DrinkFactoryMachine extends JFrame {
 	,money10centsButton,money25centsButton;
 	protected JSlider sugarSlider,sizeSlider,temperatureSlider;
 	protected double coin;
+	protected String selection;
 	protected JProgressBar progressBar;
 	/**
 	 * @wbp.nonvisual location=311,475
@@ -99,7 +100,7 @@ public class DrinkFactoryMachine extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		 messagesToUser = new JLabel("<html>This is<br>place to communicate <br> with the user");
+		messagesToUser = new JLabel("<html>Choisissez votre boisson");
 		messagesToUser.setForeground(Color.WHITE);
 		messagesToUser.setHorizontalAlignment(SwingConstants.LEFT);
 		messagesToUser.setVerticalAlignment(SwingConstants.TOP);
@@ -310,7 +311,7 @@ public class DrinkFactoryMachine extends JFrame {
 		coffeeButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setSelection("coffee");
+				selection ="coffee";
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -319,7 +320,7 @@ public class DrinkFactoryMachine extends JFrame {
 		expressoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setSelection("expresso");
+				selection = "expresso";
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -328,7 +329,7 @@ public class DrinkFactoryMachine extends JFrame {
 		icedTeaButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setSelection("icedTea");
+				selection = "icedTea";
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -337,7 +338,7 @@ public class DrinkFactoryMachine extends JFrame {
 		teaButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setSelection("tea");
+				selection="tea";
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -346,7 +347,7 @@ public class DrinkFactoryMachine extends JFrame {
 		soupButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setSelection("soup");
+				selection= "soup";
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 

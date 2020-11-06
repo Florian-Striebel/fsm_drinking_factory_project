@@ -142,6 +142,24 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean finished;
+		
+		
+		public void raiseFinished() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							finished = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
 		private boolean doRefund;
 		
 		
@@ -174,6 +192,24 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				doRestart = true;
 				for (SCInterfaceListener listener : listeners) {
 					listener.onDoRestartRaised();
+				}
+			}
+		}
+		
+		private boolean doClean;
+		
+		
+		public boolean isRaisedDoClean() {
+			synchronized(FactoryStatemachine.this) {
+				return doClean;
+			}
+		}
+		
+		protected void raiseDoClean() {
+			synchronized(FactoryStatemachine.this) {
+				doClean = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onDoCleanRaised();
 				}
 			}
 		}
@@ -314,34 +350,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
-		private long coin;
-		
-		public synchronized long getCoin() {
-			synchronized(FactoryStatemachine.this) {
-				return coin;
-			}
-		}
-		
-		public void setCoin(long value) {
-			synchronized(FactoryStatemachine.this) {
-				this.coin = value;
-			}
-		}
-		
-		private String selection;
-		
-		public synchronized String getSelection() {
-			synchronized(FactoryStatemachine.this) {
-				return selection;
-			}
-		}
-		
-		public void setSelection(String value) {
-			synchronized(FactoryStatemachine.this) {
-				this.selection = value;
-			}
-		}
-		
 		protected void clearEvents() {
 			doAction = false;
 			paidNFC = false;
@@ -350,11 +358,13 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			cancel = false;
 			moneyBack = false;
 			refunded = false;
+			finished = false;
 		}
 		protected void clearOutEvents() {
 		
 		doRefund = false;
 		doRestart = false;
+		doClean = false;
 		doPaymentByNFC = false;
 		doBackCoin = false;
 		doMoneyBack = false;
@@ -383,6 +393,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		main_region_Ready_r2_giveChange,
 		main_region_refund,
 		main_region_preparation,
+		main_region_nettoyage,
 		$NullState$
 	};
 	
@@ -392,7 +403,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[3];
+	private final boolean[] timeEvents = new boolean[4];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -413,10 +424,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.setIsSelected(false);
 		
 		sCInterface.setIsPaid(false);
-		
-		sCInterface.setCoin(0);
-		
-		sCInterface.setSelection("");
 	}
 	
 	public synchronized void enter() {
@@ -489,6 +496,9 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				break;
 			case main_region_preparation:
 				main_region_preparation_react(true);
+				break;
+			case main_region_nettoyage:
+				main_region_nettoyage_react(true);
 				break;
 			default:
 				// $NullState$
@@ -580,6 +590,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			return stateVector[0] == State.main_region_refund;
 		case main_region_preparation:
 			return stateVector[0] == State.main_region_preparation;
+		case main_region_nettoyage:
+			return stateVector[0] == State.main_region_nettoyage;
 		default:
 			return false;
 		}
@@ -648,12 +660,20 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.raiseRefunded();
 	}
 	
+	public synchronized void raiseFinished() {
+		sCInterface.raiseFinished();
+	}
+	
 	public synchronized boolean isRaisedDoRefund() {
 		return sCInterface.isRaisedDoRefund();
 	}
 	
 	public synchronized boolean isRaisedDoRestart() {
 		return sCInterface.isRaisedDoRestart();
+	}
+	
+	public synchronized boolean isRaisedDoClean() {
+		return sCInterface.isRaisedDoClean();
 	}
 	
 	public synchronized boolean isRaisedDoPaymentByNFC() {
@@ -696,22 +716,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.setIsPaid(value);
 	}
 	
-	public synchronized long getCoin() {
-		return sCInterface.getCoin();
-	}
-	
-	public synchronized void setCoin(long value) {
-		sCInterface.setCoin(value);
-	}
-	
-	public synchronized String getSelection() {
-		return sCInterface.getSelection();
-	}
-	
-	public synchronized void setSelection(String value) {
-		sCInterface.setSelection(value);
-	}
-	
 	/* Entry action for state 'Timer'. */
 	private void entryAction_main_region_Ready_r1_Timer() {
 		timer.setTimer(this, 0, (45 * 1000), false);
@@ -732,6 +736,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		timer.setTimer(this, 2, (2 * 1000), false);
 	}
 	
+	/* Entry action for state 'nettoyage'. */
+	private void entryAction_main_region_nettoyage() {
+		timer.setTimer(this, 3, (2 * 1000), false);
+	}
+	
 	/* Exit action for state 'Timer'. */
 	private void exitAction_main_region_Ready_r1_Timer() {
 		timer.unsetTimer(this, 0);
@@ -745,6 +754,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	/* Exit action for state 'preparation'. */
 	private void exitAction_main_region_preparation() {
 		timer.unsetTimer(this, 2);
+	}
+	
+	/* Exit action for state 'nettoyage'. */
+	private void exitAction_main_region_nettoyage() {
+		timer.unsetTimer(this, 3);
 	}
 	
 	/* 'default' enter sequence for state Ready */
@@ -821,6 +835,13 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		entryAction_main_region_preparation();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_preparation;
+	}
+	
+	/* 'default' enter sequence for state nettoyage */
+	private void enterSequence_main_region_nettoyage_default() {
+		entryAction_main_region_nettoyage();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_nettoyage;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -926,6 +947,14 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		exitAction_main_region_preparation();
 	}
 	
+	/* Default exit sequence for state nettoyage */
+	private void exitSequence_main_region_nettoyage() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_nettoyage();
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -940,6 +969,9 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			break;
 		case main_region_preparation:
 			exitSequence_main_region_preparation();
+			break;
+		case main_region_nettoyage:
+			exitSequence_main_region_nettoyage();
 			break;
 		default:
 			break;
@@ -1308,12 +1340,38 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			did_transition = false;
+			if (sCInterface.finished) {
+				exitSequence_main_region_preparation();
+				sCInterface.raiseDoClean();
+				
+				enterSequence_main_region_nettoyage_default();
+				react();
+			} else {
+				did_transition = false;
+			}
 		}
 		if (did_transition==false) {
 			if (timeEvents[2]) {
 				sCInterface.raiseDoStartPreparation();
 			}
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_nettoyage_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (timeEvents[3]) {
+				exitSequence_main_region_nettoyage();
+				enterSequence_main_region_Ready_default();
+				react();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
 			did_transition = react();
 		}
 		return did_transition;

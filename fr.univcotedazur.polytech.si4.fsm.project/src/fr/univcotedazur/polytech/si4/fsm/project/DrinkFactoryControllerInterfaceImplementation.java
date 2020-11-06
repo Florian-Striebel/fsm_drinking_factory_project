@@ -23,7 +23,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoRestartRaised() {
-		factory.messagesToUser.setText("<html>choix ");
+		factory.messagesToUser.setText("<html>Choisissez votre boisson ");
 		factory.sizeSlider.setValue(1);
 		factory.sugarSlider.setValue(1);
 		factory.temperatureSlider.setValue(2);
@@ -37,7 +37,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoSelectionRaised() {
 		price = 0.5;
-		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.theFSM.getSelection());
+		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection);
 		if(coins>= price)
 			factory.theFSM.setIsPaid(true);
 
@@ -64,8 +64,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	}
 	@Override
 	public void onDoStartPreparationRaised() {
-		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.theFSM.getSelection());
-		if(factory.theFSM.getSelection().equals(Drink.COFFE.getName())) {
+		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection);
+		if(factory.selection.equals(Drink.COFFE.getName())) {
 			factory.getProgressBar().setValue(0);
 			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 			System.out.println("in");
@@ -77,6 +77,12 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 			factory.messagesToUser.setText("<html>Operation annulée<br/>Remboursement de "+df.format(coins)+"€");
 			factory.theFSM.raiseRefunded();
 
+	}
+
+	@Override
+	public void onDoCleanRaised() {
+		factory.messagesToUser.setText("<html>Nettoyage de la machine en cours");
+		
 	}
 
 	

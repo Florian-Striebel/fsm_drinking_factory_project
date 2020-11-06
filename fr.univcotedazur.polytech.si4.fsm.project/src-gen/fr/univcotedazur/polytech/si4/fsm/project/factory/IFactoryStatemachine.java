@@ -26,9 +26,13 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseRefunded();
 		
+		public void raiseFinished();
+		
 		public boolean isRaisedDoRefund();
 		
 		public boolean isRaisedDoRestart();
+		
+		public boolean isRaisedDoClean();
 		
 		public boolean isRaisedDoPaymentByNFC();
 		
@@ -50,14 +54,6 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setIsPaid(boolean value);
 		
-		public long getCoin();
-		
-		public void setCoin(long value);
-		
-		public String getSelection();
-		
-		public void setSelection(String value);
-		
 	public List<SCInterfaceListener> getListeners();
 	}
 	
@@ -65,6 +61,7 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 	
 		public void onDoRefundRaised();
 		public void onDoRestartRaised();
+		public void onDoCleanRaised();
 		public void onDoPaymentByNFCRaised();
 		public void onDoBackCoinRaised();
 		public void onDoMoneyBackRaised();
