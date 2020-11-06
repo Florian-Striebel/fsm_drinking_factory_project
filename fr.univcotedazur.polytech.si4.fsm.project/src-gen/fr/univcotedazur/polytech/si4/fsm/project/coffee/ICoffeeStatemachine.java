@@ -18,8 +18,6 @@ public interface ICoffeeStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseDrinkFinishPoored();
 		
-		public void raiseDrinkPickedUp();
-		
 		public void raisePrepare();
 		
 		public boolean isRaisedPlacePod();

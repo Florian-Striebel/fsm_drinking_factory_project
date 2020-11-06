@@ -26,7 +26,11 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseRefunded();
 		
-		public void raiseFinished();
+		public void raisePreparationFinished();
+		
+		public void raiseTakeDrink();
+		
+		public boolean isRaisedDoTakeDrink();
 		
 		public boolean isRaisedDoRefund();
 		
@@ -59,6 +63,7 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 	
 	public interface SCInterfaceListener {
 	
+		public void onDoTakeDrinkRaised();
 		public void onDoRefundRaised();
 		public void onDoRestartRaised();
 		public void onDoCleanRaised();

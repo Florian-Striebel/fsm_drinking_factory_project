@@ -22,6 +22,8 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raisePrepare();
 		
+		public boolean isRaisedPreparationFinished();
+		
 		public boolean isRaisedGrindingCoffee();
 		
 		public boolean isRaisedGroundingCoffee();
@@ -39,6 +41,7 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 	
 	public interface SCInterfaceListener {
 	
+		public void onPreparationFinishedRaised();
 		public void onGrindingCoffeeRaised();
 		public void onGroundingCoffeeRaised();
 		public void onPlaceCupRaised();

@@ -37,7 +37,7 @@ public class DrinkFactoryMachine extends JFrame {
 	public FactoryStatemachine theFSM;
 	protected JLabel messagesToUser;
 	protected JButton coffeeButton,expressoButton,teaButton,soupButton,money50centsButton
-	,money10centsButton,money25centsButton;
+	,money10centsButton,money25centsButton,takeDrinkButton;
 	protected JSlider sugarSlider,sizeSlider,temperatureSlider;
 	protected double coin;
 	protected String selection;
@@ -268,6 +268,13 @@ public class DrinkFactoryMachine extends JFrame {
 		addCupButton.setBounds(45, 336, 96, 25);
 		contentPane.add(addCupButton);
 
+		takeDrinkButton = new JButton("Take your drink");
+		takeDrinkButton.setVisible(false);
+		takeDrinkButton.setForeground(Color.WHITE);
+		takeDrinkButton.setBackground(Color.DARK_GRAY);
+		takeDrinkButton.setBounds(20, 400, 150, 25);
+		contentPane.add(takeDrinkButton);
+		
 		BufferedImage myPicture = null;
 		try {
 			myPicture = ImageIO.read(new File("./picts/vide2.jpg"));
@@ -306,6 +313,13 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				theFSM.raiseCancel();
 				theFSM.raiseDoAction();
+			}
+		});
+		
+		takeDrinkButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				theFSM.raiseTakeDrink();
 			}
 		});
 		coffeeButton.addMouseListener(new MouseAdapter() {

@@ -142,21 +142,57 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
-		private boolean finished;
+		private boolean preparationFinished;
 		
 		
-		public void raiseFinished() {
+		public void raisePreparationFinished() {
 			synchronized(FactoryStatemachine.this) {
 				inEventQueue.add(
 					new Runnable() {
 						@Override
 						public void run() {
-							finished = true;
+							preparationFinished = true;
 							singleCycle();
 						}
 					}
 				);
 				runCycle();
+			}
+		}
+		
+		private boolean takeDrink;
+		
+		
+		public void raiseTakeDrink() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							takeDrink = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
+		private boolean doTakeDrink;
+		
+		
+		public boolean isRaisedDoTakeDrink() {
+			synchronized(FactoryStatemachine.this) {
+				return doTakeDrink;
+			}
+		}
+		
+		protected void raiseDoTakeDrink() {
+			synchronized(FactoryStatemachine.this) {
+				doTakeDrink = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onDoTakeDrinkRaised();
+				}
 			}
 		}
 		
@@ -358,10 +394,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			cancel = false;
 			moneyBack = false;
 			refunded = false;
-			finished = false;
+			preparationFinished = false;
+			takeDrink = false;
 		}
 		protected void clearOutEvents() {
 		
+		doTakeDrink = false;
 		doRefund = false;
 		doRestart = false;
 		doClean = false;
@@ -393,7 +431,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		main_region_Ready_r2_giveChange,
 		main_region_refund,
 		main_region_preparation,
-		main_region_nettoyage,
+		main_region_clean,
+		main_region_waitingTake,
 		$NullState$
 	};
 	
@@ -497,8 +536,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			case main_region_preparation:
 				main_region_preparation_react(true);
 				break;
-			case main_region_nettoyage:
-				main_region_nettoyage_react(true);
+			case main_region_clean:
+				main_region_clean_react(true);
+				break;
+			case main_region_waitingTake:
+				main_region_waitingTake_react(true);
 				break;
 			default:
 				// $NullState$
@@ -590,8 +632,10 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			return stateVector[0] == State.main_region_refund;
 		case main_region_preparation:
 			return stateVector[0] == State.main_region_preparation;
-		case main_region_nettoyage:
-			return stateVector[0] == State.main_region_nettoyage;
+		case main_region_clean:
+			return stateVector[0] == State.main_region_clean;
+		case main_region_waitingTake:
+			return stateVector[0] == State.main_region_waitingTake;
 		default:
 			return false;
 		}
@@ -660,8 +704,16 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.raiseRefunded();
 	}
 	
-	public synchronized void raiseFinished() {
-		sCInterface.raiseFinished();
+	public synchronized void raisePreparationFinished() {
+		sCInterface.raisePreparationFinished();
+	}
+	
+	public synchronized void raiseTakeDrink() {
+		sCInterface.raiseTakeDrink();
+	}
+	
+	public synchronized boolean isRaisedDoTakeDrink() {
+		return sCInterface.isRaisedDoTakeDrink();
 	}
 	
 	public synchronized boolean isRaisedDoRefund() {
@@ -736,8 +788,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		timer.setTimer(this, 2, (2 * 1000), false);
 	}
 	
-	/* Entry action for state 'nettoyage'. */
-	private void entryAction_main_region_nettoyage() {
+	/* Entry action for state 'clean'. */
+	private void entryAction_main_region_clean() {
 		timer.setTimer(this, 3, (2 * 1000), false);
 	}
 	
@@ -756,8 +808,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		timer.unsetTimer(this, 2);
 	}
 	
-	/* Exit action for state 'nettoyage'. */
-	private void exitAction_main_region_nettoyage() {
+	/* Exit action for state 'clean'. */
+	private void exitAction_main_region_clean() {
 		timer.unsetTimer(this, 3);
 	}
 	
@@ -837,11 +889,17 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[0] = State.main_region_preparation;
 	}
 	
-	/* 'default' enter sequence for state nettoyage */
-	private void enterSequence_main_region_nettoyage_default() {
-		entryAction_main_region_nettoyage();
+	/* 'default' enter sequence for state clean */
+	private void enterSequence_main_region_clean_default() {
+		entryAction_main_region_clean();
 		nextStateIndex = 0;
-		stateVector[0] = State.main_region_nettoyage;
+		stateVector[0] = State.main_region_clean;
+	}
+	
+	/* 'default' enter sequence for state waitingTake */
+	private void enterSequence_main_region_waitingTake_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_waitingTake;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -947,12 +1005,18 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		exitAction_main_region_preparation();
 	}
 	
-	/* Default exit sequence for state nettoyage */
-	private void exitSequence_main_region_nettoyage() {
+	/* Default exit sequence for state clean */
+	private void exitSequence_main_region_clean() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
 		
-		exitAction_main_region_nettoyage();
+		exitAction_main_region_clean();
+	}
+	
+	/* Default exit sequence for state waitingTake */
+	private void exitSequence_main_region_waitingTake() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for region main region */
@@ -970,8 +1034,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		case main_region_preparation:
 			exitSequence_main_region_preparation();
 			break;
-		case main_region_nettoyage:
-			exitSequence_main_region_nettoyage();
+		case main_region_clean:
+			exitSequence_main_region_clean();
+			break;
+		case main_region_waitingTake:
+			exitSequence_main_region_waitingTake();
 			break;
 		default:
 			break;
@@ -1340,11 +1407,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.finished) {
+			if (sCInterface.preparationFinished) {
 				exitSequence_main_region_preparation();
-				sCInterface.raiseDoClean();
+				sCInterface.raiseDoTakeDrink();
 				
-				enterSequence_main_region_nettoyage_default();
+				enterSequence_main_region_waitingTake_default();
 				react();
 			} else {
 				did_transition = false;
@@ -1359,13 +1426,35 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		return did_transition;
 	}
 	
-	private boolean main_region_nettoyage_react(boolean try_transition) {
+	private boolean main_region_clean_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
 			if (timeEvents[3]) {
-				exitSequence_main_region_nettoyage();
+				exitSequence_main_region_clean();
+				sCInterface.raiseDoRestart();
+				
 				enterSequence_main_region_Ready_default();
+				react();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_waitingTake_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.takeDrink) {
+				exitSequence_main_region_waitingTake();
+				sCInterface.raiseDoClean();
+				
+				enterSequence_main_region_clean_default();
 				react();
 			} else {
 				did_transition = false;

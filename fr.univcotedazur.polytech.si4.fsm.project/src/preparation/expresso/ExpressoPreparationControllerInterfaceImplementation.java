@@ -53,6 +53,15 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 	}
 
 
+	@Override
+	public void onPreparationFinishedRaised() {
+
+		System.out.println("finish Drink");
+		factory.theFSM.raisePreparationFinished();
+		factory.getProgressBar().setValue(100);		
+	}
+
+
 
 
 }

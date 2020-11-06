@@ -673,6 +673,11 @@ public class TeaStatemachine implements ITeaStatemachine {
 		timer.setTimer(this, 3, 100, true);
 	}
 	
+	/* Entry action for state 'DrinkDistribute'. */
+	private void entryAction_main_region_DrinkDistribute() {
+		sCInterface.raisePreparationFinished();
+	}
+	
 	/* Entry action for state 'brew'. */
 	private void entryAction_main_region_brew() {
 		timer.setTimer(this, 4, (5 * 1000), false);
@@ -791,6 +796,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	/* 'default' enter sequence for state DrinkDistribute */
 	private void enterSequence_main_region_DrinkDistribute_default() {
+		entryAction_main_region_DrinkDistribute();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_DrinkDistribute;
 	}
@@ -1275,12 +1281,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.drinkPickedUp) {
-				exitSequence_main_region_DrinkDistribute();
-				enterSequence_main_region__final__default();
-			} else {
-				did_transition = false;
-			}
+			exitSequence_main_region_DrinkDistribute();
+			enterSequence_main_region__final__default();
 		}
 		if (did_transition==false) {
 			did_transition = react();

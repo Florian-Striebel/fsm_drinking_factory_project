@@ -106,6 +106,24 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		
+		private boolean preparationFinished;
+		
+		
+		public boolean isRaisedPreparationFinished() {
+			synchronized(ExpressoStatemachine.this) {
+				return preparationFinished;
+			}
+		}
+		
+		protected void raisePreparationFinished() {
+			synchronized(ExpressoStatemachine.this) {
+				preparationFinished = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onPreparationFinishedRaised();
+				}
+			}
+		}
+		
 		private boolean grindingCoffee;
 		
 		
@@ -223,6 +241,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		}
 		protected void clearOutEvents() {
 		
+		preparationFinished = false;
 		grindingCoffee = false;
 		groundingCoffee = false;
 		placeCup = false;
@@ -527,6 +546,10 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		sCInterface.raisePrepare();
 	}
 	
+	public synchronized boolean isRaisedPreparationFinished() {
+		return sCInterface.isRaisedPreparationFinished();
+	}
+	
 	public synchronized boolean isRaisedGrindingCoffee() {
 		return sCInterface.isRaisedGrindingCoffee();
 	}
@@ -595,6 +618,11 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	/* Entry action for state 'drinkPoored'. */
 	private void entryAction_main_region_poorIngredient_r2_drinkPoored() {
 		timer.setTimer(this, 5, 100, true);
+	}
+	
+	/* Entry action for state 'expressoDistributed'. */
+	private void entryAction_main_region_expressoDistributed() {
+		sCInterface.raisePreparationFinished();
 	}
 	
 	/* Exit action for state 'grindcoffee'. */
@@ -721,6 +749,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* 'default' enter sequence for state expressoDistributed */
 	private void enterSequence_main_region_expressoDistributed_default() {
+		entryAction_main_region_expressoDistributed();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_expressoDistributed;
 	}
@@ -1311,12 +1340,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.drinkPickedUp) {
-				exitSequence_main_region_expressoDistributed();
-				enterSequence_main_region__final__default();
-			} else {
-				did_transition = false;
-			}
+			exitSequence_main_region_expressoDistributed();
+			enterSequence_main_region__final__default();
 		}
 		if (did_transition==false) {
 			did_transition = react();

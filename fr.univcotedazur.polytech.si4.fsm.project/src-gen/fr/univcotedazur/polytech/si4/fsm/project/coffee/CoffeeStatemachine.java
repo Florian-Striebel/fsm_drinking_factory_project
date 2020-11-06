@@ -70,24 +70,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			}
 		}
 		
-		private boolean drinkPickedUp;
-		
-		
-		public void raiseDrinkPickedUp() {
-			synchronized(CoffeeStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							drinkPickedUp = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
 		private boolean prepare;
 		
 		
@@ -218,7 +200,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			isHot = false;
 			sugarFinishPoored = false;
 			drinkFinishPoored = false;
-			drinkPickedUp = false;
 			prepare = false;
 		}
 		protected void clearOutEvents() {
@@ -262,7 +243,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[4];
+	private final boolean[] timeEvents = new boolean[5];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -503,10 +484,6 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		sCInterface.raiseDrinkFinishPoored();
 	}
 	
-	public synchronized void raiseDrinkPickedUp() {
-		sCInterface.raiseDrinkPickedUp();
-	}
-	
 	public synchronized void raisePrepare() {
 		sCInterface.raisePrepare();
 	}
@@ -576,6 +553,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	
 	/* Entry action for state 'DrinkDistribute'. */
 	private void entryAction_main_region_DrinkDistribute() {
+		timer.setTimer(this, 4, 100, false);
+		
 		sCInterface.raisePreparationFinished();
 	}
 	
@@ -597,6 +576,11 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	/* Exit action for state 'drinkPoored'. */
 	private void exitAction_main_region_poorIngredient_r2_drinkPoored() {
 		timer.unsetTimer(this, 3);
+	}
+	
+	/* Exit action for state 'DrinkDistribute'. */
+	private void exitAction_main_region_DrinkDistribute() {
+		timer.unsetTimer(this, 4);
 	}
 	
 	/* 'default' enter sequence for state prepareIngredient */
@@ -794,6 +778,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	private void exitSequence_main_region_DrinkDistribute() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_DrinkDistribute();
 	}
 	
 	/* Default exit sequence for final state. */
@@ -1123,7 +1109,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.drinkPickedUp) {
+			if (timeEvents[4]) {
 				exitSequence_main_region_DrinkDistribute();
 				enterSequence_main_region__final__default();
 			} else {

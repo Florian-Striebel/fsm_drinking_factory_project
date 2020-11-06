@@ -47,6 +47,9 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 	@Override
 	public void onPreparationFinishedRaised() {
 		// TODO Auto-generated method stub
+		System.out.println("finish Drink");
+		factory.theFSM.raisePreparationFinished();
+		factory.getProgressBar().setValue(100);	
 		
 	}
 

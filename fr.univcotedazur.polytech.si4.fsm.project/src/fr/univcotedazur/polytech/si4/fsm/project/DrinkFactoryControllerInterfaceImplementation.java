@@ -34,6 +34,9 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.sizeSlider.setValue(1);
 		factory.sugarSlider.setValue(1);
 		factory.temperatureSlider.setValue(2);
+		factory.theFSM.setIsPaid(false);
+		factory.theFSM.setIsSelected(false);
+
 		coins = 0;
 	}
 	@Override
@@ -93,9 +96,17 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoCleanRaised() {
+		factory.takeDrinkButton.setVisible(false);
 		factory.messagesToUser.setText("<html>Nettoyage de la machine en cours");
 		
 	}
+
+	@Override
+	public void onDoTakeDrinkRaised() {
+		factory.messagesToUser.setText("<html>Veuillez récuperer votre boisson");
+		factory.takeDrinkButton.setVisible(true);
+	}
+
 
 	
 		

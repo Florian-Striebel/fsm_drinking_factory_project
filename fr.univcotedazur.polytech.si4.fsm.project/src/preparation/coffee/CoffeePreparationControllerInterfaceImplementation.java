@@ -47,8 +47,8 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 	public void onPreparationFinishedRaised() {
 		// TODO Auto-generated method stub
 		System.out.println("finish Drink");
+		factory.theFSM.raisePreparationFinished();
 		factory.getProgressBar().setValue(100);
-		factory.theFSM.raiseFinished();
 	}
 
 }
