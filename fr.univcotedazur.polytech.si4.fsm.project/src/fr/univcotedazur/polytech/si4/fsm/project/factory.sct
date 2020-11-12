@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:sgraph="http://www.yakindu.org/sct/sgraph/2.0.0">
-  <sgraph:Statechart xmi:id="_mvd9MBFiEeub2qThBzZxiw" specification="@EventDriven&#xA;// Use the event driven execution model.&#xA;// Runs a run-to-completion step&#xA;// each time an event is raised.&#xA;// Switch to cycle based behavior&#xA;// by specifying '@CycleBased(200)'&#xA;// instead.&#xA;&#xA;@ChildFirstExecution&#xA;// In composite states, execute&#xA;// child states first.&#xA;// @ParentFirstExecution does the opposite.&#xA;&#xA;interface:&#xA;// Define events&#xA;// and variables here. &#xA;// Use CTRL + Space for content assist.&#xA;in event doAction&#xA;in event paidNFC&#xA;in event selected&#xA;in event addCoin&#xA;in event cancel&#xA;in event moneyBack&#xA;in event refunded&#xA;in event preparationFinished&#xA;in event takeDrink&#xA;&#xA;out event doTakeDrink&#xA;out event doRefund&#xA;out event doRestart&#xA;out event doClean&#xA;out event doPaymentByNFC&#xA;out event doBackCoin&#xA;out event doMoneyBack&#xA;out event doStartPreparation&#xA;var isSelected:boolean&#xA;var isPaid:boolean&#xA;out event doSelection&#xA;out event addedCoin&#xA;&#xA;" name="factory">
+  <sgraph:Statechart xmi:id="_mvd9MBFiEeub2qThBzZxiw" specification="@EventDriven&#xA;// Use the event driven execution model.&#xA;// Runs a run-to-completion step&#xA;// each time an event is raised.&#xA;// Switch to cycle based behavior&#xA;// by specifying '@CycleBased(200)'&#xA;// instead.&#xA;&#xA;@ChildFirstExecution&#xA;// In composite states, execute&#xA;// child states first.&#xA;// @ParentFirstExecution does the opposite.&#xA;&#xA;interface:&#xA;// Define events&#xA;// and variables here. &#xA;// Use CTRL + Space for content assist.&#xA;in event doAction&#xA;in event paidNFC&#xA;in event selected&#xA;in event addCoin&#xA;in event cancel&#xA;in event moneyBack&#xA;in event refunded&#xA;in event preparationFinished&#xA;in event takeDrink&#xA;&#xA;out event doTakeDrink&#xA;out event doRefund&#xA;out event doRestart&#xA;out event doClean&#xA;out event doPaymentByNFC&#xA;out event doBackCoin&#xA;out event doMoneyBack&#xA;out event doStartPreparation&#xA;var isSelected:boolean&#xA;var isPaid:boolean&#xA;var isValidate:boolean&#xA;out event doSelection&#xA;out event addedCoin&#xA;&#xA;" name="factory">
     <regions xmi:id="_sRW4cBFiEeub2qThBzZxiw" name="main region">
       <vertices xsi:type="sgraph:Entry" xmi:id="_sRW4cRFiEeub2qThBzZxiw">
         <outgoingTransitions xmi:id="_sRW4chFiEeub2qThBzZxiw" specification="" target="_sRXfgBFiEeub2qThBzZxiw"/>
@@ -40,14 +40,14 @@
               </vertices>
               <vertices xsi:type="sgraph:State" xmi:id="_sRjFsBFiEeub2qThBzZxiw" specification="" name="paidWithCoin" incomingTransitions="_sRh3kxFiEeub2qThBzZxiw _sRjFshFiEeub2qThBzZxiw">
                 <outgoingTransitions xmi:id="_sRjFshFiEeub2qThBzZxiw" specification="addCoin/raise addedCoin" target="_sRjFsBFiEeub2qThBzZxiw"/>
-                <outgoingTransitions xmi:id="_sRjswBFiEeub2qThBzZxiw" specification="[isPaid &amp;&amp; isSelected ] /raise doMoneyBack" target="_sRlh9BFiEeub2qThBzZxiw"/>
+                <outgoingTransitions xmi:id="_sRjswBFiEeub2qThBzZxiw" specification="[isPaid &amp;&amp; isSelected &amp;&amp; isValidate] /raise doMoneyBack" target="_sRlh9BFiEeub2qThBzZxiw"/>
               </vertices>
               <vertices xsi:type="sgraph:Entry" xmi:id="_sRkT0BFiEeub2qThBzZxiw">
                 <outgoingTransitions xmi:id="_sRkT0RFiEeub2qThBzZxiw" specification="" target="_sRgpeRFiEeub2qThBzZxiw"/>
               </vertices>
               <vertices xsi:type="sgraph:State" xmi:id="_sRkT0hFiEeub2qThBzZxiw" name="paidByNFC" incomingTransitions="_sRhQgRFiEeub2qThBzZxiw _sRk64BFiEeub2qThBzZxiw">
                 <outgoingTransitions xmi:id="_sRk64BFiEeub2qThBzZxiw" specification="addCoin/raise doBackCoin" target="_sRkT0hFiEeub2qThBzZxiw"/>
-                <outgoingTransitions xmi:id="_sRlh8BFiEeub2qThBzZxiw" specification="[isSelected]" target="_sRnXIBFiEeub2qThBzZxiw"/>
+                <outgoingTransitions xmi:id="_sRlh8BFiEeub2qThBzZxiw" specification="[isSelected &amp;&amp; isValidate] " target="_sRnXIBFiEeub2qThBzZxiw"/>
               </vertices>
             </regions>
           </vertices>

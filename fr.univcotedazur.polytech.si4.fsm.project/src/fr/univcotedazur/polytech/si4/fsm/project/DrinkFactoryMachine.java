@@ -1,5 +1,6 @@
 package fr.univcotedazur.polytech.si4.fsm.project;
 
+import drink.Drink;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -23,7 +24,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ProgressBarUI;
-
 import fr.univcotedazur.polytech.si4.fsm.project.factory.FactoryStatemachine;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
 import preparation.DrinkSize;
@@ -37,11 +37,12 @@ public class DrinkFactoryMachine extends JFrame {
 	public FactoryStatemachine theFSM;
 	protected JLabel messagesToUser;
 	protected JButton coffeeButton,expressoButton,teaButton,soupButton,money50centsButton
-	,money10centsButton,money25centsButton,takeDrinkButton;
+	,money10centsButton,money25centsButton,takeDrinkButton, validateButton;
 	protected JSlider sugarSlider,sizeSlider,temperatureSlider;
 	protected double coin;
-	protected String selection;
+	protected Drink selection;
 	protected JProgressBar progressBar;
+	protected JLabel lblSugar,lblValidate;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -121,6 +122,20 @@ public class DrinkFactoryMachine extends JFrame {
 		coffeeButton.setBounds(12, 34, 96, 25);
 		contentPane.add(coffeeButton);
 
+		lblValidate = new JLabel("Validate with this spicy");
+		lblValidate.setForeground(Color.WHITE);
+		lblValidate.setHorizontalAlignment(SwingConstants.CENTER);
+		lblValidate.setVisible(false);
+		lblValidate.setBounds(125, 200, 150, 25);
+		contentPane.add(lblValidate);
+
+		validateButton = new JButton("Validate");
+		validateButton.setForeground(Color.WHITE);
+		validateButton.setBackground(Color.DARK_GRAY);
+		validateButton.setBounds(150, 220, 96, 25);
+		validateButton.setVisible(false);
+		contentPane.add(validateButton);
+		
 		 expressoButton = new JButton("Expresso");
 		expressoButton.setForeground(Color.WHITE);
 		expressoButton.setBackground(Color.DARK_GRAY);
@@ -200,7 +215,7 @@ public class DrinkFactoryMachine extends JFrame {
 		icedTeaButton.setBounds(12, 182, 96, 25);
 		contentPane.add(icedTeaButton);
 
-		JLabel lblSugar = new JLabel("Sugar");
+		lblSugar = new JLabel("Sugar");
 		lblSugar.setForeground(Color.WHITE);
 		lblSugar.setBackground(Color.DARK_GRAY);
 		lblSugar.setHorizontalAlignment(SwingConstants.CENTER);
@@ -325,7 +340,7 @@ public class DrinkFactoryMachine extends JFrame {
 		coffeeButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				selection ="coffee";
+				selection = Drink.COFFE;
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -334,7 +349,7 @@ public class DrinkFactoryMachine extends JFrame {
 		expressoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				selection = "expresso";
+				selection = Drink.EXPRESSO;
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -343,7 +358,6 @@ public class DrinkFactoryMachine extends JFrame {
 		icedTeaButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				selection = "icedTea";
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -352,7 +366,7 @@ public class DrinkFactoryMachine extends JFrame {
 		teaButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				selection="tea";
+				selection = Drink.TEA;
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
@@ -361,12 +375,20 @@ public class DrinkFactoryMachine extends JFrame {
 		soupButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				selection= "soup";
+				selection= Drink.SOUP;
 				theFSM.raiseSelected();
 				theFSM.raiseDoAction();
 
 			}
 		});
+		validateButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				theFSM.setIsValidate(true);
+				theFSM.raiseDoAction();
+			}
+		});
+		
 		money10centsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -402,7 +424,24 @@ public class DrinkFactoryMachine extends JFrame {
 
 			}
 		});
-		
 
+	}
+	
+	public void display() {
+		if(selection.equals(Drink.SOUP)) {
+			lblSugar.setText("spice");
+			validateButton.setVisible(true);
+			theFSM.setIsValidate(false);
+			lblValidate.setVisible(true);
+
+		}
+		else{
+			lblSugar.setText("sugar");
+			validateButton.setVisible(false);
+			theFSM.setIsValidate(true);
+			lblValidate.setVisible(false);
+
+		}
+		
 	}
 }

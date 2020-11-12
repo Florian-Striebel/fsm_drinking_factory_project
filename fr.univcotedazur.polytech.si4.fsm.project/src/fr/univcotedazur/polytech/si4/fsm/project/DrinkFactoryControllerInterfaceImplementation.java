@@ -37,17 +37,20 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.progressBar.setValue(0);
 		factory.theFSM.setIsPaid(false);
 		factory.theFSM.setIsSelected(false);
+		factory.theFSM.setIsValidate(true);
 		coins = 0;
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
 		factory.messagesToUser.setText("<html>Paiement par NFC");
+		factory.theFSM.setIsPaid(true);
 
 	}
 	@Override
 	public void onDoSelectionRaised() {
-		price = 0.5;
-		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection);
+		factory.display();
+		price = factory.selection.getPrice();
+		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName());
 		if(coins>= price)
 			factory.theFSM.setIsPaid(true);
 
@@ -62,26 +65,26 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	}
 	@Override
 	public void onDoBackCoinRaised() {
-		factory.messagesToUser.setText("<html>Vous avez payé par NFC<br> rendu  "+factory.coin);
+		factory.messagesToUser.setText("<html>Vous avez payé par NFC<br> rendu  "+df.format(factory.coin)+"€");
 
 	}
 	@Override
 	public void onDoMoneyBackRaised() {
 		if (coins > price)
-			factory.messagesToUser.setText("<html> Rendu de "+(coins-price)+"€");
+			factory.messagesToUser.setText("<html> Rendu de "+df.format(coins-price)+"€");
 		factory.theFSM.raiseMoneyBack();
 
 	}
 	@Override
 	public void onDoStartPreparationRaised() {
-		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection);
-		if(factory.selection.equals(Drink.COFFE.getName())) {
+		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
+		if(factory.selection.equals(Drink.COFFE)) {
 			factory.getProgressBar().setValue(0);
 			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
-		}else if(factory.selection.equals(Drink.EXPRESSO.getName())) {
+		}else if(factory.selection.equals(Drink.EXPRESSO)) {
 			factory.getProgressBar().setValue(0);
 			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
-		}else if(factory.selection.equals(Drink.TEA.getName())) {
+		}else if(factory.selection.equals(Drink.TEA)) {
 			factory.getProgressBar().setValue(0);
 			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		}
@@ -107,7 +110,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.takeDrinkButton.setVisible(true);
 	}
 
-
+	
 	
 		
 }

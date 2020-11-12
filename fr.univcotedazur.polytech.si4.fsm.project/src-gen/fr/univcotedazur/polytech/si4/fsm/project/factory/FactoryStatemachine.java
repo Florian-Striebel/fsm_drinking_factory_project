@@ -386,6 +386,20 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean isValidate;
+		
+		public synchronized boolean getIsValidate() {
+			synchronized(FactoryStatemachine.this) {
+				return isValidate;
+			}
+		}
+		
+		public void setIsValidate(boolean value) {
+			synchronized(FactoryStatemachine.this) {
+				this.isValidate = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			doAction = false;
 			paidNFC = false;
@@ -463,6 +477,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.setIsSelected(false);
 		
 		sCInterface.setIsPaid(false);
+		
+		sCInterface.setIsValidate(false);
 	}
 	
 	public synchronized void enter() {
@@ -766,6 +782,14 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	public synchronized void setIsPaid(boolean value) {
 		sCInterface.setIsPaid(value);
+	}
+	
+	public synchronized boolean getIsValidate() {
+		return sCInterface.getIsValidate();
+	}
+	
+	public synchronized void setIsValidate(boolean value) {
+		sCInterface.setIsValidate(value);
 	}
 	
 	/* Entry action for state 'Timer'. */
@@ -1322,7 +1346,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				enterSequence_main_region_Ready_r2_ordering_r4_paidWithCoin_default();
 				main_region_Ready_r2_ordering_react(false);
 			} else {
-				if ((sCInterface.getIsPaid() && sCInterface.getIsSelected())) {
+				if (((sCInterface.getIsPaid() && sCInterface.getIsSelected()) && sCInterface.getIsValidate())) {
 					exitSequence_main_region_Ready_r2_ordering();
 					sCInterface.raiseDoMoneyBack();
 					
@@ -1350,7 +1374,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				enterSequence_main_region_Ready_r2_ordering_r4_paidByNFC_default();
 				main_region_Ready_r2_ordering_react(false);
 			} else {
-				if (sCInterface.getIsSelected()) {
+				if ((sCInterface.getIsSelected() && sCInterface.getIsValidate())) {
 					exitSequence_main_region_Ready();
 					enterSequence_main_region_preparation_default();
 					react();

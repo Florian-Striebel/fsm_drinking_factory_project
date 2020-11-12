@@ -58,6 +58,10 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setIsPaid(boolean value);
 		
+		public boolean getIsValidate();
+		
+		public void setIsValidate(boolean value);
+		
 	public List<SCInterfaceListener> getListeners();
 	}
 	
