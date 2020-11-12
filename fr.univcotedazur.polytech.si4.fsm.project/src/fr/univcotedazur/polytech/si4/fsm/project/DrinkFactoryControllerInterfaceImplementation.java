@@ -34,6 +34,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.sizeSlider.setValue(1);
 		factory.sugarSlider.setValue(1);
 		factory.temperatureSlider.setValue(2);
+		factory.progressBar.setValue(0);
 		factory.theFSM.setIsPaid(false);
 		factory.theFSM.setIsSelected(false);
 		coins = 0;

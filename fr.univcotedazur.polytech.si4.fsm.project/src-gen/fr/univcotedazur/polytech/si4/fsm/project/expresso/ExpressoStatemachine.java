@@ -273,7 +273,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		main_region_poorIngredient_r2_poorDrink,
 		main_region_poorIngredient_r2_drinkPoored,
 		main_region_expressoDistributed,
-		main_region__final_,
 		main_region_Ready,
 		$NullState$
 	};
@@ -284,7 +283,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[6];
+	private final boolean[] timeEvents = new boolean[7];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -381,9 +380,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			case main_region_expressoDistributed:
 				main_region_expressoDistributed_react(true);
 				break;
-			case main_region__final_:
-				main_region__final__react(true);
-				break;
 			case main_region_Ready:
 				main_region_Ready_react(true);
 				break;
@@ -421,10 +417,12 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	}
 	
 	/** 
+	* Always returns 'false' since this state machine can never become final.
+	*
 	* @see IStatemachine#isFinal()
 	*/
 	public synchronized boolean isFinal() {
-		return (stateVector[0] == State.main_region__final_) && (stateVector[1] == State.$NullState$) && (stateVector[2] == State.$NullState$);
+		return false;
 	}
 	/**
 	* This method resets the incoming events (time events included).
@@ -482,8 +480,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			return stateVector[1] == State.main_region_poorIngredient_r2_drinkPoored;
 		case main_region_expressoDistributed:
 			return stateVector[0] == State.main_region_expressoDistributed;
-		case main_region__final_:
-			return stateVector[0] == State.main_region__final_;
 		case main_region_Ready:
 			return stateVector[0] == State.main_region_Ready;
 		default:
@@ -622,6 +618,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* Entry action for state 'expressoDistributed'. */
 	private void entryAction_main_region_expressoDistributed() {
+		timer.setTimer(this, 6, 100, false);
+		
 		sCInterface.raisePreparationFinished();
 	}
 	
@@ -653,6 +651,11 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	/* Exit action for state 'drinkPoored'. */
 	private void exitAction_main_region_poorIngredient_r2_drinkPoored() {
 		timer.unsetTimer(this, 5);
+	}
+	
+	/* Exit action for state 'expressoDistributed'. */
+	private void exitAction_main_region_expressoDistributed() {
+		timer.unsetTimer(this, 6);
 	}
 	
 	/* 'default' enter sequence for state PlacingPod */
@@ -752,12 +755,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		entryAction_main_region_expressoDistributed();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_expressoDistributed;
-	}
-	
-	/* Default enter sequence for state null */
-	private void enterSequence_main_region__final__default() {
-		nextStateIndex = 0;
-		stateVector[0] = State.main_region__final_;
 	}
 	
 	/* 'default' enter sequence for state Ready */
@@ -901,12 +898,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	private void exitSequence_main_region_expressoDistributed() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for final state. */
-	private void exitSequence_main_region__final_() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_expressoDistributed();
 	}
 	
 	/* Default exit sequence for state Ready */
@@ -935,9 +928,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			break;
 		case main_region_expressoDistributed:
 			exitSequence_main_region_expressoDistributed();
-			break;
-		case main_region__final_:
-			exitSequence_main_region__final_();
 			break;
 		case main_region_Ready:
 			exitSequence_main_region_Ready();
@@ -1340,20 +1330,13 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			exitSequence_main_region_expressoDistributed();
-			enterSequence_main_region__final__default();
-		}
-		if (did_transition==false) {
-			did_transition = react();
-		}
-		return did_transition;
-	}
-	
-	private boolean main_region__final__react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			did_transition = false;
+			if (timeEvents[6]) {
+				exitSequence_main_region_expressoDistributed();
+				enterSequence_main_region_Ready_default();
+				react();
+			} else {
+				did_transition = false;
+			}
 		}
 		if (did_transition==false) {
 			did_transition = react();

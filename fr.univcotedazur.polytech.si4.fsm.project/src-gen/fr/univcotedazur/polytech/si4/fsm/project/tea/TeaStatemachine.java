@@ -327,7 +327,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		main_region_poorIngredient_r2_poorDrink,
 		main_region_poorIngredient_r2_drinkPoored,
 		main_region_DrinkDistribute,
-		main_region__final_,
 		main_region_brew,
 		main_region_dropTeaBag,
 		main_region_Ready,
@@ -340,7 +339,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[6];
+	private final boolean[] timeEvents = new boolean[7];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -431,9 +430,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			case main_region_DrinkDistribute:
 				main_region_DrinkDistribute_react(true);
 				break;
-			case main_region__final_:
-				main_region__final__react(true);
-				break;
 			case main_region_brew:
 				main_region_brew_react(true);
 				break;
@@ -477,10 +473,12 @@ public class TeaStatemachine implements ITeaStatemachine {
 	}
 	
 	/** 
+	* Always returns 'false' since this state machine can never become final.
+	*
 	* @see IStatemachine#isFinal()
 	*/
 	public synchronized boolean isFinal() {
-		return (stateVector[0] == State.main_region__final_) && (stateVector[1] == State.$NullState$);
+		return false;
 	}
 	/**
 	* This method resets the incoming events (time events included).
@@ -531,8 +529,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			return stateVector[1] == State.main_region_poorIngredient_r2_drinkPoored;
 		case main_region_DrinkDistribute:
 			return stateVector[0] == State.main_region_DrinkDistribute;
-		case main_region__final_:
-			return stateVector[0] == State.main_region__final_;
 		case main_region_brew:
 			return stateVector[0] == State.main_region_brew;
 		case main_region_dropTeaBag:
@@ -675,19 +671,21 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	/* Entry action for state 'DrinkDistribute'. */
 	private void entryAction_main_region_DrinkDistribute() {
+		timer.setTimer(this, 4, 100, false);
+		
 		sCInterface.raisePreparationFinished();
 	}
 	
 	/* Entry action for state 'brew'. */
 	private void entryAction_main_region_brew() {
-		timer.setTimer(this, 4, (5 * 1000), false);
+		timer.setTimer(this, 5, (5 * 1000), false);
 		
 		sCInterface.raiseBrewing();
 	}
 	
 	/* Entry action for state 'dropTeaBag'. */
 	private void entryAction_main_region_dropTeaBag() {
-		timer.setTimer(this, 5, (2 * 1000), false);
+		timer.setTimer(this, 6, (2 * 1000), false);
 		
 		sCInterface.raiseDropTeaBag();
 	}
@@ -712,14 +710,19 @@ public class TeaStatemachine implements ITeaStatemachine {
 		timer.unsetTimer(this, 3);
 	}
 	
+	/* Exit action for state 'DrinkDistribute'. */
+	private void exitAction_main_region_DrinkDistribute() {
+		timer.unsetTimer(this, 4);
+	}
+	
 	/* Exit action for state 'brew'. */
 	private void exitAction_main_region_brew() {
-		timer.unsetTimer(this, 4);
+		timer.unsetTimer(this, 5);
 	}
 	
 	/* Exit action for state 'dropTeaBag'. */
 	private void exitAction_main_region_dropTeaBag() {
-		timer.unsetTimer(this, 5);
+		timer.unsetTimer(this, 6);
 	}
 	
 	/* 'default' enter sequence for state prepareIngredient */
@@ -799,12 +802,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		entryAction_main_region_DrinkDistribute();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_DrinkDistribute;
-	}
-	
-	/* Default enter sequence for state null */
-	private void enterSequence_main_region__final__default() {
-		nextStateIndex = 0;
-		stateVector[0] = State.main_region__final_;
 	}
 	
 	/* 'default' enter sequence for state brew */
@@ -930,12 +927,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 	private void exitSequence_main_region_DrinkDistribute() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for final state. */
-	private void exitSequence_main_region__final_() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_DrinkDistribute();
 	}
 	
 	/* Default exit sequence for state brew */
@@ -980,9 +973,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			break;
 		case main_region_DrinkDistribute:
 			exitSequence_main_region_DrinkDistribute();
-			break;
-		case main_region__final_:
-			exitSequence_main_region__final_();
 			break;
 		case main_region_brew:
 			exitSequence_main_region_brew();
@@ -1281,20 +1271,13 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			exitSequence_main_region_DrinkDistribute();
-			enterSequence_main_region__final__default();
-		}
-		if (did_transition==false) {
-			did_transition = react();
-		}
-		return did_transition;
-	}
-	
-	private boolean main_region__final__react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			did_transition = false;
+			if (timeEvents[4]) {
+				exitSequence_main_region_DrinkDistribute();
+				enterSequence_main_region_Ready_default();
+				react();
+			} else {
+				did_transition = false;
+			}
 		}
 		if (did_transition==false) {
 			did_transition = react();
@@ -1306,7 +1289,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[4]) {
+			if (timeEvents[5]) {
 				exitSequence_main_region_brew();
 				enterSequence_main_region_dropTeaBag_default();
 				react();
@@ -1324,7 +1307,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[5]) {
+			if (timeEvents[6]) {
 				exitSequence_main_region_dropTeaBag();
 				enterSequence_main_region_DrinkDistribute_default();
 				react();
