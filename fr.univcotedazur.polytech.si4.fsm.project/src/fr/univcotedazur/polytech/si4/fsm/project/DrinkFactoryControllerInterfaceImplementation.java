@@ -39,6 +39,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.theFSM.setIsSelected(false);
 		factory.theFSM.setIsValidate(true);
 		coins = 0;
+		factory.setPictureCup("./picts/vide2.jpg");
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {

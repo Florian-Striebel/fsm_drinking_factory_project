@@ -42,11 +42,12 @@ public class DrinkFactoryMachine extends JFrame {
 	protected double coin;
 	protected Drink selection;
 	protected JProgressBar progressBar;
+	protected JLabel labelForPictures;
 	protected JLabel lblSugar,lblValidate;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
-	private final ImageIcon imageIcon = new ImageIcon();
+	//private final ImageIcon imageIcon = new ImageIcon();
 
 	/**
 	 * Launch the application.
@@ -75,6 +76,22 @@ public class DrinkFactoryMachine extends JFrame {
 	}
 	public int getTemperature() {
 		return temperatureSlider.getValue();
+	}
+	
+
+	public void setPictureCup(String photo) {
+		BufferedImage myPicture = null;
+		try {
+			myPicture = ImageIO.read(new File(photo));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if(labelForPictures==null) {
+			labelForPictures = new JLabel(new ImageIcon(myPicture));
+		}else {
+			labelForPictures.setIcon(new ImageIcon(myPicture));
+		}
 	}
 	/**
 	 * Create the frame.
@@ -290,13 +307,8 @@ public class DrinkFactoryMachine extends JFrame {
 		takeDrinkButton.setBounds(20, 400, 150, 25);
 		contentPane.add(takeDrinkButton);
 		
-		BufferedImage myPicture = null;
-		try {
-			myPicture = ImageIO.read(new File("./picts/vide2.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		JLabel labelForPictures = new JLabel(new ImageIcon(myPicture));
+		
+		setPictureCup("./picts/vide2.jpg");
 		labelForPictures.setBounds(175, 319, 286, 260);
 		contentPane.add(labelForPictures);
 
@@ -314,13 +326,7 @@ public class DrinkFactoryMachine extends JFrame {
 		addCupButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				BufferedImage myPicture = null;
-				try {
-					myPicture = ImageIO.read(new File("./picts/ownCup.jpg"));
-				} catch (IOException ee) {
-					ee.printStackTrace();
-				}
-				labelForPictures.setIcon(new ImageIcon(myPicture));
+				setPictureCup("./picts/ownCup.jpg");
 			}
 		});
 		cancelButton.addMouseListener(new MouseAdapter() {

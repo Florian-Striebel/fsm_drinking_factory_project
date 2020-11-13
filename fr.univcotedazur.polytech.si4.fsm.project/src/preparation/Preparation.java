@@ -21,7 +21,7 @@ public class Preparation {
 	}
 	
 	protected long timeToHeatingWaterinMS() {
-		return (normalTemperature-temperature)*1000;
+		return (normalTemperature-temperature)*300;
 	}
 	
 	

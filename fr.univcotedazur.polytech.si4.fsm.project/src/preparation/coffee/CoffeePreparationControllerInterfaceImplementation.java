@@ -22,6 +22,7 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 	@Override
 	public void onPlaceCupRaised() {
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
+		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
 	@Override

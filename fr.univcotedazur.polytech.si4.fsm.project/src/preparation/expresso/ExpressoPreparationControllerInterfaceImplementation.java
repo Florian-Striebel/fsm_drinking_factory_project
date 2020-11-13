@@ -19,7 +19,7 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 	@Override
 	public void onPlaceCupRaised() {
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-		System.out.println("Im in");
+		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
 	@Override

@@ -16,37 +16,31 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 
 	@Override
 	public void onPlaceTeaBagRaised() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onPlaceCupRaised() {
-		// TODO Auto-generated method stub
-		
+		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
 	@Override
 	public void onHeatingRaised() {
-		// TODO Auto-generated method stub
 		tea.heatingWater();
 	}
 
 	@Override
 	public void onPooringSugarRaised() {
-		// TODO Auto-generated method stub
 		tea.poorSugar();
 	}
 
 	@Override
 	public void onPooringDrinkRaised() {
-		// TODO Auto-generated method stub
 		tea.poorDrink();
 	}
 
 	@Override
 	public void onPreparationFinishedRaised() {
-		// TODO Auto-generated method stub
 		System.out.println("finish Drink");
 		factory.theFSM.raisePreparationFinished();
 		factory.getProgressBar().setValue(100);	
@@ -55,13 +49,11 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 
 	@Override
 	public void onBrewingRaised() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onDropTeaBagRaised() {
-		// TODO Auto-generated method stub
 		
 	}
 
