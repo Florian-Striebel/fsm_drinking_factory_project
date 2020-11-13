@@ -7,6 +7,7 @@ import drink.Drink;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
 import preparation.coffee.CoffeePreparation;
 import preparation.expresso.ExpressoPreparation;
+import preparation.soup.SoupPreparation;
 import preparation.tea.TeaPreparation;
 
 public class DrinkFactoryControllerInterfaceImplementation implements SCInterfaceListener/*SCInterfaceOperationCallback*/ {
@@ -17,6 +18,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	CoffeePreparation coffee;
 	ExpressoPreparation expresso;
 	TeaPreparation tea;
+	SoupPreparation soup;
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
@@ -25,7 +27,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		coffee= new CoffeePreparation(fact);
 		tea = new TeaPreparation(fact);
 		expresso = new ExpressoPreparation(fact);
-	    
+	    soup = new SoupPreparation(fact);
 	}
 
 	@Override
@@ -88,6 +90,10 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		}else if(factory.selection.equals(Drink.TEA)) {
 			factory.getProgressBar().setValue(0);
 			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+		} else if(factory.selection.equals(Drink.SOUP)) {
+			factory.getProgressBar().setValue(0);
+			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+
 		}
 	}
 
