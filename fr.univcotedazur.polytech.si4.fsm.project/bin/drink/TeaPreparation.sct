@@ -18,7 +18,7 @@
           </vertices>
         </regions>
         <regions xmi:id="_nQsRLw-EEeuqGMS0Lu6UUA" name="r2">
-          <vertices xsi:type="sgraph:State" xmi:id="_nQrqIA-EEeuqGMS0Lu6UUA" name="Heating" incomingTransitions="_nQrqJA-EEeuqGMS0Lu6UUA">
+          <vertices xsi:type="sgraph:State" xmi:id="_nQrqIA-EEeuqGMS0Lu6UUA" specification="entry/raise Heating" name="Heating" incomingTransitions="_nQrqJA-EEeuqGMS0Lu6UUA">
             <outgoingTransitions xmi:id="_Zkm6oA-PEeuqGMS0Lu6UUA" specification="isHot" target="__aDuACAQEeu3H-aGHCLSKQ"/>
           </vertices>
           <vertices xsi:type="sgraph:Entry" xmi:id="_nQrqIw-EEeuqGMS0Lu6UUA">
@@ -556,7 +556,7 @@
     <edges xmi:id="_gFRLQA-PEeuqGMS0Lu6UUA" type="Transition" element="_gFP9IA-PEeuqGMS0Lu6UUA" source="_1HAstSAXEeuK2a_D8BpRBA" target="_1HAs1yAXEeuK2a_D8BpRBA">
       <children xsi:type="notation:DecorationNode" xmi:id="_gFRLRA-PEeuqGMS0Lu6UUA" type="TransitionExpression">
         <styles xsi:type="notation:ShapeStyle" xmi:id="_gFRLRQ-PEeuqGMS0Lu6UUA"/>
-        <layoutConstraint xsi:type="notation:Location" xmi:id="_gFRLRg-PEeuqGMS0Lu6UUA" x="26" y="8"/>
+        <layoutConstraint xsi:type="notation:Location" xmi:id="_gFRLRg-PEeuqGMS0Lu6UUA" x="1" y="41"/>
       </children>
       <styles xsi:type="notation:ConnectorStyle" xmi:id="_gFRLQQ-PEeuqGMS0Lu6UUA" routing="Rectilinear" lineColor="4210752"/>
       <styles xsi:type="notation:FontStyle" xmi:id="_gFRLQw-PEeuqGMS0Lu6UUA" fontName="Verdana"/>

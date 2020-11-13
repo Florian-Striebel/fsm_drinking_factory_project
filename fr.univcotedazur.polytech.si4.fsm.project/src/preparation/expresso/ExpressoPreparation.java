@@ -49,8 +49,10 @@ public class ExpressoPreparation extends Preparation{
 
 
 	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature) {
-		// TODO Auto-generated method stub
-		
+		this.sugarNumber=sugarSize;
+		this.drinkSize=drinkSize;
+		this.temperature=temperature;
+		expressoFSM.raisePrepare();
 	}
 	
 }

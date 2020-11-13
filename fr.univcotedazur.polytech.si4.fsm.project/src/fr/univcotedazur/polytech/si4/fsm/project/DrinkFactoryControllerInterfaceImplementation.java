@@ -87,7 +87,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		}else if(factory.selection.equals(Drink.TEA)) {
 			factory.getProgressBar().setValue(0);
-			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		}
 	}
 

@@ -42,7 +42,7 @@
           </vertices>
         </regions>
         <regions xmi:id="_G3Udeg-BEeuqGMS0Lu6UUA" name="r2">
-          <vertices xsi:type="sgraph:State" xmi:id="_G3Udew-BEeuqGMS0Lu6UUA" name="beginHeating" incomingTransitions="_G3Udfw-BEeuqGMS0Lu6UUA">
+          <vertices xsi:type="sgraph:State" xmi:id="_G3Udew-BEeuqGMS0Lu6UUA" specification="entry/raise Heating" name="beginHeating" incomingTransitions="_G3Udfw-BEeuqGMS0Lu6UUA">
             <outgoingTransitions xmi:id="_s2WyAB__Eeu3H-aGHCLSKQ" specification="isHot" target="_maDXwCAREeu3H-aGHCLSKQ"/>
           </vertices>
           <vertices xsi:type="sgraph:Entry" xmi:id="_G3Udfg-BEeuqGMS0Lu6UUA">

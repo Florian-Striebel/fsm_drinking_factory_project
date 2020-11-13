@@ -596,6 +596,11 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		timer.setTimer(this, 3, 100, true);
 	}
 	
+	/* Entry action for state 'beginHeating'. */
+	private void entryAction_main_region_PlacingPod_r2_beginHeating() {
+		sCInterface.raiseHeating();
+	}
+	
 	/* Entry action for state 'IsHot'. */
 	private void entryAction_main_region_PlacingPod_r2_IsHot() {
 		timer.setTimer(this, 4, 100, true);
@@ -706,6 +711,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* 'default' enter sequence for state beginHeating */
 	private void enterSequence_main_region_PlacingPod_r2_beginHeating_default() {
+		entryAction_main_region_PlacingPod_r2_beginHeating();
 		nextStateIndex = 2;
 		stateVector[2] = State.main_region_PlacingPod_r2_beginHeating;
 	}

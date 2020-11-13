@@ -23,6 +23,12 @@ public class TeaPreparation extends Preparation{
 	}
 	
 	
+	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature) {
+		this.sugarNumber=sugarSize;
+		this.drinkSize=drinkSize;
+		this.temperature=temperature;
+		teaFSM.raisePrepare();
+	}
 	
 	public void heatingWater() {
 		try {

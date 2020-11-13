@@ -649,6 +649,11 @@ public class TeaStatemachine implements ITeaStatemachine {
 		sCInterface.raisePlaceTeaBag();
 	}
 	
+	/* Entry action for state 'Heating'. */
+	private void entryAction_main_region_prepareIngredient_r2_Heating() {
+		sCInterface.raiseHeating();
+	}
+	
 	/* Entry action for state 'IsHot'. */
 	private void entryAction_main_region_prepareIngredient_r2_IsHot() {
 		timer.setTimer(this, 2, 100, true);
@@ -753,6 +758,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	/* 'default' enter sequence for state Heating */
 	private void enterSequence_main_region_prepareIngredient_r2_Heating_default() {
+		entryAction_main_region_prepareIngredient_r2_Heating();
 		nextStateIndex = 1;
 		stateVector[1] = State.main_region_prepareIngredient_r2_Heating;
 	}
