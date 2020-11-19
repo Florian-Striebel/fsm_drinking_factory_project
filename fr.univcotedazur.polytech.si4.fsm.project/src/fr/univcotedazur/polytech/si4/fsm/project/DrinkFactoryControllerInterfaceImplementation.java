@@ -42,6 +42,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.theFSM.setIsValidate(true);
 		coins = 0;
 		factory.setPictureCup("./picts/vide2.jpg");
+		factory.reactivateNFC(); 
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
@@ -52,7 +53,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoSelectionRaised() {
 		factory.display();
-		price = factory.selection.getPrice();
+		price = factory.calculPrixAvecReduction(factory.getNfcId(), factory.selection.getPrice());
 		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName());
 		if(coins>= price)
 			factory.theFSM.setIsPaid(true);
@@ -73,13 +74,18 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	}
 	@Override
 	public void onDoMoneyBackRaised() {
-		if (coins > price)
+		if (coins > price) {
 			factory.messagesToUser.setText("<html> Rendu de "+df.format(coins-price)+"€");
+		}else {
+			System.out.println("prix"+df.format(price));
+			factory.messagesToUser.setText("<html> vous avez payé "+df.format(price)+"€");
+		}
 		factory.theFSM.raiseMoneyBack();
 
 	}
 	@Override
 	public void onDoStartPreparationRaised() {
+		factory.ajouterPrixBoissonAClient(factory.getNfcId(), factory.selection.getPrice());
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
 		if(factory.selection.equals(Drink.COFFE)) {
 			factory.getProgressBar().setValue(0);

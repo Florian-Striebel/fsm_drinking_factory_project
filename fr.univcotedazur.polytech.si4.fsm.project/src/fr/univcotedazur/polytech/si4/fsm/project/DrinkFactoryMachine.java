@@ -9,9 +9,13 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
@@ -44,6 +49,9 @@ public class DrinkFactoryMachine extends JFrame {
 	protected JProgressBar progressBar;
 	protected JLabel labelForPictures;
 	protected JLabel lblSugar,lblValidate;
+	protected JTextField nfcUserId;
+	protected HashMap<String, List<Double>> drinkPaidByNfcForAUser;
+	
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -64,13 +72,17 @@ public class DrinkFactoryMachine extends JFrame {
 			}
 		});
 	}
+	
+	public String getNfcId() {
+		return nfcUserId.getText();
+	}
 	public JProgressBar getProgressBar() {
 		return progressBar;
 	}
 	public int getSugarSize() {
 		return sugarSlider.getValue();
 	}
-	
+
 	public DrinkSize getDrinkSize() {
 		return DrinkSize.values()[sizeSlider.getValue()];
 	}
@@ -78,7 +90,10 @@ public class DrinkFactoryMachine extends JFrame {
 		return temperatureSlider.getValue();
 	}
 	
-
+	public void reactivateNFC() {
+		nfcUserId.setEditable(true);
+	}
+	 
 	public void setPictureCup(String photo) {
 		BufferedImage myPicture = null;
 		try {
@@ -97,6 +112,7 @@ public class DrinkFactoryMachine extends JFrame {
 	 * Create the frame.
 	 */
 	public DrinkFactoryMachine() {
+		drinkPaidByNfcForAUser = new HashMap<>();
 		theFSM= new FactoryStatemachine();
 		TimerService timer = new TimerService();
 		theFSM.setTimer(timer);
@@ -276,13 +292,19 @@ public class DrinkFactoryMachine extends JFrame {
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBackground(Color.DARK_GRAY);
-		panel_1.setBounds(538, 154, 96, 40);
-		contentPane.add(panel_1);
-
+		panel_1.setBounds(538, 154, 86, 70);
+        contentPane.add(panel_1);
+		
+		nfcUserId = new JTextField(7);
+		nfcUserId.setForeground(Color.WHITE);
+		nfcUserId.setBackground(Color.DARK_GRAY);
+		panel_1.add(nfcUserId);
+		
 		JButton nfcBiiiipButton = new JButton("biiip");
 		nfcBiiiipButton.setForeground(Color.WHITE);
 		nfcBiiiipButton.setBackground(Color.DARK_GRAY);
 		panel_1.add(nfcBiiiipButton);
+
 
 		JLabel lblNfc = new JLabel("NFC");
 		lblNfc.setForeground(Color.WHITE);
@@ -425,9 +447,14 @@ public class DrinkFactoryMachine extends JFrame {
 		nfcBiiiipButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.raisePaidNFC();
-				theFSM.raiseDoAction();
-
+				if(nfcUserId.getText().isEmpty()) {
+					messagesToUser.setText("bad read nfc");
+				}else {
+					nfcUserId.setEnabled(false);
+					theFSM.raisePaidNFC();
+					theFSM.raiseDoAction();
+					messagesToUser.setText("réduction dans "+nombreDAchatAvantReduc(nfcUserId.getText())+" boissons");
+				}
 			}
 		});
 
@@ -449,5 +476,45 @@ public class DrinkFactoryMachine extends JFrame {
 
 		}
 		
+	}
+	
+	public void ajouterPrixBoissonAClient(String id,double prix){
+		if(drinkPaidByNfcForAUser.containsKey(id)){
+			drinkPaidByNfcForAUser.get(id).add(prix);
+			System.out.println(id+" list size" + drinkPaidByNfcForAUser.get(id).size());
+		}else {
+			List<Double> list =new ArrayList<>();
+			list.add(prix);
+			drinkPaidByNfcForAUser.put(id, list);
+			System.out.println(id+" list size" + drinkPaidByNfcForAUser.get(id).size());
+		}
+	}
+	
+	public  int  nombreDAchatAvantReduc(String id) {
+		if(drinkPaidByNfcForAUser.containsKey(id)){
+			return 10- drinkPaidByNfcForAUser.get(id).size()%10;
+		}else {
+			System.out.println(id+"list"+drinkPaidByNfcForAUser.get(id));
+			return 10;
+		}
+	}
+	
+	public double calculPrixAvecReduction(String id,double prixBoisson) {
+		
+		if(drinkPaidByNfcForAUser.get(id)!=null && drinkPaidByNfcForAUser.get(id).size()%10==0) {
+			return Math.max(0, prixBoisson-calculPrixMoy10DerBoisson(drinkPaidByNfcForAUser.get(id)));
+		}else {
+			return prixBoisson;
+		}
+		
+	}
+	
+	private double calculPrixMoy10DerBoisson(List<Double> prix) {
+		Double moyenne = 0.0;
+		for(int i=10;i<=1;i--) {
+			moyenne = prix.get(prix.size()-i);
+		}
+		
+		return moyenne/10;
 	}
 }
