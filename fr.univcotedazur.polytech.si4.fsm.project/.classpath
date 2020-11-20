@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="picts"/>
 	<classpathentry kind="src" path="src-gen"/>
+	<classpathentry kind="lib" path="C:/Users/flori/Downloads/gson-2.8.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

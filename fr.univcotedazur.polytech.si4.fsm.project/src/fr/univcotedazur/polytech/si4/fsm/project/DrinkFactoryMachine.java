@@ -50,7 +50,7 @@ public class DrinkFactoryMachine extends JFrame {
 	protected JLabel labelForPictures;
 	protected JLabel lblSugar,lblValidate;
 	protected JTextField nfcUserId;
-	protected HashMap<String, List<Double>> drinkPaidByNfcForAUser;
+	protected GestionnaireDeRduction gReduc;
 	
 	/**
 	 * @wbp.nonvisual location=311,475
@@ -112,7 +112,7 @@ public class DrinkFactoryMachine extends JFrame {
 	 * Create the frame.
 	 */
 	public DrinkFactoryMachine() {
-		drinkPaidByNfcForAUser = new HashMap<>();
+		gReduc = new GestionnaireDeRduction();
 		theFSM= new FactoryStatemachine();
 		TimerService timer = new TimerService();
 		theFSM.setTimer(timer);
@@ -410,6 +410,7 @@ public class DrinkFactoryMachine extends JFrame {
 			}
 		});
 		validateButton.addMouseListener(new MouseAdapter() {
+			
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				theFSM.setIsValidate(true);
@@ -453,7 +454,6 @@ public class DrinkFactoryMachine extends JFrame {
 					nfcUserId.setEnabled(false);
 					theFSM.raisePaidNFC();
 					theFSM.raiseDoAction();
-					messagesToUser.setText("réduction dans "+nombreDAchatAvantReduc(nfcUserId.getText())+" boissons");
 				}
 			}
 		});
@@ -477,44 +477,15 @@ public class DrinkFactoryMachine extends JFrame {
 		}
 		
 	}
-	
-	public void ajouterPrixBoissonAClient(String id,double prix){
-		if(drinkPaidByNfcForAUser.containsKey(id)){
-			drinkPaidByNfcForAUser.get(id).add(prix);
-			System.out.println(id+" list size" + drinkPaidByNfcForAUser.get(id).size());
-		}else {
-			List<Double> list =new ArrayList<>();
-			list.add(prix);
-			drinkPaidByNfcForAUser.put(id, list);
-			System.out.println(id+" list size" + drinkPaidByNfcForAUser.get(id).size());
-		}
+
+	public double calculPrixAvecReduction(String nfcId, float price) {
+		// TODO Auto-generated method stub
+		return gReduc.calculPrixAvecReduction(nfcId, price);
 	}
-	
-	public  int  nombreDAchatAvantReduc(String id) {
-		if(drinkPaidByNfcForAUser.containsKey(id)){
-			return 10- drinkPaidByNfcForAUser.get(id).size()%10;
-		}else {
-			System.out.println(id+"list"+drinkPaidByNfcForAUser.get(id));
-			return 10;
-		}
-	}
-	
-	public double calculPrixAvecReduction(String id,double prixBoisson) {
-		
-		if(drinkPaidByNfcForAUser.get(id)!=null && drinkPaidByNfcForAUser.get(id).size()%10==0) {
-			return Math.max(0, prixBoisson-calculPrixMoy10DerBoisson(drinkPaidByNfcForAUser.get(id)));
-		}else {
-			return prixBoisson;
-		}
+
+	public void ajouterPrixBoissonAClient(String nfcId, float price) {
+		gReduc.ajouterPrixBoissonAClient(nfcId, price);
 		
 	}
-	
-	private double calculPrixMoy10DerBoisson(List<Double> prix) {
-		Double moyenne = 0.0;
-		for(int i=10;i<=1;i--) {
-			moyenne = prix.get(prix.size()-i);
-		}
-		
-		return moyenne/10;
-	}
+
 }
