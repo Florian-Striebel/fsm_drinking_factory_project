@@ -32,6 +32,12 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedPooringSpice();
 		
+		public boolean isRaisedAddingBread();
+		
+		public boolean getOptionBread();
+		
+		public void setOptionBread(boolean value);
+		
 	public List<SCInterfaceListener> getListeners();
 	}
 	
@@ -42,6 +48,7 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 		public void onPooringDrinkRaised();
 		public void onPreparationFinishedRaised();
 		public void onPooringSpiceRaised();
+		public void onAddingBreadRaised();
 		}
 	
 	public SCInterface getSCInterface();

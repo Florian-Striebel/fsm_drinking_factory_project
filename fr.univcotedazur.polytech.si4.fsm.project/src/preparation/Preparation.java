@@ -12,18 +12,15 @@ public class Preparation {
 		this.temperature= temprature;
 	}
 	
-	protected double timeToPoorSugarInMs(){
+	public int timeToPoorSugarInMs(){
 		return 10*sugarNumber;//100ms pour 1 sucre
 	}
 	
-	protected long timeToPoorDrinkInMs() {
+	public int timeToPoorDrinkInMs() {
 		return drinkSize.cl*300;//300ms pour 1cl 
 	}
 	
 	protected long timeToHeatingWaterinMS() {
 		return (normalTemperature-temperature)*300;
 	}
-	
-	
-	
 }

@@ -56,5 +56,11 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 		
 	}
 
+	@Override
+	public void onAddingBreadRaised() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

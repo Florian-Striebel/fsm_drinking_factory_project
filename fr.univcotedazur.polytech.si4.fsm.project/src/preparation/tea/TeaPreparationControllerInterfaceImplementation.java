@@ -28,17 +28,7 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 	public void onHeatingRaised() {
 		tea.heatingWater();
 	}
-
-	@Override
-	public void onPooringSugarRaised() {
-		tea.poorSugar();
-	}
-
-	@Override
-	public void onPooringDrinkRaised() {
-		tea.poorDrink();
-	}
-
+	
 	@Override
 	public void onPreparationFinishedRaised() {
 		System.out.println("finish Drink");

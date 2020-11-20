@@ -3,6 +3,7 @@ package fr.univcotedazur.polytech.si4.fsm.project.tea;
 
 import fr.univcotedazur.polytech.si4.fsm.project.IStatemachine;
 import fr.univcotedazur.polytech.si4.fsm.project.ITimerCallback;
+import fr.univcotedazur.polytech.si4.fsm.project.pooringredient.PoorIngredientStatemachine;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -18,10 +19,6 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseIsHot();
 		
-		public void raiseSugarFinishPoored();
-		
-		public void raiseDrinkFinishPoored();
-		
 		public void raiseDrinkPickedUp();
 		
 		public void raisePrepare();
@@ -32,15 +29,15 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedHeating();
 		
-		public boolean isRaisedPooringSugar();
-		
-		public boolean isRaisedPooringDrink();
-		
 		public boolean isRaisedPreparationFinished();
 		
 		public boolean isRaisedBrewing();
 		
 		public boolean isRaisedDropTeaBag();
+		
+		public PoorIngredientStatemachine getPoorI();
+		
+		public void setPoorI(PoorIngredientStatemachine value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}
@@ -50,8 +47,6 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		public void onPlaceTeaBagRaised();
 		public void onPlaceCupRaised();
 		public void onHeatingRaised();
-		public void onPooringSugarRaised();
-		public void onPooringDrinkRaised();
 		public void onPreparationFinishedRaised();
 		public void onBrewingRaised();
 		public void onDropTeaBagRaised();

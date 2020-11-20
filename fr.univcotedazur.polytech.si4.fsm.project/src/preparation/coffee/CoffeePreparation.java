@@ -3,29 +3,32 @@ package preparation.coffee;
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.TimerService;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.CoffeeStatemachine;
+import fr.univcotedazur.polytech.si4.fsm.project.pooringredient.PoorIngredientStatemachine;
 import preparation.DrinkSize;
 import preparation.Preparation;
+import preparation.poorIngredient.PoorIngredient;
 
 
 
 public class CoffeePreparation extends Preparation{
 	CoffeeStatemachine coffeeFsm;
+	PoorIngredient poorIngredient;
 	
 	public CoffeePreparation(DrinkFactoryMachine drinkFactory) {
 		super(1, DrinkSize.MEDIUM,60);
-		coffeeFsm=new CoffeeStatemachine();
-		
-		coffeeFsm.getSCInterface().getListeners().add(new CoffeePreparationControllerInterfaceImplementation(this,drinkFactory));
 		TimerService timer = new TimerService();
+		poorIngredient = new PoorIngredient(drinkFactory);
+		coffeeFsm=new CoffeeStatemachine();
+		coffeeFsm.getSCInterface().getListeners().add(new CoffeePreparationControllerInterfaceImplementation(this,drinkFactory));
 		coffeeFsm.setTimer(timer);
+		coffeeFsm.setPoorI(poorIngredient.getPoorIngredientFSM());
 		coffeeFsm.init();
 		coffeeFsm.enter();
 		System.out.println("enter coffee fsm");
 	}
 	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature) {
-		this.sugarNumber=sugarNumber;
-		this.drinkSize=drinkSize;
 		this.temperature=temperature;
+		poorIngredient.prepare(sugarNumber, drinkSize);
 		coffeeFsm.raisePrepare();
 		System.out.println("Raise Prepapare launch");
 	}
@@ -38,21 +41,6 @@ public class CoffeePreparation extends Preparation{
 			e.printStackTrace();
 		}
 	}
-	public void poorDrink() {
-		try {
-			Thread.sleep(this.timeToPoorDrinkInMs());
-			coffeeFsm.raiseDrinkFinishPoored();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	public void poorSugar() {
-		try {
-			Thread.sleep(this.timeToPoorDrinkInMs());
-			coffeeFsm.raiseSugarFinishPoored();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+
 }
 

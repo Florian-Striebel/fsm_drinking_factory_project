@@ -27,18 +27,6 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 		expresso.heatingWater();
 	}
 
-	@Override
-	public void onPooringSugarRaised() {
-		expresso.poorSugar();
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-	}
-
-	@Override
-	public void onPooringDrinkRaised() {
-		expresso.poorDrink();
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-
-	}
 
 	@Override
 	public void onGrindingCoffeeRaised() {		

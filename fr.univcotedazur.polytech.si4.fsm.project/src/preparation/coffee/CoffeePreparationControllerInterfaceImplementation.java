@@ -16,11 +16,13 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 
 	@Override
 	public void onPlacePodRaised() {
+		System.out.println("place pod");
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
 	public void onPlaceCupRaised() {
+		System.out.println("place cup");
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
@@ -28,20 +30,7 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 	@Override
 	public void onHeatingRaised() {
 		coffee.heatingWater();
-	}
-
-	@Override
-	public void onPooringSugarRaised() {
-
-		coffee.poorSugar();
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-	}
-
-	@Override
-	public void onPooringDrinkRaised() {
-		System.out.println("pooring Drink");
-		coffee.poorDrink();
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
+		System.out.println("hot");
 	}
 
 	@Override
