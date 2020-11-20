@@ -12,6 +12,8 @@ import java.util.Scanner;
 
 import com.google.gson.Gson;
 
+import drink.Ingredient;
+
 public class GestionnaireDeRduction {
 	protected Map<String, List<Double>> drinkPaidByNfcForAUser;
 	protected File storage;
@@ -94,11 +96,11 @@ public class GestionnaireDeRduction {
 			writter.write(json.getBytes());
 			writter.close();
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 	}
+	
+
 }
