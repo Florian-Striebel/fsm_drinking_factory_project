@@ -2,7 +2,7 @@ package drink;
 
 public enum Ingredient {
 	DOSETTECAFE(0),
-	GRAINCAFE(1),
+	DOSEGRAINCAFE(1),
 	SACHETTHE(2),
 	DOSESOUPE(3);
 	

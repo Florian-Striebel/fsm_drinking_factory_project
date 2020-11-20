@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 import drink.Drink;
+import drink.Ingredient;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
 import preparation.coffee.CoffeePreparation;
 import preparation.expresso.ExpressoPreparation;
@@ -42,7 +43,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.theFSM.setIsValidate(true);
 		coins = 0;
 		factory.setPictureCup("./picts/vide2.jpg");
-		factory.reactivateNFC(); 
+		factory.reactivateNFC();
+		factory.disableDrinkIndisponnible();
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
@@ -88,15 +90,19 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.ajouterPrixBoissonAClient(factory.getNfcId(), factory.selection.getPrice());
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
 		if(factory.selection.equals(Drink.COFFE)) {
+			factory.decremente(Ingredient.DOSETTECAFE);
 			factory.getProgressBar().setValue(0);
 			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		}else if(factory.selection.equals(Drink.EXPRESSO)) {
+			factory.decremente(Ingredient.DOSEGRAINCAFE);
 			factory.getProgressBar().setValue(0);
 			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		}else if(factory.selection.equals(Drink.TEA)) {
+			factory.decremente(Ingredient.SACHETTHE);
 			factory.getProgressBar().setValue(0);
 			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 		} else if(factory.selection.equals(Drink.SOUP)) {
+			factory.decremente(Ingredient.DOSESOUPE);
 			factory.getProgressBar().setValue(0);
 			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
 
