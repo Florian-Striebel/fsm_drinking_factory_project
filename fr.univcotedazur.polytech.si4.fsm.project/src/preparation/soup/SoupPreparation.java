@@ -1,6 +1,9 @@
 package preparation.soup;
 
+import java.util.HashMap;
+
 import drink.Drink;
+import drink.Option;
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.TimerService;
 import fr.univcotedazur.polytech.si4.fsm.project.soup.SoupStatemachine;
@@ -22,10 +25,12 @@ public class SoupPreparation extends Preparation{
 	}
 	
 
-	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature) {
+	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature,HashMap<Option,Boolean> options) {
 		this.sugarNumber=sugarNumber;
 		this.drinkSize=drinkSize;
 		this.temperature=temperature;
+		soupFSM.setOptionBread(options.get(Option.BREAD_CROUTONS));
+		soupFSM.setTimePoorDrink(timeToPoorDrinkInMs());
 		soupFSM.raisePrepare();
 		System.out.println("Raise Prepapare launch");
 	}
@@ -42,14 +47,6 @@ public class SoupPreparation extends Preparation{
 		try {
 			Thread.sleep(this.timeToPoorDrinkInMs());
 			soupFSM.raiseSpiceFinishPoored();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	public void poorDrink() {
-		try {
-			Thread.sleep(this.timeToPoorDrinkInMs());
-			soupFSM.raiseDrinkFinishPoored();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

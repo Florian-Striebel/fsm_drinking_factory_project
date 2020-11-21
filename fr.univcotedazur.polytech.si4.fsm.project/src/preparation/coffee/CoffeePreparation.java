@@ -1,5 +1,8 @@
 package preparation.coffee;
 
+import java.util.HashMap;
+
+import drink.Option;
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.TimerService;
 import fr.univcotedazur.polytech.si4.fsm.project.coffee.CoffeeStatemachine;
@@ -26,9 +29,10 @@ public class CoffeePreparation extends Preparation{
 		coffeeFsm.enter();
 		System.out.println("enter coffee fsm");
 	}
-	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature) {
+	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature,HashMap<Option,Boolean> options) {
 		this.temperature=temperature;
-		poorIngredient.prepare(sugarNumber, drinkSize);
+		poorIngredient.prepare(sugarNumber, drinkSize,options);
+		coffeeFsm.setMilk(options.get(Option.MILK));
 		coffeeFsm.raisePrepare();
 		System.out.println("Raise Prepapare launch");
 	}

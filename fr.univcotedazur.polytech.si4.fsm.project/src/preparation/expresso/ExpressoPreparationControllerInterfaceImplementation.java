@@ -50,6 +50,12 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 	}
 
 
+	@Override
+	public void onAddingMilkRaised() {
+		System.out.println("add milk");
+		
+	}
+
 
 
 }

@@ -14,8 +14,6 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 	
 		public void raiseIsHot();
 		
-		public void raiseDrinkFinishPoored();
-		
 		public void raiseDrinkPickedUp();
 		
 		public void raiseSpiceFinishPoored();
@@ -37,6 +35,10 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 		public boolean getOptionBread();
 		
 		public void setOptionBread(boolean value);
+		
+		public long getTimePoorDrink();
+		
+		public void setTimePoorDrink(long value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}

@@ -29,9 +29,15 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedHeating();
 		
+		public boolean isRaisedAddingMilk();
+		
 		public PoorIngredientStatemachine getPoorI();
 		
 		public void setPoorI(PoorIngredientStatemachine value);
+		
+		public boolean getMilk();
+		
+		public void setMilk(boolean value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}
@@ -43,6 +49,7 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 		public void onGroundingCoffeeRaised();
 		public void onPlaceCupRaised();
 		public void onHeatingRaised();
+		public void onAddingMilkRaised();
 		}
 	
 	public SCInterface getSCInterface();

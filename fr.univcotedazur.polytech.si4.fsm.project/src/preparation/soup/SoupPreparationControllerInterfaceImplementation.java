@@ -19,7 +19,7 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 		// TODO Auto-generated method stub
 
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-		System.out.println("Im in");
+		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
 	@Override
@@ -30,11 +30,9 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 	}
 
 	
-
 	@Override
 	public void onPooringDrinkRaised() {
 		// TODO Auto-generated method stub
-		soup.poorDrink();
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
@@ -59,7 +57,8 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 	@Override
 	public void onAddingBreadRaised() {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Adding Bread");
+
 	}
 
 

@@ -35,9 +35,15 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedDropTeaBag();
 		
+		public boolean isRaisedAddingMilk();
+		
 		public PoorIngredientStatemachine getPoorI();
 		
 		public void setPoorI(PoorIngredientStatemachine value);
+		
+		public boolean getMilk();
+		
+		public void setMilk(boolean value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}
@@ -50,6 +56,7 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		public void onPreparationFinishedRaised();
 		public void onBrewingRaised();
 		public void onDropTeaBagRaised();
+		public void onAddingMilkRaised();
 		}
 	
 	public SCInterface getSCInterface();

@@ -50,6 +50,8 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedAddedCoin();
 		
+		public boolean isRaisedDoPreparation();
+		
 		public boolean getIsSelected();
 		
 		public void setIsSelected(boolean value);
@@ -77,6 +79,7 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		public void onDoStartPreparationRaised();
 		public void onDoSelectionRaised();
 		public void onAddedCoinRaised();
+		public void onDoPreparationRaised();
 		}
 	
 	public SCInterface getSCInterface();

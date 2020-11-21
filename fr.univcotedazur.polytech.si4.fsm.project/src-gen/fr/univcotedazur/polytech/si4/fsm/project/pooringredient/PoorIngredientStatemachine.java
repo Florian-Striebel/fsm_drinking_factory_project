@@ -3,6 +3,7 @@ package fr.univcotedazur.polytech.si4.fsm.project.pooringredient;
 
 import fr.univcotedazur.polytech.si4.fsm.project.ITimer;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -10,6 +11,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	protected class SCInterfaceImpl implements SCInterface {
 	
+		private List<SCInterfaceListener> listeners = new LinkedList<SCInterfaceListener>();
+		
+		public List<SCInterfaceListener> getListeners() {
+			return listeners;
+		}
 		private boolean sugarFinishPoored;
 		
 		
@@ -46,6 +52,42 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 			}
 		}
 		
+		private boolean pooringSyrup;
+		
+		
+		public boolean isRaisedPooringSyrup() {
+			synchronized(PoorIngredientStatemachine.this) {
+				return pooringSyrup;
+			}
+		}
+		
+		protected void raisePooringSyrup() {
+			synchronized(PoorIngredientStatemachine.this) {
+				pooringSyrup = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onPooringSyrupRaised();
+				}
+			}
+		}
+		
+		private boolean doAddMixIcecream;
+		
+		
+		public boolean isRaisedDoAddMixIcecream() {
+			synchronized(PoorIngredientStatemachine.this) {
+				return doAddMixIcecream;
+			}
+		}
+		
+		protected void raiseDoAddMixIcecream() {
+			synchronized(PoorIngredientStatemachine.this) {
+				doAddMixIcecream = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onDoAddMixIcecreamRaised();
+				}
+			}
+		}
+		
 		private long timeSugar;
 		
 		public synchronized long getTimeSugar() {
@@ -74,10 +116,44 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 			}
 		}
 		
+		private boolean mappleSyrup;
+		
+		public synchronized boolean getMappleSyrup() {
+			synchronized(PoorIngredientStatemachine.this) {
+				return mappleSyrup;
+			}
+		}
+		
+		public void setMappleSyrup(boolean value) {
+			synchronized(PoorIngredientStatemachine.this) {
+				this.mappleSyrup = value;
+			}
+		}
+		
+		private boolean iceCream;
+		
+		public synchronized boolean getIceCream() {
+			synchronized(PoorIngredientStatemachine.this) {
+				return iceCream;
+			}
+		}
+		
+		public void setIceCream(boolean value) {
+			synchronized(PoorIngredientStatemachine.this) {
+				this.iceCream = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			sugarFinishPoored = false;
 			drinkFinishPoored = false;
 		}
+		protected void clearOutEvents() {
+		
+		pooringSyrup = false;
+		doAddMixIcecream = false;
+		}
+		
 	}
 	
 	
@@ -88,10 +164,12 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	public enum State {
 		main_region_poorIngredient,
 		main_region_poorIngredient_r1_poorSugar,
-		main_region_poorIngredient_r1_sugarPoored,
+		main_region_poorIngredient_r1_sugarOrSyrupPoored,
+		main_region_poorIngredient_r1_syrupPoor,
 		main_region_poorIngredient_r2_poorDrink,
 		main_region_poorIngredient_r2_drinkPoored,
 		main_region__final_,
+		main_region_add_mixIcream,
 		$NullState$
 	};
 	
@@ -101,7 +179,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[3];
+	private final boolean[] timeEvents = new boolean[5];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -122,6 +200,10 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		sCInterface.setTimeSugar(0);
 		
 		sCInterface.setTimeDrink(0);
+		
+		sCInterface.setMappleSyrup(false);
+		
+		sCInterface.setIceCream(false);
 	}
 	
 	public synchronized void enter() {
@@ -168,8 +250,11 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 			case main_region_poorIngredient_r1_poorSugar:
 				main_region_poorIngredient_r1_poorSugar_react(true);
 				break;
-			case main_region_poorIngredient_r1_sugarPoored:
-				main_region_poorIngredient_r1_sugarPoored_react(true);
+			case main_region_poorIngredient_r1_sugarOrSyrupPoored:
+				main_region_poorIngredient_r1_sugarOrSyrupPoored_react(true);
+				break;
+			case main_region_poorIngredient_r1_syrupPoor:
+				main_region_poorIngredient_r1_syrupPoor_react(true);
 				break;
 			case main_region_poorIngredient_r2_poorDrink:
 				main_region_poorIngredient_r2_poorDrink_react(true);
@@ -179,6 +264,9 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 				break;
 			case main_region__final_:
 				main_region__final__react(true);
+				break;
+			case main_region_add_mixIcream:
+				main_region_add_mixIcream_react(true);
 				break;
 			default:
 				// $NullState$
@@ -233,6 +321,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	* This method resets the outgoing events.
 	*/
 	protected void clearOutEvents() {
+		sCInterface.clearOutEvents();
 	}
 	
 	/**
@@ -246,14 +335,18 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 					main_region_poorIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_poorIngredient_r2_drinkPoored.ordinal();
 		case main_region_poorIngredient_r1_poorSugar:
 			return stateVector[0] == State.main_region_poorIngredient_r1_poorSugar;
-		case main_region_poorIngredient_r1_sugarPoored:
-			return stateVector[0] == State.main_region_poorIngredient_r1_sugarPoored;
+		case main_region_poorIngredient_r1_sugarOrSyrupPoored:
+			return stateVector[0] == State.main_region_poorIngredient_r1_sugarOrSyrupPoored;
+		case main_region_poorIngredient_r1_syrupPoor:
+			return stateVector[0] == State.main_region_poorIngredient_r1_syrupPoor;
 		case main_region_poorIngredient_r2_poorDrink:
 			return stateVector[1] == State.main_region_poorIngredient_r2_poorDrink;
 		case main_region_poorIngredient_r2_drinkPoored:
 			return stateVector[1] == State.main_region_poorIngredient_r2_drinkPoored;
 		case main_region__final_:
 			return stateVector[0] == State.main_region__final_;
+		case main_region_add_mixIcream:
+			return stateVector[0] == State.main_region_add_mixIcream;
 		default:
 			return false;
 		}
@@ -302,6 +395,14 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		sCInterface.raiseDrinkFinishPoored();
 	}
 	
+	public synchronized boolean isRaisedPooringSyrup() {
+		return sCInterface.isRaisedPooringSyrup();
+	}
+	
+	public synchronized boolean isRaisedDoAddMixIcecream() {
+		return sCInterface.isRaisedDoAddMixIcecream();
+	}
+	
 	public synchronized long getTimeSugar() {
 		return sCInterface.getTimeSugar();
 	}
@@ -318,19 +419,73 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		sCInterface.setTimeDrink(value);
 	}
 	
+	public synchronized boolean getMappleSyrup() {
+		return sCInterface.getMappleSyrup();
+	}
+	
+	public synchronized void setMappleSyrup(boolean value) {
+		sCInterface.setMappleSyrup(value);
+	}
+	
+	public synchronized boolean getIceCream() {
+		return sCInterface.getIceCream();
+	}
+	
+	public synchronized void setIceCream(boolean value) {
+		sCInterface.setIceCream(value);
+	}
+	
+	private boolean check_main_region_poorIngredient_r1__choice_0_tr1_tr1() {
+		return sCInterface.getMappleSyrup();
+	}
+	
+	private boolean check_main_region__choice_0_tr0_tr0() {
+		return sCInterface.getIceCream();
+	}
+	
+	private void effect_main_region_poorIngredient_r1__choice_0_tr1() {
+		enterSequence_main_region_poorIngredient_r1_syrupPoor_default();
+	}
+	
+	private void effect_main_region_poorIngredient_r1__choice_0_tr0() {
+		enterSequence_main_region_poorIngredient_r1_poorSugar_default();
+	}
+	
+	private void effect_main_region__choice_0_tr0() {
+		enterSequence_main_region_add_mixIcream_default();
+	}
+	
+	private void effect_main_region__choice_0_tr1() {
+		enterSequence_main_region__final__default();
+	}
+	
 	/* Entry action for state 'poorSugar'. */
 	private void entryAction_main_region_poorIngredient_r1_poorSugar() {
 		timer.setTimer(this, 0, sCInterface.getTimeSugar(), false);
 	}
 	
+	/* Entry action for state 'syrupPoor'. */
+	private void entryAction_main_region_poorIngredient_r1_syrupPoor() {
+		timer.setTimer(this, 1, (3 * 1000), false);
+		
+		sCInterface.raisePooringSyrup();
+	}
+	
 	/* Entry action for state 'poorDrink'. */
 	private void entryAction_main_region_poorIngredient_r2_poorDrink() {
-		timer.setTimer(this, 1, sCInterface.getTimeDrink(), false);
+		timer.setTimer(this, 2, sCInterface.getTimeDrink(), false);
 	}
 	
 	/* Entry action for state 'drinkPoored'. */
 	private void entryAction_main_region_poorIngredient_r2_drinkPoored() {
-		timer.setTimer(this, 2, 100, true);
+		timer.setTimer(this, 3, 100, true);
+	}
+	
+	/* Entry action for state 'add&mixIcream'. */
+	private void entryAction_main_region_add_mixIcream() {
+		timer.setTimer(this, 4, (4 * 1000), false);
+		
+		sCInterface.raiseDoAddMixIcecream();
 	}
 	
 	/* Exit action for state 'poorSugar'. */
@@ -338,14 +493,24 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		timer.unsetTimer(this, 0);
 	}
 	
+	/* Exit action for state 'syrupPoor'. */
+	private void exitAction_main_region_poorIngredient_r1_syrupPoor() {
+		timer.unsetTimer(this, 1);
+	}
+	
 	/* Exit action for state 'poorDrink'. */
 	private void exitAction_main_region_poorIngredient_r2_poorDrink() {
-		timer.unsetTimer(this, 1);
+		timer.unsetTimer(this, 2);
 	}
 	
 	/* Exit action for state 'drinkPoored'. */
 	private void exitAction_main_region_poorIngredient_r2_drinkPoored() {
-		timer.unsetTimer(this, 2);
+		timer.unsetTimer(this, 3);
+	}
+	
+	/* Exit action for state 'add&mixIcream'. */
+	private void exitAction_main_region_add_mixIcream() {
+		timer.unsetTimer(this, 4);
 	}
 	
 	/* 'default' enter sequence for state poorIngredient */
@@ -361,10 +526,17 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		stateVector[0] = State.main_region_poorIngredient_r1_poorSugar;
 	}
 	
-	/* 'default' enter sequence for state sugarPoored */
-	private void enterSequence_main_region_poorIngredient_r1_sugarPoored_default() {
+	/* 'default' enter sequence for state sugarOrSyrupPoored */
+	private void enterSequence_main_region_poorIngredient_r1_sugarOrSyrupPoored_default() {
 		nextStateIndex = 0;
-		stateVector[0] = State.main_region_poorIngredient_r1_sugarPoored;
+		stateVector[0] = State.main_region_poorIngredient_r1_sugarOrSyrupPoored;
+	}
+	
+	/* 'default' enter sequence for state syrupPoor */
+	private void enterSequence_main_region_poorIngredient_r1_syrupPoor_default() {
+		entryAction_main_region_poorIngredient_r1_syrupPoor();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_poorIngredient_r1_syrupPoor;
 	}
 	
 	/* 'default' enter sequence for state poorDrink */
@@ -385,6 +557,13 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	private void enterSequence_main_region__final__default() {
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region__final_;
+	}
+	
+	/* 'default' enter sequence for state add&mixIcream */
+	private void enterSequence_main_region_add_mixIcream_default() {
+		entryAction_main_region_add_mixIcream();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_add_mixIcream;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -416,10 +595,18 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		exitAction_main_region_poorIngredient_r1_poorSugar();
 	}
 	
-	/* Default exit sequence for state sugarPoored */
-	private void exitSequence_main_region_poorIngredient_r1_sugarPoored() {
+	/* Default exit sequence for state sugarOrSyrupPoored */
+	private void exitSequence_main_region_poorIngredient_r1_sugarOrSyrupPoored() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state syrupPoor */
+	private void exitSequence_main_region_poorIngredient_r1_syrupPoor() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_poorIngredient_r1_syrupPoor();
 	}
 	
 	/* Default exit sequence for state poorDrink */
@@ -444,17 +631,31 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		stateVector[0] = State.$NullState$;
 	}
 	
+	/* Default exit sequence for state add&mixIcream */
+	private void exitSequence_main_region_add_mixIcream() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_add_mixIcream();
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
 		case main_region_poorIngredient_r1_poorSugar:
 			exitSequence_main_region_poorIngredient_r1_poorSugar();
 			break;
-		case main_region_poorIngredient_r1_sugarPoored:
-			exitSequence_main_region_poorIngredient_r1_sugarPoored();
+		case main_region_poorIngredient_r1_sugarOrSyrupPoored:
+			exitSequence_main_region_poorIngredient_r1_sugarOrSyrupPoored();
+			break;
+		case main_region_poorIngredient_r1_syrupPoor:
+			exitSequence_main_region_poorIngredient_r1_syrupPoor();
 			break;
 		case main_region__final_:
 			exitSequence_main_region__final_();
+			break;
+		case main_region_add_mixIcream:
+			exitSequence_main_region_add_mixIcream();
 			break;
 		default:
 			break;
@@ -478,8 +679,11 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		case main_region_poorIngredient_r1_poorSugar:
 			exitSequence_main_region_poorIngredient_r1_poorSugar();
 			break;
-		case main_region_poorIngredient_r1_sugarPoored:
-			exitSequence_main_region_poorIngredient_r1_sugarPoored();
+		case main_region_poorIngredient_r1_sugarOrSyrupPoored:
+			exitSequence_main_region_poorIngredient_r1_sugarOrSyrupPoored();
+			break;
+		case main_region_poorIngredient_r1_syrupPoor:
+			exitSequence_main_region_poorIngredient_r1_syrupPoor();
 			break;
 		default:
 			break;
@@ -500,9 +704,27 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		}
 	}
 	
+	/* The reactions of state null. */
+	private void react_main_region_poorIngredient_r1__choice_0() {
+		if (check_main_region_poorIngredient_r1__choice_0_tr1_tr1()) {
+			effect_main_region_poorIngredient_r1__choice_0_tr1();
+		} else {
+			effect_main_region_poorIngredient_r1__choice_0_tr0();
+		}
+	}
+	
+	/* The reactions of state null. */
+	private void react_main_region__choice_0() {
+		if (check_main_region__choice_0_tr0_tr0()) {
+			effect_main_region__choice_0_tr0();
+		} else {
+			effect_main_region__choice_0_tr1();
+		}
+	}
+	
 	/* Default react sequence for initial entry  */
 	private void react_main_region_poorIngredient_r1__entry_Default() {
-		enterSequence_main_region_poorIngredient_r1_poorSugar_default();
+		react_main_region_poorIngredient_r1__choice_0();
 	}
 	
 	/* Default react sequence for initial entry  */
@@ -517,7 +739,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	
 	/* The reactions of state null. */
 	private void react_main_region__sync0() {
-		enterSequence_main_region__final__default();
+		react_main_region__choice_0();
 	}
 	
 	private boolean react() {
@@ -542,7 +764,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		if (try_transition) {
 			if (timeEvents[0]) {
 				exitSequence_main_region_poorIngredient_r1_poorSugar();
-				enterSequence_main_region_poorIngredient_r1_sugarPoored_default();
+				enterSequence_main_region_poorIngredient_r1_sugarOrSyrupPoored_default();
 			} else {
 				did_transition = false;
 			}
@@ -550,13 +772,27 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		return did_transition;
 	}
 	
-	private boolean main_region_poorIngredient_r1_sugarPoored_react(boolean try_transition) {
+	private boolean main_region_poorIngredient_r1_sugarOrSyrupPoored_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_poorIngredient_r2_drinkPoored)) && timeEvents[2])) {
+			if (((true && isStateActive(State.main_region_poorIngredient_r2_drinkPoored)) && timeEvents[3])) {
 				exitSequence_main_region_poorIngredient();
 				react_main_region__sync0();
+			} else {
+				did_transition = false;
+			}
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_poorIngredient_r1_syrupPoor_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (timeEvents[1]) {
+				exitSequence_main_region_poorIngredient_r1_syrupPoor();
+				enterSequence_main_region_poorIngredient_r1_sugarOrSyrupPoored_default();
 			} else {
 				did_transition = false;
 			}
@@ -568,7 +804,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[1]) {
+			if (timeEvents[2]) {
 				exitSequence_main_region_poorIngredient_r2_poorDrink();
 				enterSequence_main_region_poorIngredient_r2_drinkPoored_default();
 				main_region_poorIngredient_react(false);
@@ -586,7 +822,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((timeEvents[2] && isStateActive(State.main_region_poorIngredient_r1_sugarPoored)) && true)) {
+			if (((timeEvents[3] && isStateActive(State.main_region_poorIngredient_r1_sugarOrSyrupPoored)) && true)) {
 				exitSequence_main_region_poorIngredient();
 				react_main_region__sync0();
 			} else {
@@ -604,6 +840,23 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		
 		if (try_transition) {
 			did_transition = false;
+		}
+		if (did_transition==false) {
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_add_mixIcream_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (timeEvents[4]) {
+				exitSequence_main_region_add_mixIcream();
+				enterSequence_main_region__final__default();
+			} else {
+				did_transition = false;
+			}
 		}
 		if (did_transition==false) {
 			did_transition = react();

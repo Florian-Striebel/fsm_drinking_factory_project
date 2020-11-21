@@ -215,6 +215,24 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		
+		private boolean addingMilk;
+		
+		
+		public boolean isRaisedAddingMilk() {
+			synchronized(TeaStatemachine.this) {
+				return addingMilk;
+			}
+		}
+		
+		protected void raiseAddingMilk() {
+			synchronized(TeaStatemachine.this) {
+				addingMilk = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onAddingMilkRaised();
+				}
+			}
+		}
+		
 		private PoorIngredientStatemachine poorI;
 		
 		public synchronized PoorIngredientStatemachine getPoorI() {
@@ -226,6 +244,20 @@ public class TeaStatemachine implements ITeaStatemachine {
 		public void setPoorI(PoorIngredientStatemachine value) {
 			synchronized(TeaStatemachine.this) {
 				this.poorI = value;
+			}
+		}
+		
+		private boolean milk;
+		
+		public synchronized boolean getMilk() {
+			synchronized(TeaStatemachine.this) {
+				return milk;
+			}
+		}
+		
+		public void setMilk(boolean value) {
+			synchronized(TeaStatemachine.this) {
+				this.milk = value;
 			}
 		}
 		
@@ -244,6 +276,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		preparationFinished = false;
 		brewing = false;
 		dropTeaBag = false;
+		addingMilk = false;
 		}
 		
 	}
@@ -265,6 +298,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		main_region_dropTeaBag,
 		main_region_Ready,
 		main_region_pooringIngredients,
+		main_region_addMilk,
 		$NullState$
 	};
 	
@@ -274,7 +308,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[7];
+	private final boolean[] timeEvents = new boolean[8];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -292,6 +326,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		}
 		clearEvents();
 		clearOutEvents();
+		sCInterface.setMilk(false);
 	}
 	
 	public synchronized void enter() {
@@ -364,6 +399,9 @@ public class TeaStatemachine implements ITeaStatemachine {
 				break;
 			case main_region_pooringIngredients:
 				main_region_pooringIngredients_react(true);
+				break;
+			case main_region_addMilk:
+				main_region_addMilk_react(true);
 				break;
 			default:
 				// $NullState$
@@ -452,6 +490,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 			return stateVector[0] == State.main_region_Ready;
 		case main_region_pooringIngredients:
 			return stateVector[0] == State.main_region_pooringIngredients;
+		case main_region_addMilk:
+			return stateVector[0] == State.main_region_addMilk;
 		default:
 			return false;
 		}
@@ -536,12 +576,36 @@ public class TeaStatemachine implements ITeaStatemachine {
 		return sCInterface.isRaisedDropTeaBag();
 	}
 	
+	public synchronized boolean isRaisedAddingMilk() {
+		return sCInterface.isRaisedAddingMilk();
+	}
+	
 	public synchronized PoorIngredientStatemachine getPoorI() {
 		return sCInterface.getPoorI();
 	}
 	
 	public synchronized void setPoorI(PoorIngredientStatemachine value) {
 		sCInterface.setPoorI(value);
+	}
+	
+	public synchronized boolean getMilk() {
+		return sCInterface.getMilk();
+	}
+	
+	public synchronized void setMilk(boolean value) {
+		sCInterface.setMilk(value);
+	}
+	
+	private boolean check_main_region__choice_0_tr1_tr1() {
+		return sCInterface.getMilk();
+	}
+	
+	private void effect_main_region__choice_0_tr1() {
+		enterSequence_main_region_addMilk_default();
+	}
+	
+	private void effect_main_region__choice_0_tr0() {
+		enterSequence_main_region_DrinkDistribute_default();
 	}
 	
 	/* Entry action for state 'positionningCup'. */
@@ -596,6 +660,13 @@ public class TeaStatemachine implements ITeaStatemachine {
 		sCInterface.getPoorI().enter();
 	}
 	
+	/* Entry action for state 'addMilk'. */
+	private void entryAction_main_region_addMilk() {
+		timer.setTimer(this, 7, (2 * 1000), false);
+		
+		sCInterface.raiseAddingMilk();
+	}
+	
 	/* Exit action for state 'positionningCup'. */
 	private void exitAction_main_region_prepareIngredient_r1_positionningCup() {
 		timer.unsetTimer(this, 0);
@@ -631,6 +702,11 @@ public class TeaStatemachine implements ITeaStatemachine {
 		timer.unsetTimer(this, 6);
 		
 		sCInterface.getPoorI().exit();
+	}
+	
+	/* Exit action for state 'addMilk'. */
+	private void exitAction_main_region_addMilk() {
+		timer.unsetTimer(this, 7);
 	}
 	
 	/* 'default' enter sequence for state prepareIngredient */
@@ -705,6 +781,13 @@ public class TeaStatemachine implements ITeaStatemachine {
 		entryAction_main_region_pooringIngredients();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_pooringIngredients;
+	}
+	
+	/* 'default' enter sequence for state addMilk */
+	private void enterSequence_main_region_addMilk_default() {
+		entryAction_main_region_addMilk();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_addMilk;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -802,6 +885,14 @@ public class TeaStatemachine implements ITeaStatemachine {
 		exitAction_main_region_pooringIngredients();
 	}
 	
+	/* Default exit sequence for state addMilk */
+	private void exitSequence_main_region_addMilk() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_addMilk();
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -828,6 +919,9 @@ public class TeaStatemachine implements ITeaStatemachine {
 			break;
 		case main_region_pooringIngredients:
 			exitSequence_main_region_pooringIngredients();
+			break;
+		case main_region_addMilk:
+			exitSequence_main_region_addMilk();
 			break;
 		default:
 			break;
@@ -873,6 +967,15 @@ public class TeaStatemachine implements ITeaStatemachine {
 			break;
 		default:
 			break;
+		}
+	}
+	
+	/* The reactions of state null. */
+	private void react_main_region__choice_0() {
+		if (check_main_region__choice_0_tr1_tr1()) {
+			effect_main_region__choice_0_tr1();
+		} else {
+			effect_main_region__choice_0_tr0();
 		}
 	}
 	
@@ -1031,8 +1134,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		if (try_transition) {
 			if (timeEvents[5]) {
 				exitSequence_main_region_dropTeaBag();
-				enterSequence_main_region_DrinkDistribute_default();
-				react();
+				react_main_region__choice_0();
 			} else {
 				did_transition = false;
 			}
@@ -1077,6 +1179,24 @@ public class TeaStatemachine implements ITeaStatemachine {
 			if (timeEvents[6]) {
 				sCInterface.getPoorI().runCycle();
 			}
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_addMilk_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (timeEvents[7]) {
+				exitSequence_main_region_addMilk();
+				enterSequence_main_region_DrinkDistribute_default();
+				react();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
 			did_transition = react();
 		}
 		return did_transition;

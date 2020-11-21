@@ -47,5 +47,11 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 		
 	}
 
+	@Override
+	public void onAddingMilkRaised() {
+		System.out.println("add milk");
+		
+	}
+
 
 }

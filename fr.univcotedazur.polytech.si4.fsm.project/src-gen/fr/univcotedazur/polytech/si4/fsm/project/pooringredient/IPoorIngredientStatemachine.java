@@ -4,6 +4,7 @@ package fr.univcotedazur.polytech.si4.fsm.project.pooringredient;
 import fr.univcotedazur.polytech.si4.fsm.project.IStatemachine;
 import fr.univcotedazur.polytech.si4.fsm.project.ITimerCallback;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,6 +16,10 @@ public interface IPoorIngredientStatemachine extends ITimerCallback,IStatemachin
 		
 		public void raiseDrinkFinishPoored();
 		
+		public boolean isRaisedPooringSyrup();
+		
+		public boolean isRaisedDoAddMixIcecream();
+		
 		public long getTimeSugar();
 		
 		public void setTimeSugar(long value);
@@ -23,7 +28,22 @@ public interface IPoorIngredientStatemachine extends ITimerCallback,IStatemachin
 		
 		public void setTimeDrink(long value);
 		
+		public boolean getMappleSyrup();
+		
+		public void setMappleSyrup(boolean value);
+		
+		public boolean getIceCream();
+		
+		public void setIceCream(boolean value);
+		
+	public List<SCInterfaceListener> getListeners();
 	}
+	
+	public interface SCInterfaceListener {
+	
+		public void onPooringSyrupRaised();
+		public void onDoAddMixIcecreamRaised();
+		}
 	
 	public SCInterface getSCInterface();
 	

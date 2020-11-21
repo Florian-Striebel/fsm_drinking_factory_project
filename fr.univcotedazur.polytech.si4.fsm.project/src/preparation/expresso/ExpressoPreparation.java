@@ -1,7 +1,11 @@
 package preparation.expresso;
 
+import java.util.HashMap;
+
 import drink.Drink;
+import drink.Option;
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
+import fr.univcotedazur.polytech.si4.fsm.project.OptionPanel;
 import fr.univcotedazur.polytech.si4.fsm.project.TimerService;
 import fr.univcotedazur.polytech.si4.fsm.project.expresso.ExpressoStatemachine;
 import fr.univcotedazur.polytech.si4.fsm.project.expresso.IExpressoStatemachine.SCInterfaceListener;
@@ -38,9 +42,10 @@ public class ExpressoPreparation extends Preparation{
 	}
 
 
-	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature) {
-		poorIngredient.prepare(sugarNumber, drinkSize);
+	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options) {
+		poorIngredient.prepare(sugarNumber, drinkSize,options);
 		this.temperature=temperature;
+		expressoFSM.setMilk(options.get(Option.MILK));
 		expressoFSM.raisePrepare();
 	}
 	

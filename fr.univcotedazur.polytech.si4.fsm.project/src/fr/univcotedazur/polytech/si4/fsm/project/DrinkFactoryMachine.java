@@ -2,6 +2,7 @@ package fr.univcotedazur.polytech.si4.fsm.project;
 
 import drink.Drink;
 import drink.Ingredient;
+import drink.Option;
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -15,8 +16,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,11 +44,11 @@ public class DrinkFactoryMachine extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 2030629304432075314L;
-	private JPanel contentPane;
+	protected JPanel contentPane,panel,panel_1,panel_2;
 	public FactoryStatemachine theFSM;
-	protected JLabel messagesToUser;
+	protected JLabel messagesToUser,messageForPayment;
 	protected JButton coffeeButton, expressoButton, teaButton, soupButton, money50centsButton, money10centsButton,
-			money25centsButton, takeDrinkButton, validateButton;
+			money25centsButton, takeDrinkButton, validateButton, icedTeaButton, addCupButton;
 	protected JSlider sugarSlider, sizeSlider, temperatureSlider;
 	protected double coin;
 	protected Drink selection;
@@ -55,7 +58,7 @@ public class DrinkFactoryMachine extends JFrame {
 	protected JTextField nfcUserId;
 	protected GestionnaireDeRduction gReduc;
 	protected GestionnaireDIngredient gIngredient;
-
+	protected OptionPanel optionPanel;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -142,16 +145,29 @@ public class DrinkFactoryMachine extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-
+		
 		messagesToUser = new JLabel("<html>Choisissez votre boisson");
 		messagesToUser.setForeground(Color.WHITE);
 		messagesToUser.setHorizontalAlignment(SwingConstants.LEFT);
 		messagesToUser.setVerticalAlignment(SwingConstants.TOP);
 		messagesToUser.setToolTipText("message to the user");
 		messagesToUser.setBackground(Color.WHITE);
-		messagesToUser.setBounds(126, 34, 165, 175);
+		messagesToUser.setBounds(126, 34, 165, 100);
 		contentPane.add(messagesToUser);
+		
+		messageForPayment = new JLabel();
+		messageForPayment.setForeground(Color.WHITE);
+		messageForPayment.setHorizontalAlignment(SwingConstants.LEFT);
+		messageForPayment.setVerticalAlignment(SwingConstants.TOP);
+		messageForPayment.setToolTipText("message to the user");
+		messageForPayment.setBackground(Color.WHITE);
+		messageForPayment.setBounds(126, 120, 165, 30);
+		messageForPayment.setVisible(false);
+		contentPane.add(messageForPayment);
 
+		optionPanel = new OptionPanel(this);
+		contentPane.add(optionPanel.getOptionPanel());
+		
 		JLabel lblCoins = new JLabel("Coins");
 		lblCoins.setForeground(Color.WHITE);
 		lblCoins.setHorizontalAlignment(SwingConstants.CENTER);
@@ -164,14 +180,14 @@ public class DrinkFactoryMachine extends JFrame {
 		coffeeButton.setBounds(12, 34, 96, 25);
 		contentPane.add(coffeeButton);
 
-		lblValidate = new JLabel("Validate with this spicy");
-		lblValidate.setForeground(Color.WHITE);
+		lblValidate = new JLabel("<html>Veuillez choisir la quantité d'épices");
+		lblValidate.setForeground(Color.RED);
 		lblValidate.setHorizontalAlignment(SwingConstants.CENTER);
 		lblValidate.setVisible(false);
-		lblValidate.setBounds(125, 200, 150, 25);
+		lblValidate.setBounds(125, 180, 165, 30);
 		contentPane.add(lblValidate);
 
-		validateButton = new JButton("Validate");
+		validateButton = new JButton("Valider");
 		validateButton.setForeground(Color.WHITE);
 		validateButton.setBackground(Color.DARK_GRAY);
 		validateButton.setBounds(150, 220, 96, 25);
@@ -251,7 +267,7 @@ public class DrinkFactoryMachine extends JFrame {
 
 		contentPane.add(temperatureSlider);
 
-		JButton icedTeaButton = new JButton("Iced Tea");
+		icedTeaButton = new JButton("Iced Tea");
 		icedTeaButton.setForeground(Color.WHITE);
 		icedTeaButton.setBackground(Color.DARK_GRAY);
 		icedTeaButton.setBounds(12, 182, 96, 25);
@@ -278,7 +294,7 @@ public class DrinkFactoryMachine extends JFrame {
 		lblTemperature.setBounds(363, 173, 96, 15);
 		contentPane.add(lblTemperature);
 
-		JPanel panel = new JPanel();
+		panel  = new JPanel();
 		panel.setBackground(Color.DARK_GRAY);
 		lblCoins.setLabelFor(panel);
 		panel.setBounds(538, 25, 96, 97);
@@ -299,11 +315,11 @@ public class DrinkFactoryMachine extends JFrame {
 		money10centsButton.setBackground(Color.DARK_GRAY);
 		panel.add(money10centsButton);
 
-		JPanel panel_1 = new JPanel();
+		panel_1 = new JPanel();
 		panel_1.setBackground(Color.DARK_GRAY);
 		panel_1.setBounds(538, 154, 86, 70);
 		contentPane.add(panel_1);
-
+		
 		nfcUserId = new JTextField(7);
 		nfcUserId.setForeground(Color.WHITE);
 		nfcUserId.setBackground(Color.DARK_GRAY);
@@ -324,7 +340,7 @@ public class DrinkFactoryMachine extends JFrame {
 		separator.setBounds(12, 292, 622, 15);
 		contentPane.add(separator);
 
-		JButton addCupButton = new JButton("Add cup");
+		addCupButton = new JButton("Add cup");
 		addCupButton.setForeground(Color.WHITE);
 		addCupButton.setBackground(Color.DARK_GRAY);
 		addCupButton.setBounds(45, 336, 96, 25);
@@ -341,7 +357,7 @@ public class DrinkFactoryMachine extends JFrame {
 		labelForPictures.setBounds(175, 319, 286, 260);
 		contentPane.add(labelForPictures);
 
-		JPanel panel_2 = new JPanel();
+		panel_2 = new JPanel();
 		panel_2.setBackground(Color.DARK_GRAY);
 		panel_2.setBounds(538, 217, 96, 33);
 		contentPane.add(panel_2);
@@ -377,8 +393,8 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (((JButton) e.getSource()).isEnabled()) {
 					selection = Drink.COFFE;
-					theFSM.raiseSelected();
 					theFSM.raiseDoAction();
+					optionPanel.optionsForExpressoAndCoffee(selection.getName());
 				}
 			}
 		});
@@ -387,8 +403,8 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (((JButton) e.getSource()).isEnabled()) {
 					selection = Drink.EXPRESSO;
-					theFSM.raiseSelected();
 					theFSM.raiseDoAction();
+					optionPanel.optionsForExpressoAndCoffee(selection.getName());
 				}
 			}
 		});
@@ -396,7 +412,6 @@ public class DrinkFactoryMachine extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (((JButton) e.getSource()).isEnabled()) {
-					theFSM.raiseSelected();
 					theFSM.raiseDoAction();
 				}
 
@@ -407,8 +422,8 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (((JButton) e.getSource()).isEnabled()) {
 					selection = Drink.TEA;
-					theFSM.raiseSelected();
 					theFSM.raiseDoAction();
+					optionPanel.optionsForTea(selection.getName());
 				}
 
 			}
@@ -418,8 +433,8 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (((JButton) e.getSource()).isEnabled()) {
 					selection = Drink.SOUP;
-					theFSM.raiseSelected();
 					theFSM.raiseDoAction();
+					optionPanel.optionsForSoup(selection.getName());
 				}
 
 			}
@@ -472,21 +487,33 @@ public class DrinkFactoryMachine extends JFrame {
 				}
 			}
 		});
+		
 
 	}
 
-	public void display() {
+	public void displayValidate() {
 		if (selection.equals(Drink.SOUP)) {
-			lblSugar.setText("spice");
-			validateButton.setVisible(true);
-			theFSM.setIsValidate(false);
+			sugarSlider.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					validateButton.setVisible(true);
+					lblValidate.setForeground(Color.WHITE);
+					theFSM.setIsValidate(false);
+					sugarSlider.removeMouseListener(sugarSlider.getMouseListeners()[sugarSlider.getMouseListeners().length-1]);
+				}
+			});
 			lblValidate.setVisible(true);
-
+			sugarSlider.setValue(0);
+			lblSugar.setText("Spice");
 		} else {
-			lblSugar.setText("sugar");
+			if(lblSugar.equals("Spice"))
+				sugarSlider.removeMouseListener(sugarSlider.getMouseListeners()[sugarSlider.getMouseListeners().length-1]);
+			lblSugar.setText("Sugar");
 			validateButton.setVisible(false);
 			theFSM.setIsValidate(true);
 			lblValidate.setVisible(false);
+			lblValidate.setForeground(Color.RED);
+
 
 		}
 

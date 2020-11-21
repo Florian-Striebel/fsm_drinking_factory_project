@@ -35,10 +35,15 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 
 	@Override
 	public void onPreparationFinishedRaised() {
-		// TODO Auto-generated method stub
 		System.out.println("finish Drink");
 		factory.theFSM.raisePreparationFinished();
 		factory.getProgressBar().setValue(100);
+	}
+
+	@Override
+	public void onAddingMilkRaised() {
+		System.out.println("add milk");
+		
 	}
 
 }

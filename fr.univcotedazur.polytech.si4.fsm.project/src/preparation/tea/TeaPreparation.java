@@ -1,6 +1,9 @@
 package preparation.tea;
 
+import java.util.HashMap;
+
 import drink.Drink;
+import drink.Option;
 import fr.univcotedazur.polytech.si4.fsm.project.DrinkFactoryMachine;
 import fr.univcotedazur.polytech.si4.fsm.project.TimerService;
 import fr.univcotedazur.polytech.si4.fsm.project.tea.TeaStatemachine;
@@ -26,10 +29,11 @@ public class TeaPreparation extends Preparation{
 	}
 	
 	
-	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature) {
-		this.sugarNumber=sugarSize;
+	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options) {
 		this.drinkSize=drinkSize;
 		this.temperature=temperature;
+		poorIngredient.prepare(sugarNumber, drinkSize,options);
+		teaFSM.setMilk(options.get(Option.MILK));
 		teaFSM.raisePrepare();
 	}
 	

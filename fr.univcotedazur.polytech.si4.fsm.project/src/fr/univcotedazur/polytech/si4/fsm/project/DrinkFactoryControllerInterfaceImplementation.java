@@ -13,8 +13,8 @@ import preparation.tea.TeaPreparation;
 
 public class DrinkFactoryControllerInterfaceImplementation implements SCInterfaceListener/*SCInterfaceOperationCallback*/ {
 	DrinkFactoryMachine factory;
-	double coins;
-	double price;
+	float coins;
+	float price;
 	DecimalFormat df;
 	CoffeePreparation coffee;
 	ExpressoPreparation expresso;
@@ -34,6 +34,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoRestartRaised() {
 		factory.messagesToUser.setText("<html>Choisissez votre boisson ");
+		factory.messageForPayment.setVisible(false);
 		factory.sizeSlider.setValue(1);
 		factory.sugarSlider.setValue(1);
 		factory.temperatureSlider.setValue(2);
@@ -44,67 +45,80 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		coins = 0;
 		factory.setPictureCup("./picts/vide2.jpg");
 		factory.reactivateNFC();
+		setEnableeButtons(true);
 		factory.disableDrinkIndisponnible();
+		factory.takeDrinkButton.setVisible(false);
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
-		factory.messagesToUser.setText("<html>Paiement par NFC");
+		factory.messageForPayment.setVisible(true);
+		factory.messageForPayment.setText("<html>Paiement par NFC");
 		factory.theFSM.setIsPaid(true);
 
 	}
 	@Override
 	public void onDoSelectionRaised() {
-		factory.display();
-		price = factory.calculPrixAvecReduction(factory.getNfcId(), factory.selection.getPrice());
-		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName());
+		price = (float)factory.calculPrixAvecReduction(factory.getNfcId(), factory.selection.getPrice())+factory.optionPanel.optionPrice();
+		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName()+
+				"<br/>Prix: "+df.format(price)+"€");
+		factory.displayValidate();
 		if(coins>= price)
 			factory.theFSM.setIsPaid(true);
 
 	}
 	@Override
 	public void onAddedCoinRaised() {
+		factory.messageForPayment.setVisible(true);
 		coins += factory.coin;
-		if(coins <= price)
-			factory.messagesToUser.setText("<html>Payment par espèce  "+df.format(coins)+"€");
+		factory.messageForPayment.setText("<html>Payment par espèce  "+df.format(coins)+"€");
 		if(coins>= price)
 			factory.theFSM.setIsPaid(true);
 	}
 	@Override
 	public void onDoBackCoinRaised() {
-		factory.messagesToUser.setText("<html>Vous avez payé par NFC<br> rendu  "+df.format(factory.coin)+"€");
+		factory.messageForPayment.setText("<html>Vous avez payé par NFC<br> rendu  "+df.format(factory.coin)+"€");
 
 	}
 	@Override
 	public void onDoMoneyBackRaised() {
-		if (coins > price) {
-			factory.messagesToUser.setText("<html> Rendu de "+df.format(coins-price)+"€");
-		}else {
-			System.out.println("prix"+df.format(price));
-			factory.messagesToUser.setText("<html> vous avez payé "+df.format(price)+"€");
-		}
+		factory.messageForPayment.setText("<html> Vous avez payé "+df.format((coins>0)?coins:price)+"€");
+		if (coins > price) 
+			factory.messageForPayment.setText(factory.messageForPayment.getText()+"<br/> Rendu de "+df.format(coins-price)+"€");
 		factory.theFSM.raiseMoneyBack();
 
 	}
+
+
 	@Override
 	public void onDoStartPreparationRaised() {
-		factory.ajouterPrixBoissonAClient(factory.getNfcId(), factory.selection.getPrice());
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
+		setEnableeButtons(false);
+	}
+
+	@Override
+	public void onDoPreparationRaised() {
+		factory.ajouterPrixBoissonAClient(factory.getNfcId(), factory.selection.getPrice());
+		factory.messagesToUser.setText("<html>Préparation en cours de "+factory.selection.getName());
+		factory.messageForPayment.setText("");
+
 		if(factory.selection.equals(Drink.COFFE)) {
 			factory.decremente(Ingredient.DOSETTECAFE);
 			factory.getProgressBar().setValue(0);
-			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
 		}else if(factory.selection.equals(Drink.EXPRESSO)) {
 			factory.decremente(Ingredient.DOSEGRAINCAFE);
 			factory.getProgressBar().setValue(0);
-			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
 		}else if(factory.selection.equals(Drink.TEA)) {
 			factory.decremente(Ingredient.SACHETTHE);
 			factory.getProgressBar().setValue(0);
-			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
 		} else if(factory.selection.equals(Drink.SOUP)) {
 			factory.decremente(Ingredient.DOSESOUPE);
 			factory.getProgressBar().setValue(0);
-			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature());
+			factory.validateButton.setVisible(false);
+			factory.lblValidate.setVisible(false);
+			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
 
 		}
 	}
@@ -118,6 +132,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoCleanRaised() {
+		factory.setPictureCup("./picts/vide2.jpg");
 		factory.takeDrinkButton.setVisible(false);
 		factory.messagesToUser.setText("<html>Nettoyage de la machine en cours");
 		
@@ -128,9 +143,16 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.messagesToUser.setText("<html>Veuillez récuperer votre boisson");
 		factory.takeDrinkButton.setVisible(true);
 	}
+	
+	private void setEnableeButtons(boolean enabled) {
+		factory.coffeeButton.setEnabled(enabled);
+		factory.soupButton.setEnabled(enabled);
+		factory.expressoButton.setEnabled(enabled);
+		factory.teaButton.setEnabled(enabled);
+		factory.icedTeaButton.setEnabled(enabled);
+		factory.addCupButton.setEnabled(enabled);
 
-	
-	
+	}
 		
 }
 

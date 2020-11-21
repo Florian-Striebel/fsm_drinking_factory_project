@@ -161,6 +161,24 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		
+		private boolean addingMilk;
+		
+		
+		public boolean isRaisedAddingMilk() {
+			synchronized(ExpressoStatemachine.this) {
+				return addingMilk;
+			}
+		}
+		
+		protected void raiseAddingMilk() {
+			synchronized(ExpressoStatemachine.this) {
+				addingMilk = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onAddingMilkRaised();
+				}
+			}
+		}
+		
 		private PoorIngredientStatemachine poorI;
 		
 		public synchronized PoorIngredientStatemachine getPoorI() {
@@ -172,6 +190,20 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		public void setPoorI(PoorIngredientStatemachine value) {
 			synchronized(ExpressoStatemachine.this) {
 				this.poorI = value;
+			}
+		}
+		
+		private boolean milk;
+		
+		public synchronized boolean getMilk() {
+			synchronized(ExpressoStatemachine.this) {
+				return milk;
+			}
+		}
+		
+		public void setMilk(boolean value) {
+			synchronized(ExpressoStatemachine.this) {
+				this.milk = value;
 			}
 		}
 		
@@ -187,6 +219,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		groundingCoffee = false;
 		placeCup = false;
 		heating = false;
+		addingMilk = false;
 		}
 		
 	}
@@ -209,6 +242,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		main_region_expressoDistributed,
 		main_region_Ready,
 		main_region_pooringIngredients,
+		main_region_addMilk,
 		$NullState$
 	};
 	
@@ -218,7 +252,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[7];
+	private final boolean[] timeEvents = new boolean[8];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -236,6 +270,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		}
 		clearEvents();
 		clearOutEvents();
+		sCInterface.setMilk(false);
 	}
 	
 	public synchronized void enter() {
@@ -308,6 +343,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 				break;
 			case main_region_pooringIngredients:
 				main_region_pooringIngredients_react(true);
+				break;
+			case main_region_addMilk:
+				main_region_addMilk_react(true);
 				break;
 			default:
 				// $NullState$
@@ -399,6 +437,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			return stateVector[0] == State.main_region_Ready;
 		case main_region_pooringIngredients:
 			return stateVector[0] == State.main_region_pooringIngredients;
+		case main_region_addMilk:
+			return stateVector[0] == State.main_region_addMilk;
 		default:
 			return false;
 		}
@@ -471,12 +511,36 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		return sCInterface.isRaisedHeating();
 	}
 	
+	public synchronized boolean isRaisedAddingMilk() {
+		return sCInterface.isRaisedAddingMilk();
+	}
+	
 	public synchronized PoorIngredientStatemachine getPoorI() {
 		return sCInterface.getPoorI();
 	}
 	
 	public synchronized void setPoorI(PoorIngredientStatemachine value) {
 		sCInterface.setPoorI(value);
+	}
+	
+	public synchronized boolean getMilk() {
+		return sCInterface.getMilk();
+	}
+	
+	public synchronized void setMilk(boolean value) {
+		sCInterface.setMilk(value);
+	}
+	
+	private boolean check_main_region__choice_0_tr1_tr1() {
+		return sCInterface.getMilk();
+	}
+	
+	private void effect_main_region__choice_0_tr1() {
+		enterSequence_main_region_addMilk_default();
+	}
+	
+	private void effect_main_region__choice_0_tr0() {
+		enterSequence_main_region_expressoDistributed_default();
 	}
 	
 	/* Entry action for state 'grindcoffee'. */
@@ -529,6 +593,13 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		sCInterface.getPoorI().enter();
 	}
 	
+	/* Entry action for state 'addMilk'. */
+	private void entryAction_main_region_addMilk() {
+		timer.setTimer(this, 7, (2 * 1000), false);
+		
+		sCInterface.raiseAddingMilk();
+	}
+	
 	/* Exit action for state 'grindcoffee'. */
 	private void exitAction_main_region_PlacingPod_r1_grindcoffee() {
 		timer.unsetTimer(this, 0);
@@ -564,6 +635,11 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		timer.unsetTimer(this, 6);
 		
 		sCInterface.getPoorI().exit();
+	}
+	
+	/* Exit action for state 'addMilk'. */
+	private void exitAction_main_region_addMilk() {
+		timer.unsetTimer(this, 7);
 	}
 	
 	/* 'default' enter sequence for state PlacingPod */
@@ -644,6 +720,13 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		entryAction_main_region_pooringIngredients();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_pooringIngredients;
+	}
+	
+	/* 'default' enter sequence for state addMilk */
+	private void enterSequence_main_region_addMilk_default() {
+		entryAction_main_region_addMilk();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_addMilk;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -757,6 +840,14 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		exitAction_main_region_pooringIngredients();
 	}
 	
+	/* Default exit sequence for state addMilk */
+	private void exitSequence_main_region_addMilk() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_addMilk();
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -777,6 +868,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			break;
 		case main_region_pooringIngredients:
 			exitSequence_main_region_pooringIngredients();
+			break;
+		case main_region_addMilk:
+			exitSequence_main_region_addMilk();
 			break;
 		default:
 			break;
@@ -872,6 +966,15 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			break;
 		default:
 			break;
+		}
+	}
+	
+	/* The reactions of state null. */
+	private void react_main_region__choice_0() {
+		if (check_main_region__choice_0_tr1_tr1()) {
+			effect_main_region__choice_0_tr1();
+		} else {
+			effect_main_region__choice_0_tr0();
 		}
 	}
 	
@@ -1090,8 +1193,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		if (try_transition) {
 			if (sCInterface.getPoorI().isFinal()) {
 				exitSequence_main_region_pooringIngredients();
-				enterSequence_main_region_expressoDistributed_default();
-				react();
+				react_main_region__choice_0();
 			} else {
 				did_transition = false;
 			}
@@ -1100,6 +1202,24 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			if (timeEvents[6]) {
 				sCInterface.getPoorI().runCycle();
 			}
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_addMilk_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (timeEvents[7]) {
+				exitSequence_main_region_addMilk();
+				enterSequence_main_region_expressoDistributed_default();
+				react();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
 			did_transition = react();
 		}
 		return did_transition;

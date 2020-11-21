@@ -358,6 +358,24 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean doPreparation;
+		
+		
+		public boolean isRaisedDoPreparation() {
+			synchronized(FactoryStatemachine.this) {
+				return doPreparation;
+			}
+		}
+		
+		protected void raiseDoPreparation() {
+			synchronized(FactoryStatemachine.this) {
+				doPreparation = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onDoPreparationRaised();
+				}
+			}
+		}
+		
 		private boolean isSelected;
 		
 		public synchronized boolean getIsSelected() {
@@ -423,6 +441,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		doStartPreparation = false;
 		doSelection = false;
 		addedCoin = false;
+		doPreparation = false;
 		}
 		
 	}
@@ -768,6 +787,10 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		return sCInterface.isRaisedAddedCoin();
 	}
 	
+	public synchronized boolean isRaisedDoPreparation() {
+		return sCInterface.isRaisedDoPreparation();
+	}
+	
 	public synchronized boolean getIsSelected() {
 		return sCInterface.getIsSelected();
 	}
@@ -809,7 +832,9 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	/* Entry action for state 'preparation'. */
 	private void entryAction_main_region_preparation() {
-		timer.setTimer(this, 2, (2 * 1000), false);
+		timer.setTimer(this, 2, (3 * 1000), false);
+		
+		sCInterface.raiseDoStartPreparation();
 	}
 	
 	/* Entry action for state 'clean'. */
@@ -1443,7 +1468,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		}
 		if (did_transition==false) {
 			if (timeEvents[2]) {
-				sCInterface.raiseDoStartPreparation();
+				sCInterface.raiseDoPreparation();
 			}
 			did_transition = react();
 		}
