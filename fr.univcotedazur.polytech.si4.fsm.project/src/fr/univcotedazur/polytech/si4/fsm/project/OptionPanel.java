@@ -103,26 +103,26 @@ public class OptionPanel extends JFrame {
 	    chkCroutons.addItemListener(new ItemListener() {    
             public void itemStateChanged(ItemEvent e) {
             	setTextButton();
-            	options.replace(Option.BREAD_CROUTONS, true);
+            	options.replace(Option.BREAD_CROUTONS, e.getStateChange()==1);
             	}    
          });
 	    chkIceCream.addItemListener(new ItemListener() {    
             public void itemStateChanged(ItemEvent e) {
             	setTextButton();
-            	options.replace(Option.ICE_CREAM, true);
+            	options.replace(Option.ICE_CREAM, e.getStateChange()==1);
             	}    
          });
 	    chkMapple.addItemListener(new ItemListener() {    
             public void itemStateChanged(ItemEvent e) {
             	setTextButton();
-            	options.replace(Option.MAPLE_SYRUP, true);
+            	options.replace(Option.MAPLE_SYRUP, e.getStateChange()==1);
 
             	}    
          });
 	    chkMilk.addItemListener(new ItemListener() {    
             public void itemStateChanged(ItemEvent e) {
             	setTextButton();
-            	options.replace(Option.MILK, true);
+            	options.replace(Option.MILK, e.getStateChange()==1);
 
             	}    
          });
