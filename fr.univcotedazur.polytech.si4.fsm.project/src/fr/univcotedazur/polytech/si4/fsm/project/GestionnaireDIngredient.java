@@ -7,7 +7,7 @@ import drink.Ingredient;
 
 public class GestionnaireDIngredient {
 	
-	private List<Integer> nbIngredients;
+	public List<Integer> nbIngredients;
 	
 	public GestionnaireDIngredient() {
 		nbIngredients = new ArrayList<>();
@@ -18,14 +18,15 @@ public class GestionnaireDIngredient {
 	
 	
 	public void decremente(Ingredient i) {
-		nbIngredients.add(i.getPos(), nbIngredients.get(i.getPos())-1);
+		
+		nbIngredients.set(i.getPos(), nbIngredients.get(i.getPos())-1);
 	}
 	
 	public List<Ingredient> ListIngredientFini(){
 		List<Ingredient> ingredients= new ArrayList<>();
 		for(Ingredient i: Ingredient.values()) {
-			if(RuptureIngredient(i))
-				ingredients.add(i);
+			//System.out.println(i.name()+" "+nbIngredients.get(i.getPos()));
+			if(RuptureIngredient(i)) ingredients.add(i);
 		}
 		return ingredients;
 	}

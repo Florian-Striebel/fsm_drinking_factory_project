@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import drink.Ingredient;
 import drink.Option;
 
 public class OptionPanel extends JFrame {
@@ -222,5 +223,33 @@ public class OptionPanel extends JFrame {
 	}
 	public  HashMap<Option,Boolean> getOptions() {
 		return new HashMap<Option,Boolean>(options);
+	}
+	
+	public void decrementeOptions() {
+		for(Option option:options.keySet()) {
+			if(options.get(option)) 
+				drinkFactoryMachine.decremente(option.getIngredient());
+		}
+	}
+	
+	
+	public void disableOptionIndisponnible() {
+		List<Ingredient> indisponnible = drinkFactoryMachine.gIngredient.ListIngredientFini();
+		if (indisponnible.contains(Ingredient.CROUTONS)) {
+			chkCroutons.setEnabled(false);
+			chkCroutons.invalidate();
+		}
+		if (indisponnible.contains(Ingredient.DOSELAIT)) {
+			chkMilk.setEnabled(false);
+			chkMilk.invalidate();
+		}
+		if (indisponnible.contains(Ingredient.DOSESIROPDERABLE)) {
+			chkMapple.setEnabled(false);
+			chkMapple.invalidate();
+		}
+		if (indisponnible.contains(Ingredient.DOSEGLACE)) {
+			chkIceCream.setEnabled(false);
+			chkIceCream.invalidate();
+		}
 	}
 }

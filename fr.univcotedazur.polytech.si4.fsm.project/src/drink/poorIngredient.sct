@@ -255,7 +255,7 @@
         <layoutConstraint xsi:type="notation:Bounds" xmi:id="_jUwHoSpnEeugiqEj5PDgwg"/>
       </children>
       <styles xsi:type="notation:ShapeStyle" xmi:id="_jUwHoipnEeugiqEj5PDgwg" fontName="Verdana" fillColor="16448250" lineColor="12632256"/>
-      <layoutConstraint xsi:type="notation:Bounds" xmi:id="_jUwHoypnEeugiqEj5PDgwg" x="653" y="1068" width="1088" height="925"/>
+      <layoutConstraint xsi:type="notation:Bounds" xmi:id="_jUwHoypnEeugiqEj5PDgwg" x="126" y="1092" width="1088" height="925"/>
     </children>
     <styles xsi:type="notation:BooleanValueStyle" xmi:id="_c39CESpnEeugiqEj5PDgwg" name="inlineDefinitionSection"/>
     <styles xsi:type="notation:DiagramStyle" xmi:id="_c39CEipnEeugiqEj5PDgwg"/>

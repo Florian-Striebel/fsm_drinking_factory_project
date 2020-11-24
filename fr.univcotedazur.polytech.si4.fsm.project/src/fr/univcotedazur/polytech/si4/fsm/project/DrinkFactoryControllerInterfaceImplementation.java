@@ -48,6 +48,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		setEnableeButtons(true);
 		factory.disableDrinkIndisponnible();
 		factory.takeDrinkButton.setVisible(false);
+		factory.optionPanel.disableOptionIndisponnible();
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
@@ -100,7 +101,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.ajouterPrixBoissonAClient(factory.getNfcId(), factory.selection.getPrice());
 		factory.messagesToUser.setText("<html>Préparation en cours de "+factory.selection.getName());
 		factory.messageForPayment.setText("");
-
+		factory.optionPanel.decrementeOptions();
 		if(factory.selection.equals(Drink.COFFE)) {
 			factory.decremente(Ingredient.DOSETTECAFE);
 			factory.getProgressBar().setValue(0);

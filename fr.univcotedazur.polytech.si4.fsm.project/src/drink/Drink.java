@@ -8,6 +8,7 @@ public enum Drink {
 
 	private String name;
 	private float price;
+	
 	Drink(String n,float p){
 		this.name= n;
 		this.price=p;
