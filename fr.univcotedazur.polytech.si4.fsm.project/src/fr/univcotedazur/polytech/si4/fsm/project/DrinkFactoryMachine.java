@@ -59,6 +59,7 @@ public class DrinkFactoryMachine extends JFrame {
 	protected GestionnaireDeRduction gReduc;
 	protected GestionnaireDIngredient gIngredient;
 	protected OptionPanel optionPanel;
+	protected boolean userUseIsCup;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -125,6 +126,7 @@ public class DrinkFactoryMachine extends JFrame {
 	public DrinkFactoryMachine() {
 		gIngredient = new GestionnaireDIngredient();
 		gReduc = new GestionnaireDeRduction();
+		userUseIsCup =false;
 		theFSM = new FactoryStatemachine();
 		TimerService timer = new TimerService();
 		theFSM.setTimer(timer);
@@ -372,6 +374,7 @@ public class DrinkFactoryMachine extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setPictureCup("./picts/ownCup.jpg");
+				userUseIsCup = true;
 			}
 		});
 		cancelButton.addMouseListener(new MouseAdapter() {
@@ -513,14 +516,11 @@ public class DrinkFactoryMachine extends JFrame {
 			theFSM.setIsValidate(true);
 			lblValidate.setVisible(false);
 			lblValidate.setForeground(Color.RED);
-
-
 		}
 
 	}
 
 	public double calculPrixAvecReduction(String nfcId, float price) {
-		// TODO Auto-generated method stub
 		return gReduc.calculPrixAvecReduction(nfcId, price);
 	}
 

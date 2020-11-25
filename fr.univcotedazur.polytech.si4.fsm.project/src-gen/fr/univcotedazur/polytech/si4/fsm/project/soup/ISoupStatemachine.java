@@ -40,6 +40,10 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setTimePoorDrink(long value);
 		
+		public boolean getUserCup();
+		
+		public void setUserCup(boolean value);
+		
 	public List<SCInterfaceListener> getListeners();
 	}
 	

@@ -20,6 +20,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	ExpressoPreparation expresso;
 	TeaPreparation tea;
 	SoupPreparation soup;
+
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
@@ -30,7 +31,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		expresso = new ExpressoPreparation(fact);
 	    soup = new SoupPreparation(fact);
 	}
-
+	
+	
 	@Override
 	public void onDoRestartRaised() {
 		factory.messagesToUser.setText("<html>Choisissez votre boisson ");
@@ -105,21 +107,21 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		if(factory.selection.equals(Drink.COFFE)) {
 			factory.decremente(Ingredient.DOSETTECAFE);
 			factory.getProgressBar().setValue(0);
-			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
+			coffee.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions(),factory.userUseIsCup);
 		}else if(factory.selection.equals(Drink.EXPRESSO)) {
 			factory.decremente(Ingredient.DOSEGRAINCAFE);
 			factory.getProgressBar().setValue(0);
-			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
+			expresso.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions(),factory.userUseIsCup);
 		}else if(factory.selection.equals(Drink.TEA)) {
 			factory.decremente(Ingredient.SACHETTHE);
 			factory.getProgressBar().setValue(0);
-			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
+			tea.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions(),factory.userUseIsCup);
 		} else if(factory.selection.equals(Drink.SOUP)) {
 			factory.decremente(Ingredient.DOSESOUPE);
 			factory.getProgressBar().setValue(0);
 			factory.validateButton.setVisible(false);
 			factory.lblValidate.setVisible(false);
-			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions());
+			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions(),factory.userUseIsCup);
 
 		}
 	}

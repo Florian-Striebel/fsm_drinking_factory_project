@@ -171,6 +171,20 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 			}
 		}
 		
+		private boolean userCup;
+		
+		public synchronized boolean getUserCup() {
+			synchronized(CoffeeStatemachine.this) {
+				return userCup;
+			}
+		}
+		
+		public void setUserCup(boolean value) {
+			synchronized(CoffeeStatemachine.this) {
+				this.userCup = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			isHot = false;
 			prepare = false;
@@ -230,6 +244,8 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		clearEvents();
 		clearOutEvents();
 		sCInterface.setMilk(false);
+		
+		sCInterface.setUserCup(false);
 	}
 	
 	public synchronized void enter() {
@@ -469,8 +485,28 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		sCInterface.setMilk(value);
 	}
 	
+	public synchronized boolean getUserCup() {
+		return sCInterface.getUserCup();
+	}
+	
+	public synchronized void setUserCup(boolean value) {
+		sCInterface.setUserCup(value);
+	}
+	
+	private boolean check_main_region_prepareIngredient_r1__choice_0_tr1_tr1() {
+		return sCInterface.getUserCup();
+	}
+	
 	private boolean check_main_region__choice_0_tr1_tr1() {
 		return sCInterface.getMilk();
+	}
+	
+	private void effect_main_region_prepareIngredient_r1__choice_0_tr1() {
+		enterSequence_main_region_prepareIngredient_r1_cupPositionned_default();
+	}
+	
+	private void effect_main_region_prepareIngredient_r1__choice_0_tr0() {
+		enterSequence_main_region_prepareIngredient_r1_positionningCup_default();
 	}
 	
 	private void effect_main_region__choice_0_tr1() {
@@ -771,6 +807,15 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 	}
 	
 	/* The reactions of state null. */
+	private void react_main_region_prepareIngredient_r1__choice_0() {
+		if (check_main_region_prepareIngredient_r1__choice_0_tr1_tr1()) {
+			effect_main_region_prepareIngredient_r1__choice_0_tr1();
+		} else {
+			effect_main_region_prepareIngredient_r1__choice_0_tr0();
+		}
+	}
+	
+	/* The reactions of state null. */
 	private void react_main_region__choice_0() {
 		if (check_main_region__choice_0_tr1_tr1()) {
 			effect_main_region__choice_0_tr1();
@@ -835,7 +880,7 @@ public class CoffeeStatemachine implements ICoffeeStatemachine {
 		if (try_transition) {
 			if (timeEvents[1]) {
 				exitSequence_main_region_prepareIngredient_r1_getPodCoffee();
-				enterSequence_main_region_prepareIngredient_r1_positionningCup_default();
+				react_main_region_prepareIngredient_r1__choice_0();
 			} else {
 				did_transition = false;
 			}

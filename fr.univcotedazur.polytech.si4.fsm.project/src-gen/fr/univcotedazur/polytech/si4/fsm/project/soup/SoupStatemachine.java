@@ -224,6 +224,20 @@ public class SoupStatemachine implements ISoupStatemachine {
 			}
 		}
 		
+		private boolean userCup;
+		
+		public synchronized boolean getUserCup() {
+			synchronized(SoupStatemachine.this) {
+				return userCup;
+			}
+		}
+		
+		public void setUserCup(boolean value) {
+			synchronized(SoupStatemachine.this) {
+				this.userCup = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			isHot = false;
 			drinkPickedUp = false;
@@ -294,6 +308,8 @@ public class SoupStatemachine implements ISoupStatemachine {
 		sCInterface.setOptionBread(false);
 		
 		sCInterface.setTimePoorDrink(0);
+		
+		sCInterface.setUserCup(false);
 	}
 	
 	public synchronized void enter() {
@@ -571,8 +587,28 @@ public class SoupStatemachine implements ISoupStatemachine {
 		sCInterface.setTimePoorDrink(value);
 	}
 	
+	public synchronized boolean getUserCup() {
+		return sCInterface.getUserCup();
+	}
+	
+	public synchronized void setUserCup(boolean value) {
+		sCInterface.setUserCup(value);
+	}
+	
+	private boolean check_main_region_preparationIngredient_r1__choice_0_tr1_tr1() {
+		return sCInterface.getUserCup();
+	}
+	
 	private boolean check_main_region_poorMoreIngredient_r2__choice_0_tr0_tr0() {
 		return sCInterface.getOptionBread();
+	}
+	
+	private void effect_main_region_preparationIngredient_r1__choice_0_tr1() {
+		enterSequence_main_region_preparationIngredient_r1_cupPositionned_default();
+	}
+	
+	private void effect_main_region_preparationIngredient_r1__choice_0_tr0() {
+		enterSequence_main_region_preparationIngredient_r1_positionningCup_default();
 	}
 	
 	private void effect_main_region_poorMoreIngredient_r2__choice_0_tr0() {
@@ -1075,6 +1111,15 @@ public class SoupStatemachine implements ISoupStatemachine {
 	}
 	
 	/* The reactions of state null. */
+	private void react_main_region_preparationIngredient_r1__choice_0() {
+		if (check_main_region_preparationIngredient_r1__choice_0_tr1_tr1()) {
+			effect_main_region_preparationIngredient_r1__choice_0_tr1();
+		} else {
+			effect_main_region_preparationIngredient_r1__choice_0_tr0();
+		}
+	}
+	
+	/* The reactions of state null. */
 	private void react_main_region_poorMoreIngredient_r2__choice_0() {
 		if (check_main_region_poorMoreIngredient_r2__choice_0_tr0_tr0()) {
 			effect_main_region_poorMoreIngredient_r2__choice_0_tr0();
@@ -1085,7 +1130,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 	
 	/* Default react sequence for initial entry  */
 	private void react_main_region_preparationIngredient_r1__entry_Default() {
-		enterSequence_main_region_preparationIngredient_r1_positionningCup_default();
+		react_main_region_preparationIngredient_r1__choice_0();
 	}
 	
 	/* Default react sequence for initial entry  */

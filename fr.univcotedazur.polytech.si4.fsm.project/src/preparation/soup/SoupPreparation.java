@@ -25,14 +25,15 @@ public class SoupPreparation extends Preparation{
 	}
 	
 
-	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature,HashMap<Option,Boolean> options) {
+	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature,HashMap<Option,Boolean> options,boolean userCup) {
 		this.sugarNumber=sugarNumber;
 		this.drinkSize=drinkSize;
 		this.temperature=temperature;
 		soupFSM.setOptionBread(options.get(Option.BREAD_CROUTONS));
 		soupFSM.setTimePoorDrink(timeToPoorDrinkInMs());
+		soupFSM.setUserCup(userCup);
 		soupFSM.raisePrepare();
-		System.out.println("Raise Prepapare launch");
+		System.out.println("Raise Prepapare launch"+userCup);
 	}
 	
 	public void heatingWater() {

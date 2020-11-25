@@ -42,11 +42,12 @@ public class ExpressoPreparation extends Preparation{
 	}
 
 
-	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options) {
+	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options,boolean userCup) {
 		poorIngredient.prepare(sugarNumber, drinkSize,options);
 		this.temperature=temperature;
 		expressoFSM.setMilk(options.get(Option.MILK));
 		expressoFSM.raisePrepare();
+		expressoFSM.setUserCup(userCup);
 	}
 	
 }

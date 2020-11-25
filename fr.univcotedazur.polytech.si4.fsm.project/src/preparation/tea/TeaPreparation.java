@@ -29,12 +29,13 @@ public class TeaPreparation extends Preparation{
 	}
 	
 	
-	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options) {
+	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options,boolean userCup) {
 		this.drinkSize=drinkSize;
 		this.temperature=temperature;
 		poorIngredient.prepare(sugarNumber, drinkSize,options);
 		teaFSM.setMilk(options.get(Option.MILK));
 		teaFSM.raisePrepare();
+		teaFSM.setUserCup(userCup);
 	}
 	
 	public void heatingWater() {

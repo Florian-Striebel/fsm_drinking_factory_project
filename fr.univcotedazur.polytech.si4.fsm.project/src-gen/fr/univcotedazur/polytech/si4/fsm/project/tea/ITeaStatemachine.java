@@ -45,6 +45,10 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setMilk(boolean value);
 		
+		public boolean getUserCup();
+		
+		public void setUserCup(boolean value);
+		
 	public List<SCInterfaceListener> getListeners();
 	}
 	

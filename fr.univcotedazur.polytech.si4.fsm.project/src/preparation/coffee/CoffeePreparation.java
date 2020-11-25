@@ -29,10 +29,11 @@ public class CoffeePreparation extends Preparation{
 		coffeeFsm.enter();
 		System.out.println("enter coffee fsm");
 	}
-	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature,HashMap<Option,Boolean> options) {
+	public void prepare(int sugarNumber,DrinkSize drinkSize,int temperature,HashMap<Option,Boolean> options,boolean userCup) {
 		this.temperature=temperature;
 		poorIngredient.prepare(sugarNumber, drinkSize,options);
 		coffeeFsm.setMilk(options.get(Option.MILK));
+		coffeeFsm.setUserCup(userCup);
 		coffeeFsm.raisePrepare();
 		System.out.println("Raise Prepapare launch");
 	}
