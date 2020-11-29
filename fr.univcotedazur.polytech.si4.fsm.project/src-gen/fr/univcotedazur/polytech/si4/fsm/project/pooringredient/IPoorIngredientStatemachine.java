@@ -32,9 +32,17 @@ public interface IPoorIngredientStatemachine extends ITimerCallback,IStatemachin
 		
 		public void setMappleSyrup(boolean value);
 		
+		public long getMappleTime();
+		
+		public void setMappleTime(long value);
+		
 		public boolean getIceCream();
 		
 		public void setIceCream(boolean value);
+		
+		public long getIceCreamTime();
+		
+		public void setIceCreamTime(long value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}

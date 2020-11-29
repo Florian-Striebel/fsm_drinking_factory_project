@@ -15,7 +15,7 @@ import preparation.soup.SoupPreparationControllerInterfaceImplementation;
 public class SoupPreparation extends Preparation{
 	SoupStatemachine soupFSM;
 	public SoupPreparation(DrinkFactoryMachine drinkFactory) {
-		super(1, DrinkSize.MEDIUM,60);
+		super(1, DrinkSize.MEDIUM,60,drinkFactory);
 		soupFSM= new SoupStatemachine();
 		soupFSM.getSCInterface().getListeners().add(new SoupPreparationControllerInterfaceImplementation(this,drinkFactory));
 		TimerService timer = new TimerService();
@@ -31,28 +31,19 @@ public class SoupPreparation extends Preparation{
 		this.temperature=temperature;
 		soupFSM.setOptionBread(options.get(Option.BREAD_CROUTONS));
 		soupFSM.setTimePoorDrink(timeToPoorDrinkInMs());
+		soupFSM.setTimeToHeating(this.timeToHeatingWaterinMS());
+		soupFSM.setTimeToPooringSpices(this.timeToPoorSugarOrSpicesInMs());
+		soupFSM.setBreadTime(Option.BREAD_CROUTONS.getTime());
 		soupFSM.setUserCup(userCup);
-		soupFSM.raisePrepare();
+		setBarTime(options, userCup);
 		System.out.println("Raise Prepapare launch"+userCup);
 	}
-	
-	public void heatingWater() {
-		try {
-			Thread.sleep(this.timeToHeatingWaterinMS());
-			soupFSM.raiseIsHot();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	public void poorSpice() {
-		try {
-			Thread.sleep(this.timeToPoorDrinkInMs());
-			soupFSM.raiseSpiceFinishPoored();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+	private void setBarTime(HashMap<Option,Boolean> options,boolean userCup) {
+		int time = Math.max(Math.max(2000, timeToPoorSugarOrSpicesInMs())+(userCup?0:2000), timeToHeatingWaterinMS());
+		time += Math.max(timeToPoorDrinkInMs(),options.get(Option.BREAD_CROUTONS)?Option.BREAD_CROUTONS.getTime()+3000:0);
+		drinkFactory.theFSM.setTimeToUpdateBar(time/100);
+		drinkFactory.theFSM.raiseStartBar();
+		soupFSM.raisePrepare();
 
-
-	
+	}
 }

@@ -18,7 +18,7 @@ public class CoffeePreparation extends Preparation{
 	PoorIngredient poorIngredient;
 	
 	public CoffeePreparation(DrinkFactoryMachine drinkFactory) {
-		super(1, DrinkSize.MEDIUM,60);
+		super(1, DrinkSize.MEDIUM,60,drinkFactory);
 		TimerService timer = new TimerService();
 		poorIngredient = new PoorIngredient(drinkFactory);
 		coffeeFsm=new CoffeeStatemachine();
@@ -33,19 +33,22 @@ public class CoffeePreparation extends Preparation{
 		this.temperature=temperature;
 		poorIngredient.prepare(sugarNumber, drinkSize,options);
 		coffeeFsm.setMilk(options.get(Option.MILK));
+		coffeeFsm.setMilkTime(Option.MILK.getTime());
 		coffeeFsm.setUserCup(userCup);
-		coffeeFsm.raisePrepare();
+		coffeeFsm.setTimeToHeating(this.timeToHeatingWaterinMS());
 		System.out.println("Raise Prepapare launch");
+		setBarTime(options,userCup);
 	}
 	
-	public void heatingWater() {
-		try {
-			Thread.sleep(this.timeToHeatingWaterinMS());
-			coffeeFsm.raiseIsHot();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+	
+	
+	private void setBarTime(HashMap<Option,Boolean> options,boolean userCup) {
+		int time = Math.max(1000+(userCup?0:2000), timeToHeatingWaterinMS());
+		time += poorIngredient.getTime() + (options.get(Option.MILK)?Option.MILK.getTime():0);
+		drinkFactory.theFSM.setTimeToUpdateBar(time/100);
+		drinkFactory.theFSM.raiseStartBar();
+		coffeeFsm.raisePrepare();
 
+	}
 }
 

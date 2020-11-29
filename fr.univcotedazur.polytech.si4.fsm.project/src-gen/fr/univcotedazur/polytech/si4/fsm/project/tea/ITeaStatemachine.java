@@ -23,17 +23,9 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raisePrepare();
 		
-		public boolean isRaisedPlaceTeaBag();
-		
 		public boolean isRaisedPlaceCup();
 		
-		public boolean isRaisedHeating();
-		
 		public boolean isRaisedPreparationFinished();
-		
-		public boolean isRaisedBrewing();
-		
-		public boolean isRaisedDropTeaBag();
 		
 		public boolean isRaisedAddingMilk();
 		
@@ -45,21 +37,25 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setMilk(boolean value);
 		
+		public long getMilkTime();
+		
+		public void setMilkTime(long value);
+		
 		public boolean getUserCup();
 		
 		public void setUserCup(boolean value);
+		
+		public long getTimeToHeating();
+		
+		public void setTimeToHeating(long value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}
 	
 	public interface SCInterfaceListener {
 	
-		public void onPlaceTeaBagRaised();
 		public void onPlaceCupRaised();
-		public void onHeatingRaised();
 		public void onPreparationFinishedRaised();
-		public void onBrewingRaised();
-		public void onDropTeaBagRaised();
 		public void onAddingMilkRaised();
 		}
 	

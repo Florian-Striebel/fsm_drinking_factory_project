@@ -18,22 +18,7 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 	public void onPlaceCupRaised() {
 		// TODO Auto-generated method stub
 
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 		factory.setPictureCup("./picts/gobeletPolluant.jpg");
-	}
-
-	@Override
-	public void onHeatingRaised() {
-		// TODO Auto-generated method stub
-		soup.heatingWater();
-
-	}
-
-	
-	@Override
-	public void onPooringDrinkRaised() {
-		// TODO Auto-generated method stub
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
@@ -42,17 +27,8 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 
 		System.out.println("finish Drink");
 		factory.theFSM.raisePreparationFinished();
-		factory.getProgressBar().setValue(100);	
-		
 	}
 
-	@Override
-	public void onPooringSpiceRaised() {
-		// TODO Auto-generated method stub
-		soup.poorSpice();
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-		
-	}
 
 	@Override
 	public void onAddingBreadRaised() {
@@ -60,6 +36,7 @@ public class SoupPreparationControllerInterfaceImplementation implements SCInter
 		System.out.println("Adding Bread");
 
 	}
+
 
 
 }

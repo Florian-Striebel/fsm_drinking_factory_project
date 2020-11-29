@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:sgraph="http://www.yakindu.org/sct/sgraph/2.0.0">
-  <sgraph:Statechart xmi:id="_c35XsCpnEeugiqEj5PDgwg" specification="@EventDriven&#xA;// Use the event driven execution model.&#xA;// Runs a run-to-completion step&#xA;// each time an event is raised.&#xA;// Switch to cycle based behavior&#xA;// by specifying '@CycleBased(200)'&#xA;// instead.&#xA;&#xA;@ChildFirstExecution&#xA;// In composite states, execute&#xA;// child states first.&#xA;// @ParentFirstExecution does the opposite.&#xA;&#xA;interface:&#xA;// Define events&#xA;// and variables here. &#xA;// Use CTRL + Space for content assist.&#xA;&#xA;in event sugarFinishPoored&#xA;in event drinkFinishPoored&#xA;out event pooringSyrup&#xA;out event doAddMixIcecream&#xA;var timeSugar:integer&#xA;var timeDrink:integer&#xA;var mappleSyrup:boolean&#xA;var iceCream:boolean" name="poorIngredient">
+  <sgraph:Statechart xmi:id="_c35XsCpnEeugiqEj5PDgwg" specification="@EventDriven&#xA;// Use the event driven execution model.&#xA;// Runs a run-to-completion step&#xA;// each time an event is raised.&#xA;// Switch to cycle based behavior&#xA;// by specifying '@CycleBased(200)'&#xA;// instead.&#xA;&#xA;@ChildFirstExecution&#xA;// In composite states, execute&#xA;// child states first.&#xA;// @ParentFirstExecution does the opposite.&#xA;&#xA;interface:&#xA;// Define events&#xA;// and variables here. &#xA;// Use CTRL + Space for content assist.&#xA;&#xA;in event sugarFinishPoored&#xA;in event drinkFinishPoored&#xA;out event pooringSyrup&#xA;out event doAddMixIcecream&#xA;var timeSugar:integer&#xA;var timeDrink:integer&#xA;var mappleSyrup:boolean&#xA;var mappleTime:integer&#xA;var iceCream:boolean&#xA;var iceCreamTime:integer" name="poorIngredient">
     <regions xmi:id="_jUyioCpnEeugiqEj5PDgwg" name="main region">
       <vertices xsi:type="sgraph:State" xmi:id="_jU1l9ypnEeugiqEj5PDgwg" name="poorIngredient" incomingTransitions="_U00GgCpxEeugiqEj5PDgwg">
         <regions xmi:id="_jU1l-SpnEeugiqEj5PDgwg" name="r1">
@@ -18,7 +18,7 @@
             <outgoingTransitions xmi:id="_I17uMCwoEeuWt819MOcpkA" specification="[mappleSyrup]" target="_WJdZwCwoEeuWt819MOcpkA"/>
           </vertices>
           <vertices xsi:type="sgraph:State" xmi:id="_WJdZwCwoEeuWt819MOcpkA" specification="entry/raise pooringSyrup" name="syrupPoor" incomingTransitions="_I17uMCwoEeuWt819MOcpkA">
-            <outgoingTransitions xmi:id="_au6h8CwoEeuWt819MOcpkA" specification="after 3s" target="_jU1mCCpnEeugiqEj5PDgwg"/>
+            <outgoingTransitions xmi:id="_au6h8CwoEeuWt819MOcpkA" specification="after mappleTime ms" target="_jU1mCCpnEeugiqEj5PDgwg"/>
           </vertices>
         </regions>
         <regions xmi:id="_jU1mDSpnEeugiqEj5PDgwg" name="r2">
@@ -41,7 +41,7 @@
       </vertices>
       <vertices xsi:type="sgraph:FinalState" xmi:id="_LhIqwCpoEeugiqEj5PDgwg" incomingTransitions="_Uc800CxNEeuWt819MOcpkA _WtJV0CxNEeuWt819MOcpkA"/>
       <vertices xsi:type="sgraph:State" xmi:id="_NdoSQCxNEeuWt819MOcpkA" specification="entry/raise doAddMixIcecream" name="add&amp;mixIcream" incomingTransitions="_TxCxECxNEeuWt819MOcpkA">
-        <outgoingTransitions xmi:id="_WtJV0CxNEeuWt819MOcpkA" specification="after 4s" target="_LhIqwCpoEeugiqEj5PDgwg"/>
+        <outgoingTransitions xmi:id="_WtJV0CxNEeuWt819MOcpkA" specification="after iceCreamTime ms" target="_LhIqwCpoEeugiqEj5PDgwg"/>
       </vertices>
       <vertices xsi:type="sgraph:Choice" xmi:id="_O8grECxNEeuWt819MOcpkA" incomingTransitions="_SyHDoCxNEeuWt819MOcpkA">
         <outgoingTransitions xmi:id="_TxCxECxNEeuWt819MOcpkA" specification="[iceCream]" target="_NdoSQCxNEeuWt819MOcpkA"/>

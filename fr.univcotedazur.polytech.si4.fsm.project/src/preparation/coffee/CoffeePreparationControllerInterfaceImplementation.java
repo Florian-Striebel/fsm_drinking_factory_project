@@ -17,27 +17,23 @@ public class CoffeePreparationControllerInterfaceImplementation  implements SCIn
 	@Override
 	public void onPlacePodRaised() {
 		System.out.println("place pod");
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 	}
 
 	@Override
 	public void onPlaceCupRaised() {
 		System.out.println("place cup");
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
 	@Override
 	public void onHeatingRaised() {
-		coffee.heatingWater();
-		System.out.println("hot");
+		System.out.println("heatting");
 	}
 
 	@Override
 	public void onPreparationFinishedRaised() {
 		System.out.println("finish Drink");
 		factory.theFSM.raisePreparationFinished();
-		factory.getProgressBar().setValue(100);
 	}
 
 	@Override

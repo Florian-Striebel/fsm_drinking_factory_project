@@ -19,35 +19,35 @@ public class ExpressoPreparation extends Preparation{
 	PoorIngredient poorIngredient;
 
 	public ExpressoPreparation(DrinkFactoryMachine drinkFactory) {
-		super(1, DrinkSize.MEDIUM,60);
+		super(1, DrinkSize.MEDIUM,60,drinkFactory);
 		poorIngredient = new PoorIngredient(drinkFactory);
 		expressoFSM= new ExpressoStatemachine();
 		expressoFSM.getSCInterface().getListeners().add(new ExpressoPreparationControllerInterfaceImplementation(this,drinkFactory));
 		TimerService timer = new TimerService();
 		expressoFSM.setTimer(timer);
+		expressoFSM.setPoorI(poorIngredient.getPoorIngredientFSM());
 		expressoFSM.init();
 		expressoFSM.enter();
-		expressoFSM.setPoorI(poorIngredient.getPoorIngredientFSM());
-
-	}
-	
-	
-	public void heatingWater() {
-		try {
-			Thread.sleep(this.timeToHeatingWaterinMS());
-			expressoFSM.raiseIsHot();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 
 	public void prepare(int sugarSize, DrinkSize drinkSize, int temperature,HashMap<Option,Boolean> options,boolean userCup) {
-		poorIngredient.prepare(sugarNumber, drinkSize,options);
 		this.temperature=temperature;
+		poorIngredient.prepare(sugarSize, drinkSize,options);
 		expressoFSM.setMilk(options.get(Option.MILK));
-		expressoFSM.raisePrepare();
+		expressoFSM.setMilkTime(Option.MILK.getTime());
+		expressoFSM.setTimeToHeating(this.timeToHeatingWaterinMS());
 		expressoFSM.setUserCup(userCup);
+		setBarTime(options, userCup);
+
 	}
 	
+	private void setBarTime(HashMap<Option,Boolean> options,boolean userCup) {
+		int time = Math.max(3000+(Math.max((userCup?0:2000), 1000)), timeToHeatingWaterinMS());
+		time += poorIngredient.getTime() + (options.get(Option.MILK)?Option.MILK.getTime():0);
+		drinkFactory.theFSM.setTimeToUpdateBar(time/100);
+		drinkFactory.theFSM.raiseStartBar();
+		expressoFSM.raisePrepare();
+
+	}
 }

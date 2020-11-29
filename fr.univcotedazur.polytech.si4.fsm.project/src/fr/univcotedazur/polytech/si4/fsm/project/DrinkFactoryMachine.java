@@ -48,7 +48,7 @@ public class DrinkFactoryMachine extends JFrame {
 	public FactoryStatemachine theFSM;
 	protected JLabel messagesToUser,messageForPayment;
 	protected JButton coffeeButton, expressoButton, teaButton, soupButton, money50centsButton, money10centsButton,
-			money25centsButton, takeDrinkButton, validateButton, icedTeaButton, addCupButton;
+			money25centsButton, takeDrinkButton, validateButton,changeButton, icedTeaButton, addCupButton;
 	protected JSlider sugarSlider, sizeSlider, temperatureSlider;
 	protected double coin;
 	protected Drink selection;
@@ -60,6 +60,7 @@ public class DrinkFactoryMachine extends JFrame {
 	protected GestionnaireDIngredient gIngredient;
 	protected OptionPanel optionPanel;
 	protected boolean userUseIsCup;
+	private HashMap<Integer, Integer> temperature;
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -98,8 +99,8 @@ public class DrinkFactoryMachine extends JFrame {
 	}
 
 	public int getTemperature() {
-		return temperatureSlider.getValue();
-	}
+		return  temperature.get(temperatureSlider.getValue());	
+		}
 
 	public void reactivateNFC() {
 		nfcUserId.setEditable(true);
@@ -195,6 +196,13 @@ public class DrinkFactoryMachine extends JFrame {
 		validateButton.setBounds(150, 220, 96, 25);
 		validateButton.setVisible(false);
 		contentPane.add(validateButton);
+		
+		changeButton = new JButton("Changer");
+		changeButton.setForeground(Color.WHITE);
+		changeButton.setBackground(Color.DARK_GRAY);
+		changeButton.setBounds(150, 220, 96, 25);
+		changeButton.setVisible(false);
+		contentPane.add(changeButton);
 
 		expressoButton = new JButton("Expresso");
 		expressoButton.setForeground(Color.WHITE);
@@ -216,7 +224,7 @@ public class DrinkFactoryMachine extends JFrame {
 
 		progressBar = new JProgressBar();
 		progressBar.setStringPainted(true);
-		progressBar.setValue(10);
+		progressBar.setValue(0);
 		progressBar.setForeground(Color.LIGHT_GRAY);
 		progressBar.setBackground(Color.DARK_GRAY);
 		progressBar.setBounds(12, 254, 622, 26);
@@ -258,10 +266,15 @@ public class DrinkFactoryMachine extends JFrame {
 		temperatureSlider.setBounds(301, 188, 200, 54);
 
 		Hashtable<Integer, JLabel> temperatureTable = new Hashtable<Integer, JLabel>();
+		temperature = new HashMap<>();
 		temperatureTable.put(0, new JLabel("20°C"));
+		temperature.put(0,20);
 		temperatureTable.put(1, new JLabel("35°C"));
+		temperature.put(1,35);
 		temperatureTable.put(2, new JLabel("60°C"));
+		temperature.put(2,60);
 		temperatureTable.put(3, new JLabel("85°C"));
+		temperature.put(3,85);
 		for (JLabel l : temperatureTable.values()) {
 			l.setForeground(Color.WHITE);
 		}
@@ -374,6 +387,7 @@ public class DrinkFactoryMachine extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				setPictureCup("./picts/ownCup.jpg");
+				theFSM.raiseDoAction();
 				userUseIsCup = true;
 			}
 		});
@@ -448,9 +462,29 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				theFSM.setIsValidate(true);
 				theFSM.raiseDoAction();
+				sugarSlider.setEnabled(false);
+				lblSugar.setEnabled(false);
+				removeSpicesListener();
+				validateButton.setVisible(false);
+				changeButton.setVisible(true);
+				lblValidate.setText("<html>Changer les épices");
+				
 			}
 		});
+		changeButton.addMouseListener(new MouseAdapter() {
 
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				theFSM.setIsValidate(false);
+				theFSM.raiseDoAction();
+				sugarSlider.setEnabled(true);
+				lblSugar.setEnabled(true);
+				changeButton.setVisible(false);
+				lblValidate.setText("<html>Veuillez choisir la quantité d'épices");
+				addSpicesListener();
+				lblValidate.setForeground(Color.RED);
+			}
+		});
 		money10centsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -493,29 +527,39 @@ public class DrinkFactoryMachine extends JFrame {
 		
 
 	}
+	private void addSpicesListener() {
+		sugarSlider.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				validateButton.setVisible(true);
+				lblValidate.setForeground(Color.WHITE);
+				theFSM.setIsValidate(false);
+			}
+		});
+	}
+	private void removeSpicesListener() {
+		if(lblSugar.getText().equals("Spices"))
+			sugarSlider.removeMouseListener(sugarSlider.getMouseListeners()[sugarSlider.getMouseListeners().length-1]);
 
+	}
 	public void displayValidate() {
 		if (selection.equals(Drink.SOUP)) {
-			sugarSlider.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					validateButton.setVisible(true);
-					lblValidate.setForeground(Color.WHITE);
-					theFSM.setIsValidate(false);
-					sugarSlider.removeMouseListener(sugarSlider.getMouseListeners()[sugarSlider.getMouseListeners().length-1]);
-				}
-			});
+			addSpicesListener();
 			lblValidate.setVisible(true);
 			sugarSlider.setValue(0);
-			lblSugar.setText("Spice");
+			lblSugar.setText("Spices");
 		} else {
-			if(lblSugar.equals("Spice"))
-				sugarSlider.removeMouseListener(sugarSlider.getMouseListeners()[sugarSlider.getMouseListeners().length-1]);
+			if(!changeButton.isVisible())
+				removeSpicesListener();
 			lblSugar.setText("Sugar");
+			lblSugar.setEnabled(true);
 			validateButton.setVisible(false);
 			theFSM.setIsValidate(true);
+			changeButton.setVisible(false);
 			lblValidate.setVisible(false);
+			sugarSlider.setValue(1);
 			lblValidate.setForeground(Color.RED);
+			sugarSlider.setEnabled(true);
 		}
 
 	}

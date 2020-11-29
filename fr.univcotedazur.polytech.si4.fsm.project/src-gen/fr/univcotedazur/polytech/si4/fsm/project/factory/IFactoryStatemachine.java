@@ -30,6 +30,8 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseTakeDrink();
 		
+		public void raiseStartBar();
+		
 		public boolean isRaisedDoTakeDrink();
 		
 		public boolean isRaisedDoRefund();
@@ -52,6 +54,8 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedDoPreparation();
 		
+		public boolean isRaisedIncreaseBar();
+		
 		public boolean getIsSelected();
 		
 		public void setIsSelected(boolean value);
@@ -63,6 +67,10 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		public boolean getIsValidate();
 		
 		public void setIsValidate(boolean value);
+		
+		public long getTimeToUpdateBar();
+		
+		public void setTimeToUpdateBar(long value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}
@@ -80,6 +88,7 @@ public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 		public void onDoSelectionRaised();
 		public void onAddedCoinRaised();
 		public void onDoPreparationRaised();
+		public void onIncreaseBarRaised();
 		}
 	
 	public SCInterface getSCInterface();

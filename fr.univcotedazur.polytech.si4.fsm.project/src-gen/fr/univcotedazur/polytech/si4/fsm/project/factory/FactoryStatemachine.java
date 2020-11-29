@@ -178,6 +178,24 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean startBar;
+		
+		
+		public void raiseStartBar() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							startBar = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
 		private boolean doTakeDrink;
 		
 		
@@ -376,6 +394,24 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean increaseBar;
+		
+		
+		public boolean isRaisedIncreaseBar() {
+			synchronized(FactoryStatemachine.this) {
+				return increaseBar;
+			}
+		}
+		
+		protected void raiseIncreaseBar() {
+			synchronized(FactoryStatemachine.this) {
+				increaseBar = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onIncreaseBarRaised();
+				}
+			}
+		}
+		
 		private boolean isSelected;
 		
 		public synchronized boolean getIsSelected() {
@@ -418,6 +454,20 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private long timeToUpdateBar;
+		
+		public synchronized long getTimeToUpdateBar() {
+			synchronized(FactoryStatemachine.this) {
+				return timeToUpdateBar;
+			}
+		}
+		
+		public void setTimeToUpdateBar(long value) {
+			synchronized(FactoryStatemachine.this) {
+				this.timeToUpdateBar = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			doAction = false;
 			paidNFC = false;
@@ -428,6 +478,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			refunded = false;
 			preparationFinished = false;
 			takeDrink = false;
+			startBar = false;
 		}
 		protected void clearOutEvents() {
 		
@@ -442,6 +493,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		doSelection = false;
 		addedCoin = false;
 		doPreparation = false;
+		increaseBar = false;
 		}
 		
 	}
@@ -463,9 +515,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		main_region_Ready_r2_ordering_r4_paidByNFC,
 		main_region_Ready_r2_giveChange,
 		main_region_refund,
-		main_region_preparation,
 		main_region_clean,
 		main_region_waitingTake,
+		main_region_preparation,
+		main_region_preparation_r1_drinkPreparation,
+		main_region_preparation_r2_progressBar,
+		main_region_preparation_r2_waittingStartPreparation,
 		$NullState$
 	};
 	
@@ -475,7 +530,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[4];
+	private final boolean[] timeEvents = new boolean[5];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -498,6 +553,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.setIsPaid(false);
 		
 		sCInterface.setIsValidate(false);
+		
+		sCInterface.setTimeToUpdateBar(0);
 	}
 	
 	public synchronized void enter() {
@@ -568,14 +625,20 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			case main_region_refund:
 				main_region_refund_react(true);
 				break;
-			case main_region_preparation:
-				main_region_preparation_react(true);
-				break;
 			case main_region_clean:
 				main_region_clean_react(true);
 				break;
 			case main_region_waitingTake:
 				main_region_waitingTake_react(true);
+				break;
+			case main_region_preparation_r1_drinkPreparation:
+				main_region_preparation_r1_drinkPreparation_react(true);
+				break;
+			case main_region_preparation_r2_progressBar:
+				main_region_preparation_r2_progressBar_react(true);
+				break;
+			case main_region_preparation_r2_waittingStartPreparation:
+				main_region_preparation_r2_waittingStartPreparation_react(true);
 				break;
 			default:
 				// $NullState$
@@ -665,12 +728,19 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			return stateVector[1] == State.main_region_Ready_r2_giveChange;
 		case main_region_refund:
 			return stateVector[0] == State.main_region_refund;
-		case main_region_preparation:
-			return stateVector[0] == State.main_region_preparation;
 		case main_region_clean:
 			return stateVector[0] == State.main_region_clean;
 		case main_region_waitingTake:
 			return stateVector[0] == State.main_region_waitingTake;
+		case main_region_preparation:
+			return stateVector[0].ordinal() >= State.
+					main_region_preparation.ordinal()&& stateVector[0].ordinal() <= State.main_region_preparation_r2_waittingStartPreparation.ordinal();
+		case main_region_preparation_r1_drinkPreparation:
+			return stateVector[0] == State.main_region_preparation_r1_drinkPreparation;
+		case main_region_preparation_r2_progressBar:
+			return stateVector[1] == State.main_region_preparation_r2_progressBar;
+		case main_region_preparation_r2_waittingStartPreparation:
+			return stateVector[1] == State.main_region_preparation_r2_waittingStartPreparation;
 		default:
 			return false;
 		}
@@ -747,6 +817,10 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.raiseTakeDrink();
 	}
 	
+	public synchronized void raiseStartBar() {
+		sCInterface.raiseStartBar();
+	}
+	
 	public synchronized boolean isRaisedDoTakeDrink() {
 		return sCInterface.isRaisedDoTakeDrink();
 	}
@@ -791,6 +865,10 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		return sCInterface.isRaisedDoPreparation();
 	}
 	
+	public synchronized boolean isRaisedIncreaseBar() {
+		return sCInterface.isRaisedIncreaseBar();
+	}
+	
 	public synchronized boolean getIsSelected() {
 		return sCInterface.getIsSelected();
 	}
@@ -815,6 +893,14 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		sCInterface.setIsValidate(value);
 	}
 	
+	public synchronized long getTimeToUpdateBar() {
+		return sCInterface.getTimeToUpdateBar();
+	}
+	
+	public synchronized void setTimeToUpdateBar(long value) {
+		sCInterface.setTimeToUpdateBar(value);
+	}
+	
 	/* Entry action for state 'Timer'. */
 	private void entryAction_main_region_Ready_r1_Timer() {
 		timer.setTimer(this, 0, (45 * 1000), false);
@@ -830,16 +916,21 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		timer.setTimer(this, 1, (5 * 1000), false);
 	}
 	
-	/* Entry action for state 'preparation'. */
-	private void entryAction_main_region_preparation() {
-		timer.setTimer(this, 2, (3 * 1000), false);
+	/* Entry action for state 'clean'. */
+	private void entryAction_main_region_clean() {
+		timer.setTimer(this, 2, (2 * 1000), false);
+	}
+	
+	/* Entry action for state 'drinkPreparation'. */
+	private void entryAction_main_region_preparation_r1_drinkPreparation() {
+		timer.setTimer(this, 3, (3 * 1000), false);
 		
 		sCInterface.raiseDoStartPreparation();
 	}
 	
-	/* Entry action for state 'clean'. */
-	private void entryAction_main_region_clean() {
-		timer.setTimer(this, 3, (2 * 1000), false);
+	/* Entry action for state 'progressBar'. */
+	private void entryAction_main_region_preparation_r2_progressBar() {
+		timer.setTimer(this, 4, sCInterface.getTimeToUpdateBar(), true);
 	}
 	
 	/* Exit action for state 'Timer'. */
@@ -852,14 +943,19 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		timer.unsetTimer(this, 1);
 	}
 	
-	/* Exit action for state 'preparation'. */
-	private void exitAction_main_region_preparation() {
+	/* Exit action for state 'clean'. */
+	private void exitAction_main_region_clean() {
 		timer.unsetTimer(this, 2);
 	}
 	
-	/* Exit action for state 'clean'. */
-	private void exitAction_main_region_clean() {
+	/* Exit action for state 'drinkPreparation'. */
+	private void exitAction_main_region_preparation_r1_drinkPreparation() {
 		timer.unsetTimer(this, 3);
+	}
+	
+	/* Exit action for state 'progressBar'. */
+	private void exitAction_main_region_preparation_r2_progressBar() {
+		timer.unsetTimer(this, 4);
 	}
 	
 	/* 'default' enter sequence for state Ready */
@@ -931,13 +1027,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[0] = State.main_region_refund;
 	}
 	
-	/* 'default' enter sequence for state preparation */
-	private void enterSequence_main_region_preparation_default() {
-		entryAction_main_region_preparation();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_region_preparation;
-	}
-	
 	/* 'default' enter sequence for state clean */
 	private void enterSequence_main_region_clean_default() {
 		entryAction_main_region_clean();
@@ -949,6 +1038,32 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	private void enterSequence_main_region_waitingTake_default() {
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_waitingTake;
+	}
+	
+	/* 'default' enter sequence for state preparation */
+	private void enterSequence_main_region_preparation_default() {
+		enterSequence_main_region_preparation_r1_default();
+		enterSequence_main_region_preparation_r2_default();
+	}
+	
+	/* 'default' enter sequence for state drinkPreparation */
+	private void enterSequence_main_region_preparation_r1_drinkPreparation_default() {
+		entryAction_main_region_preparation_r1_drinkPreparation();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_preparation_r1_drinkPreparation;
+	}
+	
+	/* 'default' enter sequence for state progressBar */
+	private void enterSequence_main_region_preparation_r2_progressBar_default() {
+		entryAction_main_region_preparation_r2_progressBar();
+		nextStateIndex = 1;
+		stateVector[1] = State.main_region_preparation_r2_progressBar;
+	}
+	
+	/* 'default' enter sequence for state waittingStartPreparation */
+	private void enterSequence_main_region_preparation_r2_waittingStartPreparation_default() {
+		nextStateIndex = 1;
+		stateVector[1] = State.main_region_preparation_r2_waittingStartPreparation;
 	}
 	
 	/* 'default' enter sequence for region main region */
@@ -974,6 +1089,16 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	/* 'default' enter sequence for region r4 */
 	private void enterSequence_main_region_Ready_r2_ordering_r4_default() {
 		react_main_region_Ready_r2_ordering_r4__entry_Default();
+	}
+	
+	/* 'default' enter sequence for region r1 */
+	private void enterSequence_main_region_preparation_r1_default() {
+		react_main_region_preparation_r1__entry_Default();
+	}
+	
+	/* 'default' enter sequence for region r2 */
+	private void enterSequence_main_region_preparation_r2_default() {
+		react_main_region_preparation_r2__entry_Default();
 	}
 	
 	/* Default exit sequence for state Ready */
@@ -1046,14 +1171,6 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		exitAction_main_region_refund();
 	}
 	
-	/* Default exit sequence for state preparation */
-	private void exitSequence_main_region_preparation() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
-		
-		exitAction_main_region_preparation();
-	}
-	
 	/* Default exit sequence for state clean */
 	private void exitSequence_main_region_clean() {
 		nextStateIndex = 0;
@@ -1068,6 +1185,34 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[0] = State.$NullState$;
 	}
 	
+	/* Default exit sequence for state preparation */
+	private void exitSequence_main_region_preparation() {
+		exitSequence_main_region_preparation_r1();
+		exitSequence_main_region_preparation_r2();
+	}
+	
+	/* Default exit sequence for state drinkPreparation */
+	private void exitSequence_main_region_preparation_r1_drinkPreparation() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_preparation_r1_drinkPreparation();
+	}
+	
+	/* Default exit sequence for state progressBar */
+	private void exitSequence_main_region_preparation_r2_progressBar() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
+		
+		exitAction_main_region_preparation_r2_progressBar();
+	}
+	
+	/* Default exit sequence for state waittingStartPreparation */
+	private void exitSequence_main_region_preparation_r2_waittingStartPreparation() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -1080,14 +1225,14 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		case main_region_refund:
 			exitSequence_main_region_refund();
 			break;
-		case main_region_preparation:
-			exitSequence_main_region_preparation();
-			break;
 		case main_region_clean:
 			exitSequence_main_region_clean();
 			break;
 		case main_region_waitingTake:
 			exitSequence_main_region_waitingTake();
+			break;
+		case main_region_preparation_r1_drinkPreparation:
+			exitSequence_main_region_preparation_r1_drinkPreparation();
 			break;
 		default:
 			break;
@@ -1102,6 +1247,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			break;
 		case main_region_Ready_r2_giveChange:
 			exitSequence_main_region_Ready_r2_giveChange();
+			break;
+		case main_region_preparation_r2_progressBar:
+			exitSequence_main_region_preparation_r2_progressBar();
+			break;
+		case main_region_preparation_r2_waittingStartPreparation:
+			exitSequence_main_region_preparation_r2_waittingStartPreparation();
 			break;
 		default:
 			break;
@@ -1198,6 +1349,31 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		}
 	}
 	
+	/* Default exit sequence for region r1 */
+	private void exitSequence_main_region_preparation_r1() {
+		switch (stateVector[0]) {
+		case main_region_preparation_r1_drinkPreparation:
+			exitSequence_main_region_preparation_r1_drinkPreparation();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region r2 */
+	private void exitSequence_main_region_preparation_r2() {
+		switch (stateVector[1]) {
+		case main_region_preparation_r2_progressBar:
+			exitSequence_main_region_preparation_r2_progressBar();
+			break;
+		case main_region_preparation_r2_waittingStartPreparation:
+			exitSequence_main_region_preparation_r2_waittingStartPreparation();
+			break;
+		default:
+			break;
+		}
+	}
+	
 	/* Default react sequence for initial entry  */
 	private void react_main_region__entry_Default() {
 		enterSequence_main_region_Ready_default();
@@ -1221,6 +1397,16 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	/* Default react sequence for initial entry  */
 	private void react_main_region_Ready_r2__entry_Default() {
 		enterSequence_main_region_Ready_r2_ordering_default();
+	}
+	
+	/* Default react sequence for initial entry  */
+	private void react_main_region_preparation_r1__entry_Default() {
+		enterSequence_main_region_preparation_r1_drinkPreparation_default();
+	}
+	
+	/* Default react sequence for initial entry  */
+	private void react_main_region_preparation_r2__entry_Default() {
+		enterSequence_main_region_preparation_r2_waittingStartPreparation_default();
 	}
 	
 	private boolean react() {
@@ -1452,34 +1638,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		return did_transition;
 	}
 	
-	private boolean main_region_preparation_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.preparationFinished) {
-				exitSequence_main_region_preparation();
-				sCInterface.raiseDoTakeDrink();
-				
-				enterSequence_main_region_waitingTake_default();
-				react();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-			if (timeEvents[2]) {
-				sCInterface.raiseDoPreparation();
-			}
-			did_transition = react();
-		}
-		return did_transition;
-	}
-	
 	private boolean main_region_clean_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[3]) {
+			if (timeEvents[2]) {
 				exitSequence_main_region_clean();
 				sCInterface.raiseDoRestart();
 				
@@ -1511,6 +1674,73 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		}
 		if (did_transition==false) {
 			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_preparation_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			did_transition = false;
+		}
+		if (did_transition==false) {
+			did_transition = react();
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_preparation_r1_drinkPreparation_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.preparationFinished) {
+				exitSequence_main_region_preparation();
+				sCInterface.raiseDoTakeDrink();
+				
+				enterSequence_main_region_waitingTake_default();
+				react();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			if (timeEvents[3]) {
+				sCInterface.raiseDoPreparation();
+			}
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_preparation_r2_progressBar_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			did_transition = false;
+		}
+		if (did_transition==false) {
+			if (timeEvents[4]) {
+				sCInterface.raiseIncreaseBar();
+			}
+			did_transition = main_region_preparation_react(try_transition);
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_preparation_r2_waittingStartPreparation_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.startBar) {
+				exitSequence_main_region_preparation_r2_waittingStartPreparation();
+				enterSequence_main_region_preparation_r2_progressBar_default();
+				main_region_preparation_react(false);
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			did_transition = main_region_preparation_react(try_transition);
 		}
 		return did_transition;
 	}

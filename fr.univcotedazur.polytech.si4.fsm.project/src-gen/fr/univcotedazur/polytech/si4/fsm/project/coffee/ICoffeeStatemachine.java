@@ -35,9 +35,17 @@ public interface ICoffeeStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setMilk(boolean value);
 		
+		public long getMilkTime();
+		
+		public void setMilkTime(long value);
+		
 		public boolean getUserCup();
 		
 		public void setUserCup(boolean value);
+		
+		public long getTimeToHeating();
+		
+		public void setTimeToHeating(long value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}

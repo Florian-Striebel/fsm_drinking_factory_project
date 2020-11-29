@@ -21,13 +21,7 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedPreparationFinished();
 		
-		public boolean isRaisedGrindingCoffee();
-		
-		public boolean isRaisedGroundingCoffee();
-		
 		public boolean isRaisedPlaceCup();
-		
-		public boolean isRaisedHeating();
 		
 		public boolean isRaisedAddingMilk();
 		
@@ -39,9 +33,17 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setMilk(boolean value);
 		
+		public long getMilkTime();
+		
+		public void setMilkTime(long value);
+		
 		public boolean getUserCup();
 		
 		public void setUserCup(boolean value);
+		
+		public long getTimeToHeating();
+		
+		public void setTimeToHeating(long value);
 		
 	public List<SCInterfaceListener> getListeners();
 	}
@@ -49,10 +51,7 @@ public interface IExpressoStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterfaceListener {
 	
 		public void onPreparationFinishedRaised();
-		public void onGrindingCoffeeRaised();
-		public void onGroundingCoffeeRaised();
 		public void onPlaceCupRaised();
-		public void onHeatingRaised();
 		public void onAddingMilkRaised();
 		}
 	

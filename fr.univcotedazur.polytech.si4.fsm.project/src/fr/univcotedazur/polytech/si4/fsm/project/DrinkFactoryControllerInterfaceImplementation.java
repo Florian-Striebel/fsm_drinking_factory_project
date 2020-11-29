@@ -156,6 +156,12 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.addCupButton.setEnabled(enabled);
 
 	}
+
+
+	@Override
+	public void onIncreaseBarRaised() {
+		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+1);
+	}
 		
 }
 

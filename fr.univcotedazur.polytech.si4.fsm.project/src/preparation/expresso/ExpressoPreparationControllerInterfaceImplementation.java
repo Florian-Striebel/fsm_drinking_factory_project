@@ -18,42 +18,21 @@ public class ExpressoPreparationControllerInterfaceImplementation implements SCI
 
 	@Override
 	public void onPlaceCupRaised() {
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
 		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
-	@Override
-	public void onHeatingRaised() {
-		expresso.heatingWater();
-	}
-
-
-	@Override
-	public void onGrindingCoffeeRaised() {		
-		//factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-		
-	}
-
-	@Override
-	public void onGroundingCoffeeRaised() {
-		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+10);
-		
-	}
 
 
 	@Override
 	public void onPreparationFinishedRaised() {
-
 		System.out.println("finish Drink");
 		factory.theFSM.raisePreparationFinished();
-		factory.getProgressBar().setValue(100);		
 	}
 
 
 	@Override
 	public void onAddingMilkRaised() {
 		System.out.println("add milk");
-		
 	}
 
 

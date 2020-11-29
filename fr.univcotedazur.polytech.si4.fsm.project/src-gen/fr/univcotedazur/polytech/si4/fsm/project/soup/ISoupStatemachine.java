@@ -22,19 +22,17 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 		
 		public boolean isRaisedPlaceCup();
 		
-		public boolean isRaisedHeating();
-		
-		public boolean isRaisedPooringDrink();
-		
 		public boolean isRaisedPreparationFinished();
-		
-		public boolean isRaisedPooringSpice();
 		
 		public boolean isRaisedAddingBread();
 		
 		public boolean getOptionBread();
 		
 		public void setOptionBread(boolean value);
+		
+		public long getBreadTime();
+		
+		public void setBreadTime(long value);
 		
 		public long getTimePoorDrink();
 		
@@ -44,16 +42,21 @@ public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void setUserCup(boolean value);
 		
+		public long getTimeToHeating();
+		
+		public void setTimeToHeating(long value);
+		
+		public long getTimeToPooringSpices();
+		
+		public void setTimeToPooringSpices(long value);
+		
 	public List<SCInterfaceListener> getListeners();
 	}
 	
 	public interface SCInterfaceListener {
 	
 		public void onPlaceCupRaised();
-		public void onHeatingRaised();
-		public void onPooringDrinkRaised();
 		public void onPreparationFinishedRaised();
-		public void onPooringSpiceRaised();
 		public void onAddingBreadRaised();
 		}
 	

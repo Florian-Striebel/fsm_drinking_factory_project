@@ -89,42 +89,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		
-		private boolean grindingCoffee;
-		
-		
-		public boolean isRaisedGrindingCoffee() {
-			synchronized(ExpressoStatemachine.this) {
-				return grindingCoffee;
-			}
-		}
-		
-		protected void raiseGrindingCoffee() {
-			synchronized(ExpressoStatemachine.this) {
-				grindingCoffee = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onGrindingCoffeeRaised();
-				}
-			}
-		}
-		
-		private boolean groundingCoffee;
-		
-		
-		public boolean isRaisedGroundingCoffee() {
-			synchronized(ExpressoStatemachine.this) {
-				return groundingCoffee;
-			}
-		}
-		
-		protected void raiseGroundingCoffee() {
-			synchronized(ExpressoStatemachine.this) {
-				groundingCoffee = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onGroundingCoffeeRaised();
-				}
-			}
-		}
-		
 		private boolean placeCup;
 		
 		
@@ -139,24 +103,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 				placeCup = true;
 				for (SCInterfaceListener listener : listeners) {
 					listener.onPlaceCupRaised();
-				}
-			}
-		}
-		
-		private boolean heating;
-		
-		
-		public boolean isRaisedHeating() {
-			synchronized(ExpressoStatemachine.this) {
-				return heating;
-			}
-		}
-		
-		protected void raiseHeating() {
-			synchronized(ExpressoStatemachine.this) {
-				heating = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onHeatingRaised();
 				}
 			}
 		}
@@ -207,6 +153,20 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		
+		private long milkTime;
+		
+		public synchronized long getMilkTime() {
+			synchronized(ExpressoStatemachine.this) {
+				return milkTime;
+			}
+		}
+		
+		public void setMilkTime(long value) {
+			synchronized(ExpressoStatemachine.this) {
+				this.milkTime = value;
+			}
+		}
+		
 		private boolean userCup;
 		
 		public synchronized boolean getUserCup() {
@@ -221,6 +181,20 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		
+		private long timeToHeating;
+		
+		public synchronized long getTimeToHeating() {
+			synchronized(ExpressoStatemachine.this) {
+				return timeToHeating;
+			}
+		}
+		
+		public void setTimeToHeating(long value) {
+			synchronized(ExpressoStatemachine.this) {
+				this.timeToHeating = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			isHot = false;
 			drinkPickedUp = false;
@@ -229,10 +203,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		protected void clearOutEvents() {
 		
 		preparationFinished = false;
-		grindingCoffee = false;
-		groundingCoffee = false;
 		placeCup = false;
-		heating = false;
 		addingMilk = false;
 		}
 		
@@ -251,8 +222,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		main_region_PlacingPod_r1_Ingredient_r1_cupPlaced,
 		main_region_PlacingPod_r1_Ingredient_r2_groundCoffee,
 		main_region_PlacingPod_r1_Ingredient_r2_coffeeGround,
+		main_region_PlacingPod_r1_Poored,
 		main_region_PlacingPod_r2_beginHeating,
-		main_region_PlacingPod_r2_IsHot,
 		main_region_expressoDistributed,
 		main_region_Ready,
 		main_region_pooringIngredients,
@@ -286,7 +257,11 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		clearOutEvents();
 		sCInterface.setMilk(false);
 		
+		sCInterface.setMilkTime(0);
+		
 		sCInterface.setUserCup(false);
+		
+		sCInterface.setTimeToHeating(0);
 	}
 	
 	public synchronized void enter() {
@@ -345,11 +320,11 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			case main_region_PlacingPod_r1_Ingredient_r2_coffeeGround:
 				main_region_PlacingPod_r1_Ingredient_r2_coffeeGround_react(true);
 				break;
+			case main_region_PlacingPod_r1_Poored:
+				main_region_PlacingPod_r1_Poored_react(true);
+				break;
 			case main_region_PlacingPod_r2_beginHeating:
 				main_region_PlacingPod_r2_beginHeating_react(true);
-				break;
-			case main_region_PlacingPod_r2_IsHot:
-				main_region_PlacingPod_r2_IsHot_react(true);
 				break;
 			case main_region_expressoDistributed:
 				main_region_expressoDistributed_react(true);
@@ -429,7 +404,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		switch (state) {
 		case main_region_PlacingPod:
 			return stateVector[0].ordinal() >= State.
-					main_region_PlacingPod.ordinal()&& stateVector[0].ordinal() <= State.main_region_PlacingPod_r2_IsHot.ordinal();
+					main_region_PlacingPod.ordinal()&& stateVector[0].ordinal() <= State.main_region_PlacingPod_r2_beginHeating.ordinal();
 		case main_region_PlacingPod_r1_grindcoffee:
 			return stateVector[0] == State.main_region_PlacingPod_r1_grindcoffee;
 		case main_region_PlacingPod_r1_Ingredient:
@@ -443,10 +418,10 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			return stateVector[1] == State.main_region_PlacingPod_r1_Ingredient_r2_groundCoffee;
 		case main_region_PlacingPod_r1_Ingredient_r2_coffeeGround:
 			return stateVector[1] == State.main_region_PlacingPod_r1_Ingredient_r2_coffeeGround;
+		case main_region_PlacingPod_r1_Poored:
+			return stateVector[0] == State.main_region_PlacingPod_r1_Poored;
 		case main_region_PlacingPod_r2_beginHeating:
 			return stateVector[2] == State.main_region_PlacingPod_r2_beginHeating;
-		case main_region_PlacingPod_r2_IsHot:
-			return stateVector[2] == State.main_region_PlacingPod_r2_IsHot;
 		case main_region_expressoDistributed:
 			return stateVector[0] == State.main_region_expressoDistributed;
 		case main_region_Ready:
@@ -511,20 +486,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		return sCInterface.isRaisedPreparationFinished();
 	}
 	
-	public synchronized boolean isRaisedGrindingCoffee() {
-		return sCInterface.isRaisedGrindingCoffee();
-	}
-	
-	public synchronized boolean isRaisedGroundingCoffee() {
-		return sCInterface.isRaisedGroundingCoffee();
-	}
-	
 	public synchronized boolean isRaisedPlaceCup() {
 		return sCInterface.isRaisedPlaceCup();
-	}
-	
-	public synchronized boolean isRaisedHeating() {
-		return sCInterface.isRaisedHeating();
 	}
 	
 	public synchronized boolean isRaisedAddingMilk() {
@@ -547,12 +510,28 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		sCInterface.setMilk(value);
 	}
 	
+	public synchronized long getMilkTime() {
+		return sCInterface.getMilkTime();
+	}
+	
+	public synchronized void setMilkTime(long value) {
+		sCInterface.setMilkTime(value);
+	}
+	
 	public synchronized boolean getUserCup() {
 		return sCInterface.getUserCup();
 	}
 	
 	public synchronized void setUserCup(boolean value) {
 		sCInterface.setUserCup(value);
+	}
+	
+	public synchronized long getTimeToHeating() {
+		return sCInterface.getTimeToHeating();
+	}
+	
+	public synchronized void setTimeToHeating(long value) {
+		sCInterface.setTimeToHeating(value);
 	}
 	
 	private boolean check_main_region_PlacingPod_r1_Ingredient_r1__choice_0_tr1_tr1() {
@@ -582,8 +561,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	/* Entry action for state 'grindcoffee'. */
 	private void entryAction_main_region_PlacingPod_r1_grindcoffee() {
 		timer.setTimer(this, 0, (3 * 1000), false);
-		
-		sCInterface.raiseGrindingCoffee();
 	}
 	
 	/* Entry action for state 'positionningCup'. */
@@ -596,8 +573,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	/* Entry action for state 'groundCoffee'. */
 	private void entryAction_main_region_PlacingPod_r1_Ingredient_r2_groundCoffee() {
 		timer.setTimer(this, 2, (1 * 1000), false);
-		
-		sCInterface.raiseGroundingCoffee();
 	}
 	
 	/* Entry action for state 'coffeeGround'. */
@@ -607,12 +582,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* Entry action for state 'beginHeating'. */
 	private void entryAction_main_region_PlacingPod_r2_beginHeating() {
-		sCInterface.raiseHeating();
-	}
-	
-	/* Entry action for state 'IsHot'. */
-	private void entryAction_main_region_PlacingPod_r2_IsHot() {
-		timer.setTimer(this, 4, 100, true);
+		timer.setTimer(this, 4, sCInterface.getTimeToHeating(), false);
 	}
 	
 	/* Entry action for state 'expressoDistributed'. */
@@ -631,7 +601,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* Entry action for state 'addMilk'. */
 	private void entryAction_main_region_addMilk() {
-		timer.setTimer(this, 7, (2 * 1000), false);
+		timer.setTimer(this, 7, sCInterface.getMilkTime(), false);
 		
 		sCInterface.raiseAddingMilk();
 	}
@@ -656,8 +626,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		timer.unsetTimer(this, 3);
 	}
 	
-	/* Exit action for state 'IsHot'. */
-	private void exitAction_main_region_PlacingPod_r2_IsHot() {
+	/* Exit action for state 'beginHeating'. */
+	private void exitAction_main_region_PlacingPod_r2_beginHeating() {
 		timer.unsetTimer(this, 4);
 	}
 	
@@ -724,18 +694,17 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		stateVector[1] = State.main_region_PlacingPod_r1_Ingredient_r2_coffeeGround;
 	}
 	
+	/* 'default' enter sequence for state Poored */
+	private void enterSequence_main_region_PlacingPod_r1_Poored_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_PlacingPod_r1_Poored;
+	}
+	
 	/* 'default' enter sequence for state beginHeating */
 	private void enterSequence_main_region_PlacingPod_r2_beginHeating_default() {
 		entryAction_main_region_PlacingPod_r2_beginHeating();
 		nextStateIndex = 2;
 		stateVector[2] = State.main_region_PlacingPod_r2_beginHeating;
-	}
-	
-	/* 'default' enter sequence for state IsHot */
-	private void enterSequence_main_region_PlacingPod_r2_IsHot_default() {
-		entryAction_main_region_PlacingPod_r2_IsHot();
-		nextStateIndex = 2;
-		stateVector[2] = State.main_region_PlacingPod_r2_IsHot;
 	}
 	
 	/* 'default' enter sequence for state expressoDistributed */
@@ -840,18 +809,18 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		exitAction_main_region_PlacingPod_r1_Ingredient_r2_coffeeGround();
 	}
 	
+	/* Default exit sequence for state Poored */
+	private void exitSequence_main_region_PlacingPod_r1_Poored() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
 	/* Default exit sequence for state beginHeating */
 	private void exitSequence_main_region_PlacingPod_r2_beginHeating() {
 		nextStateIndex = 2;
 		stateVector[2] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state IsHot */
-	private void exitSequence_main_region_PlacingPod_r2_IsHot() {
-		nextStateIndex = 2;
-		stateVector[2] = State.$NullState$;
 		
-		exitAction_main_region_PlacingPod_r2_IsHot();
+		exitAction_main_region_PlacingPod_r2_beginHeating();
 	}
 	
 	/* Default exit sequence for state expressoDistributed */
@@ -896,6 +865,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		case main_region_PlacingPod_r1_Ingredient_r1_cupPlaced:
 			exitSequence_main_region_PlacingPod_r1_Ingredient_r1_cupPlaced();
 			break;
+		case main_region_PlacingPod_r1_Poored:
+			exitSequence_main_region_PlacingPod_r1_Poored();
+			break;
 		case main_region_expressoDistributed:
 			exitSequence_main_region_expressoDistributed();
 			break;
@@ -927,9 +899,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		case main_region_PlacingPod_r2_beginHeating:
 			exitSequence_main_region_PlacingPod_r2_beginHeating();
 			break;
-		case main_region_PlacingPod_r2_IsHot:
-			exitSequence_main_region_PlacingPod_r2_IsHot();
-			break;
 		default:
 			break;
 		}
@@ -946,6 +915,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			break;
 		case main_region_PlacingPod_r1_Ingredient_r1_cupPlaced:
 			exitSequence_main_region_PlacingPod_r1_Ingredient_r1_cupPlaced();
+			break;
+		case main_region_PlacingPod_r1_Poored:
+			exitSequence_main_region_PlacingPod_r1_Poored();
 			break;
 		default:
 			break;
@@ -997,9 +969,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		case main_region_PlacingPod_r2_beginHeating:
 			exitSequence_main_region_PlacingPod_r2_beginHeating();
 			break;
-		case main_region_PlacingPod_r2_IsHot:
-			exitSequence_main_region_PlacingPod_r2_IsHot();
-			break;
 		default:
 			break;
 		}
@@ -1050,8 +1019,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* The reactions of state null. */
 	private void react_main_region_PlacingPod_r1__sync0() {
-		exitSequence_main_region_PlacingPod();
-		react_main_region__sync0();
+		enterSequence_main_region_PlacingPod_r1_Poored_default();
 	}
 	
 	/* The reactions of state null. */
@@ -1161,29 +1129,25 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		return did_transition;
 	}
 	
-	private boolean main_region_PlacingPod_r2_beginHeating_react(boolean try_transition) {
+	private boolean main_region_PlacingPod_r1_Poored_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.isHot) {
-				exitSequence_main_region_PlacingPod_r2_beginHeating();
-				enterSequence_main_region_PlacingPod_r2_IsHot_default();
-				main_region_PlacingPod_react(false);
+			if (((true && isStateActive(State.main_region_PlacingPod_r2_beginHeating)) && timeEvents[4])) {
+				exitSequence_main_region_PlacingPod();
+				react_main_region__sync0();
 			} else {
 				did_transition = false;
 			}
 		}
-		if (did_transition==false) {
-			did_transition = main_region_PlacingPod_react(try_transition);
-		}
 		return did_transition;
 	}
 	
-	private boolean main_region_PlacingPod_r2_IsHot_react(boolean try_transition) {
+	private boolean main_region_PlacingPod_r2_beginHeating_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[4]) {
+			if (((timeEvents[4] && isStateActive(State.main_region_PlacingPod_r1_Poored)) && true)) {
 				exitSequence_main_region_PlacingPod();
 				react_main_region__sync0();
 			} else {

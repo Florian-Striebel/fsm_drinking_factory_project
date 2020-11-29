@@ -14,37 +14,18 @@ public class TeaPreparationControllerInterfaceImplementation implements SCInterf
 		this.factory = fact;
 	}
 
-	@Override
-	public void onPlaceTeaBagRaised() {
-		
-	}
+
 
 	@Override
 	public void onPlaceCupRaised() {
 		factory.setPictureCup("./picts/gobeletPolluant.jpg");
 	}
 
-	@Override
-	public void onHeatingRaised() {
-		tea.heatingWater();
-	}
 	
 	@Override
 	public void onPreparationFinishedRaised() {
 		System.out.println("finish Drink");
-		factory.theFSM.raisePreparationFinished();
-		factory.getProgressBar().setValue(100);	
-		
-	}
-
-	@Override
-	public void onBrewingRaised() {
-		
-	}
-
-	@Override
-	public void onDropTeaBagRaised() {
-		
+		factory.theFSM.raisePreparationFinished();		
 	}
 
 	@Override

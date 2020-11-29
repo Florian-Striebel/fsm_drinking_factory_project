@@ -12,11 +12,8 @@ import preparation.coffee.CoffeePreparationControllerInterfaceImplementation;
 
 public class PoorIngredient extends Preparation{
 	PoorIngredientStatemachine poorIngredientFSM;
-	DrinkFactoryMachine factory;
-
 	public PoorIngredient(DrinkFactoryMachine drinkFactory) {
-		super(1, DrinkSize.MEDIUM,60);
-		factory = drinkFactory;
+		super(1, DrinkSize.MEDIUM,60,drinkFactory);
 		poorIngredientFSM=new PoorIngredientStatemachine();
 		poorIngredientFSM.getSCInterface().getListeners().add(new PoorIngredientControllerInterfaceImplementation());
 
@@ -28,14 +25,23 @@ public class PoorIngredient extends Preparation{
 		this.sugarNumber=sugarNumber;
 		this.drinkSize = drinkSize;
 		poorIngredientFSM.setTimeDrink(this.timeToPoorDrinkInMs());
-		poorIngredientFSM.setTimeSugar(this.timeToPoorSugarInMs());
+		poorIngredientFSM.setTimeSugar(this.timeToPoorSugarOrSpicesInMs());
 		poorIngredientFSM.setMappleSyrup(options.get(Option.MAPLE_SYRUP));
+		poorIngredientFSM.setMappleTime(Option.MAPLE_SYRUP.getTime());
 		poorIngredientFSM.setIceCream(options.get(Option.ICE_CREAM));
+		poorIngredientFSM.setIceCreamTime(Option.ICE_CREAM.getTime());
+
 
 	}
 	
 	public PoorIngredientStatemachine getPoorIngredientFSM() {
 		return poorIngredientFSM;
+	}
+	
+	public int getTime() {
+		int time = Math.max(this.timeToPoorDrinkInMs(),poorIngredientFSM.getMappleSyrup()?Option.MAPLE_SYRUP.getTime():timeToPoorSugarOrSpicesInMs());
+		time += poorIngredientFSM.getIceCream()?Option.ICE_CREAM.getTime():0;
+		return time;
 	}
 }
 

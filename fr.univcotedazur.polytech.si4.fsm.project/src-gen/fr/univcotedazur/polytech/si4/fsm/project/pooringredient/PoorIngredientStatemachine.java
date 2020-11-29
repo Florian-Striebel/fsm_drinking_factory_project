@@ -130,6 +130,20 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 			}
 		}
 		
+		private long mappleTime;
+		
+		public synchronized long getMappleTime() {
+			synchronized(PoorIngredientStatemachine.this) {
+				return mappleTime;
+			}
+		}
+		
+		public void setMappleTime(long value) {
+			synchronized(PoorIngredientStatemachine.this) {
+				this.mappleTime = value;
+			}
+		}
+		
 		private boolean iceCream;
 		
 		public synchronized boolean getIceCream() {
@@ -141,6 +155,20 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		public void setIceCream(boolean value) {
 			synchronized(PoorIngredientStatemachine.this) {
 				this.iceCream = value;
+			}
+		}
+		
+		private long iceCreamTime;
+		
+		public synchronized long getIceCreamTime() {
+			synchronized(PoorIngredientStatemachine.this) {
+				return iceCreamTime;
+			}
+		}
+		
+		public void setIceCreamTime(long value) {
+			synchronized(PoorIngredientStatemachine.this) {
+				this.iceCreamTime = value;
 			}
 		}
 		
@@ -203,7 +231,11 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		
 		sCInterface.setMappleSyrup(false);
 		
+		sCInterface.setMappleTime(0);
+		
 		sCInterface.setIceCream(false);
+		
+		sCInterface.setIceCreamTime(0);
 	}
 	
 	public synchronized void enter() {
@@ -427,12 +459,28 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 		sCInterface.setMappleSyrup(value);
 	}
 	
+	public synchronized long getMappleTime() {
+		return sCInterface.getMappleTime();
+	}
+	
+	public synchronized void setMappleTime(long value) {
+		sCInterface.setMappleTime(value);
+	}
+	
 	public synchronized boolean getIceCream() {
 		return sCInterface.getIceCream();
 	}
 	
 	public synchronized void setIceCream(boolean value) {
 		sCInterface.setIceCream(value);
+	}
+	
+	public synchronized long getIceCreamTime() {
+		return sCInterface.getIceCreamTime();
+	}
+	
+	public synchronized void setIceCreamTime(long value) {
+		sCInterface.setIceCreamTime(value);
 	}
 	
 	private boolean check_main_region_poorIngredient_r1__choice_0_tr1_tr1() {
@@ -466,7 +514,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	
 	/* Entry action for state 'syrupPoor'. */
 	private void entryAction_main_region_poorIngredient_r1_syrupPoor() {
-		timer.setTimer(this, 1, (3 * 1000), false);
+		timer.setTimer(this, 1, sCInterface.getMappleTime(), false);
 		
 		sCInterface.raisePooringSyrup();
 	}
@@ -483,7 +531,7 @@ public class PoorIngredientStatemachine implements IPoorIngredientStatemachine {
 	
 	/* Entry action for state 'add&mixIcream'. */
 	private void entryAction_main_region_add_mixIcream() {
-		timer.setTimer(this, 4, (4 * 1000), false);
+		timer.setTimer(this, 4, sCInterface.getIceCreamTime(), false);
 		
 		sCInterface.raiseDoAddMixIcecream();
 	}

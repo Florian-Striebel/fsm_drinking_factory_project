@@ -107,24 +107,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		
-		private boolean placeTeaBag;
-		
-		
-		public boolean isRaisedPlaceTeaBag() {
-			synchronized(TeaStatemachine.this) {
-				return placeTeaBag;
-			}
-		}
-		
-		protected void raisePlaceTeaBag() {
-			synchronized(TeaStatemachine.this) {
-				placeTeaBag = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onPlaceTeaBagRaised();
-				}
-			}
-		}
-		
 		private boolean placeCup;
 		
 		
@@ -143,24 +125,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		
-		private boolean heating;
-		
-		
-		public boolean isRaisedHeating() {
-			synchronized(TeaStatemachine.this) {
-				return heating;
-			}
-		}
-		
-		protected void raiseHeating() {
-			synchronized(TeaStatemachine.this) {
-				heating = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onHeatingRaised();
-				}
-			}
-		}
-		
 		private boolean preparationFinished;
 		
 		
@@ -175,42 +139,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 				preparationFinished = true;
 				for (SCInterfaceListener listener : listeners) {
 					listener.onPreparationFinishedRaised();
-				}
-			}
-		}
-		
-		private boolean brewing;
-		
-		
-		public boolean isRaisedBrewing() {
-			synchronized(TeaStatemachine.this) {
-				return brewing;
-			}
-		}
-		
-		protected void raiseBrewing() {
-			synchronized(TeaStatemachine.this) {
-				brewing = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onBrewingRaised();
-				}
-			}
-		}
-		
-		private boolean dropTeaBag;
-		
-		
-		public boolean isRaisedDropTeaBag() {
-			synchronized(TeaStatemachine.this) {
-				return dropTeaBag;
-			}
-		}
-		
-		protected void raiseDropTeaBag() {
-			synchronized(TeaStatemachine.this) {
-				dropTeaBag = true;
-				for (SCInterfaceListener listener : listeners) {
-					listener.onDropTeaBagRaised();
 				}
 			}
 		}
@@ -261,6 +189,20 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		
+		private long milkTime;
+		
+		public synchronized long getMilkTime() {
+			synchronized(TeaStatemachine.this) {
+				return milkTime;
+			}
+		}
+		
+		public void setMilkTime(long value) {
+			synchronized(TeaStatemachine.this) {
+				this.milkTime = value;
+			}
+		}
+		
 		private boolean userCup;
 		
 		public synchronized boolean getUserCup() {
@@ -275,6 +217,20 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		
+		private long timeToHeating;
+		
+		public synchronized long getTimeToHeating() {
+			synchronized(TeaStatemachine.this) {
+				return timeToHeating;
+			}
+		}
+		
+		public void setTimeToHeating(long value) {
+			synchronized(TeaStatemachine.this) {
+				this.timeToHeating = value;
+			}
+		}
+		
 		protected void clearEvents() {
 			teaBagDropped = false;
 			isInfused = false;
@@ -284,12 +240,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 		}
 		protected void clearOutEvents() {
 		
-		placeTeaBag = false;
 		placeCup = false;
-		heating = false;
 		preparationFinished = false;
-		brewing = false;
-		dropTeaBag = false;
 		addingMilk = false;
 		}
 		
@@ -306,7 +258,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		main_region_prepareIngredient_r1_getTeaBag,
 		main_region_prepareIngredient_r1_cupPositionned,
 		main_region_prepareIngredient_r2_Heating,
-		main_region_prepareIngredient_r2_IsHot,
 		main_region_DrinkDistribute,
 		main_region_brew,
 		main_region_dropTeaBag,
@@ -342,7 +293,11 @@ public class TeaStatemachine implements ITeaStatemachine {
 		clearOutEvents();
 		sCInterface.setMilk(false);
 		
+		sCInterface.setMilkTime(0);
+		
 		sCInterface.setUserCup(false);
+		
+		sCInterface.setTimeToHeating(0);
 	}
 	
 	public synchronized void enter() {
@@ -397,9 +352,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 				break;
 			case main_region_prepareIngredient_r2_Heating:
 				main_region_prepareIngredient_r2_Heating_react(true);
-				break;
-			case main_region_prepareIngredient_r2_IsHot:
-				main_region_prepareIngredient_r2_IsHot_react(true);
 				break;
 			case main_region_DrinkDistribute:
 				main_region_DrinkDistribute_react(true);
@@ -485,7 +437,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		switch (state) {
 		case main_region_prepareIngredient:
 			return stateVector[0].ordinal() >= State.
-					main_region_prepareIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_prepareIngredient_r2_IsHot.ordinal();
+					main_region_prepareIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_prepareIngredient_r2_Heating.ordinal();
 		case main_region_prepareIngredient_r1_positionningCup:
 			return stateVector[0] == State.main_region_prepareIngredient_r1_positionningCup;
 		case main_region_prepareIngredient_r1_getTeaBag:
@@ -494,8 +446,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			return stateVector[0] == State.main_region_prepareIngredient_r1_cupPositionned;
 		case main_region_prepareIngredient_r2_Heating:
 			return stateVector[1] == State.main_region_prepareIngredient_r2_Heating;
-		case main_region_prepareIngredient_r2_IsHot:
-			return stateVector[1] == State.main_region_prepareIngredient_r2_IsHot;
 		case main_region_DrinkDistribute:
 			return stateVector[0] == State.main_region_DrinkDistribute;
 		case main_region_brew:
@@ -568,28 +518,12 @@ public class TeaStatemachine implements ITeaStatemachine {
 		sCInterface.raisePrepare();
 	}
 	
-	public synchronized boolean isRaisedPlaceTeaBag() {
-		return sCInterface.isRaisedPlaceTeaBag();
-	}
-	
 	public synchronized boolean isRaisedPlaceCup() {
 		return sCInterface.isRaisedPlaceCup();
 	}
 	
-	public synchronized boolean isRaisedHeating() {
-		return sCInterface.isRaisedHeating();
-	}
-	
 	public synchronized boolean isRaisedPreparationFinished() {
 		return sCInterface.isRaisedPreparationFinished();
-	}
-	
-	public synchronized boolean isRaisedBrewing() {
-		return sCInterface.isRaisedBrewing();
-	}
-	
-	public synchronized boolean isRaisedDropTeaBag() {
-		return sCInterface.isRaisedDropTeaBag();
 	}
 	
 	public synchronized boolean isRaisedAddingMilk() {
@@ -612,12 +546,28 @@ public class TeaStatemachine implements ITeaStatemachine {
 		sCInterface.setMilk(value);
 	}
 	
+	public synchronized long getMilkTime() {
+		return sCInterface.getMilkTime();
+	}
+	
+	public synchronized void setMilkTime(long value) {
+		sCInterface.setMilkTime(value);
+	}
+	
 	public synchronized boolean getUserCup() {
 		return sCInterface.getUserCup();
 	}
 	
 	public synchronized void setUserCup(boolean value) {
 		sCInterface.setUserCup(value);
+	}
+	
+	public synchronized long getTimeToHeating() {
+		return sCInterface.getTimeToHeating();
+	}
+	
+	public synchronized void setTimeToHeating(long value) {
+		sCInterface.setTimeToHeating(value);
 	}
 	
 	private boolean check_main_region_prepareIngredient_r1__choice_0_tr1_tr1() {
@@ -654,18 +604,11 @@ public class TeaStatemachine implements ITeaStatemachine {
 	/* Entry action for state 'getTeaBag'. */
 	private void entryAction_main_region_prepareIngredient_r1_getTeaBag() {
 		timer.setTimer(this, 1, (1 * 1000), false);
-		
-		sCInterface.raisePlaceTeaBag();
 	}
 	
 	/* Entry action for state 'Heating'. */
 	private void entryAction_main_region_prepareIngredient_r2_Heating() {
-		sCInterface.raiseHeating();
-	}
-	
-	/* Entry action for state 'IsHot'. */
-	private void entryAction_main_region_prepareIngredient_r2_IsHot() {
-		timer.setTimer(this, 2, 100, true);
+		timer.setTimer(this, 2, sCInterface.getTimeToHeating(), false);
 	}
 	
 	/* Entry action for state 'DrinkDistribute'. */
@@ -678,15 +621,11 @@ public class TeaStatemachine implements ITeaStatemachine {
 	/* Entry action for state 'brew'. */
 	private void entryAction_main_region_brew() {
 		timer.setTimer(this, 4, (5 * 1000), false);
-		
-		sCInterface.raiseBrewing();
 	}
 	
 	/* Entry action for state 'dropTeaBag'. */
 	private void entryAction_main_region_dropTeaBag() {
-		timer.setTimer(this, 5, (2 * 1000), false);
-		
-		sCInterface.raiseDropTeaBag();
+		timer.setTimer(this, 5, (1 * 1000), false);
 	}
 	
 	/* Entry action for state 'pooringIngredients'. */
@@ -698,7 +637,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	/* Entry action for state 'addMilk'. */
 	private void entryAction_main_region_addMilk() {
-		timer.setTimer(this, 7, (2 * 1000), false);
+		timer.setTimer(this, 7, sCInterface.getMilkTime(), false);
 		
 		sCInterface.raiseAddingMilk();
 	}
@@ -713,8 +652,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 		timer.unsetTimer(this, 1);
 	}
 	
-	/* Exit action for state 'IsHot'. */
-	private void exitAction_main_region_prepareIngredient_r2_IsHot() {
+	/* Exit action for state 'Heating'. */
+	private void exitAction_main_region_prepareIngredient_r2_Heating() {
 		timer.unsetTimer(this, 2);
 	}
 	
@@ -776,13 +715,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		entryAction_main_region_prepareIngredient_r2_Heating();
 		nextStateIndex = 1;
 		stateVector[1] = State.main_region_prepareIngredient_r2_Heating;
-	}
-	
-	/* 'default' enter sequence for state IsHot */
-	private void enterSequence_main_region_prepareIngredient_r2_IsHot_default() {
-		entryAction_main_region_prepareIngredient_r2_IsHot();
-		nextStateIndex = 1;
-		stateVector[1] = State.main_region_prepareIngredient_r2_IsHot;
 	}
 	
 	/* 'default' enter sequence for state DrinkDistribute */
@@ -873,14 +805,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 	private void exitSequence_main_region_prepareIngredient_r2_Heating() {
 		nextStateIndex = 1;
 		stateVector[1] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state IsHot */
-	private void exitSequence_main_region_prepareIngredient_r2_IsHot() {
-		nextStateIndex = 1;
-		stateVector[1] = State.$NullState$;
 		
-		exitAction_main_region_prepareIngredient_r2_IsHot();
+		exitAction_main_region_prepareIngredient_r2_Heating();
 	}
 	
 	/* Default exit sequence for state DrinkDistribute */
@@ -967,9 +893,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		case main_region_prepareIngredient_r2_Heating:
 			exitSequence_main_region_prepareIngredient_r2_Heating();
 			break;
-		case main_region_prepareIngredient_r2_IsHot:
-			exitSequence_main_region_prepareIngredient_r2_IsHot();
-			break;
 		default:
 			break;
 		}
@@ -997,9 +920,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		switch (stateVector[1]) {
 		case main_region_prepareIngredient_r2_Heating:
 			exitSequence_main_region_prepareIngredient_r2_Heating();
-			break;
-		case main_region_prepareIngredient_r2_IsHot:
-			exitSequence_main_region_prepareIngredient_r2_IsHot();
 			break;
 		default:
 			break;
@@ -1092,7 +1012,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_prepareIngredient_r2_IsHot)) && timeEvents[2])) {
+			if (((true && isStateActive(State.main_region_prepareIngredient_r2_Heating)) && timeEvents[2])) {
 				exitSequence_main_region_prepareIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1103,24 +1023,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 	}
 	
 	private boolean main_region_prepareIngredient_r2_Heating_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.isHot) {
-				exitSequence_main_region_prepareIngredient_r2_Heating();
-				enterSequence_main_region_prepareIngredient_r2_IsHot_default();
-				main_region_prepareIngredient_react(false);
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-			did_transition = main_region_prepareIngredient_react(try_transition);
-		}
-		return did_transition;
-	}
-	
-	private boolean main_region_prepareIngredient_r2_IsHot_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
