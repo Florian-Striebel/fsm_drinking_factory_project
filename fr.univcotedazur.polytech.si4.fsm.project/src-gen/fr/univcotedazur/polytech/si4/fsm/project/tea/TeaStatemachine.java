@@ -53,24 +53,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		
-		private boolean isHot;
-		
-		
-		public void raiseIsHot() {
-			synchronized(TeaStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							isHot = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
 		private boolean drinkPickedUp;
 		
 		
@@ -234,7 +216,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 		protected void clearEvents() {
 			teaBagDropped = false;
 			isInfused = false;
-			isHot = false;
 			drinkPickedUp = false;
 			prepare = false;
 		}
@@ -258,6 +239,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		main_region_prepareIngredient_r1_getTeaBag,
 		main_region_prepareIngredient_r1_cupPositionned,
 		main_region_prepareIngredient_r2_Heating,
+		main_region_prepareIngredient_r2_hot,
 		main_region_DrinkDistribute,
 		main_region_brew,
 		main_region_dropTeaBag,
@@ -273,7 +255,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[8];
+	private final boolean[] timeEvents = new boolean[9];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -352,6 +334,9 @@ public class TeaStatemachine implements ITeaStatemachine {
 				break;
 			case main_region_prepareIngredient_r2_Heating:
 				main_region_prepareIngredient_r2_Heating_react(true);
+				break;
+			case main_region_prepareIngredient_r2_hot:
+				main_region_prepareIngredient_r2_hot_react(true);
 				break;
 			case main_region_DrinkDistribute:
 				main_region_DrinkDistribute_react(true);
@@ -437,7 +422,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		switch (state) {
 		case main_region_prepareIngredient:
 			return stateVector[0].ordinal() >= State.
-					main_region_prepareIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_prepareIngredient_r2_Heating.ordinal();
+					main_region_prepareIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_prepareIngredient_r2_hot.ordinal();
 		case main_region_prepareIngredient_r1_positionningCup:
 			return stateVector[0] == State.main_region_prepareIngredient_r1_positionningCup;
 		case main_region_prepareIngredient_r1_getTeaBag:
@@ -446,6 +431,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 			return stateVector[0] == State.main_region_prepareIngredient_r1_cupPositionned;
 		case main_region_prepareIngredient_r2_Heating:
 			return stateVector[1] == State.main_region_prepareIngredient_r2_Heating;
+		case main_region_prepareIngredient_r2_hot:
+			return stateVector[1] == State.main_region_prepareIngredient_r2_hot;
 		case main_region_DrinkDistribute:
 			return stateVector[0] == State.main_region_DrinkDistribute;
 		case main_region_brew:
@@ -504,10 +491,6 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	public synchronized void raiseIsInfused() {
 		sCInterface.raiseIsInfused();
-	}
-	
-	public synchronized void raiseIsHot() {
-		sCInterface.raiseIsHot();
 	}
 	
 	public synchronized void raiseDrinkPickedUp() {
@@ -606,38 +589,43 @@ public class TeaStatemachine implements ITeaStatemachine {
 		timer.setTimer(this, 1, (1 * 1000), false);
 	}
 	
+	/* Entry action for state 'cupPositionned'. */
+	private void entryAction_main_region_prepareIngredient_r1_cupPositionned() {
+		timer.setTimer(this, 2, 100, true);
+	}
+	
 	/* Entry action for state 'Heating'. */
 	private void entryAction_main_region_prepareIngredient_r2_Heating() {
-		timer.setTimer(this, 2, sCInterface.getTimeToHeating(), false);
+		timer.setTimer(this, 3, sCInterface.getTimeToHeating(), false);
 	}
 	
 	/* Entry action for state 'DrinkDistribute'. */
 	private void entryAction_main_region_DrinkDistribute() {
-		timer.setTimer(this, 3, 100, false);
+		timer.setTimer(this, 4, 100, false);
 		
 		sCInterface.raisePreparationFinished();
 	}
 	
 	/* Entry action for state 'brew'. */
 	private void entryAction_main_region_brew() {
-		timer.setTimer(this, 4, (5 * 1000), false);
+		timer.setTimer(this, 5, (5 * 1000), false);
 	}
 	
 	/* Entry action for state 'dropTeaBag'. */
 	private void entryAction_main_region_dropTeaBag() {
-		timer.setTimer(this, 5, (1 * 1000), false);
+		timer.setTimer(this, 6, (1 * 1000), false);
 	}
 	
 	/* Entry action for state 'pooringIngredients'. */
 	private void entryAction_main_region_pooringIngredients() {
-		timer.setTimer(this, 6, 100, true);
+		timer.setTimer(this, 7, 100, true);
 		
 		sCInterface.getPoorI().enter();
 	}
 	
 	/* Entry action for state 'addMilk'. */
 	private void entryAction_main_region_addMilk() {
-		timer.setTimer(this, 7, sCInterface.getMilkTime(), false);
+		timer.setTimer(this, 8, sCInterface.getMilkTime(), false);
 		
 		sCInterface.raiseAddingMilk();
 	}
@@ -652,36 +640,41 @@ public class TeaStatemachine implements ITeaStatemachine {
 		timer.unsetTimer(this, 1);
 	}
 	
+	/* Exit action for state 'cupPositionned'. */
+	private void exitAction_main_region_prepareIngredient_r1_cupPositionned() {
+		timer.unsetTimer(this, 2);
+	}
+	
 	/* Exit action for state 'Heating'. */
 	private void exitAction_main_region_prepareIngredient_r2_Heating() {
-		timer.unsetTimer(this, 2);
+		timer.unsetTimer(this, 3);
 	}
 	
 	/* Exit action for state 'DrinkDistribute'. */
 	private void exitAction_main_region_DrinkDistribute() {
-		timer.unsetTimer(this, 3);
+		timer.unsetTimer(this, 4);
 	}
 	
 	/* Exit action for state 'brew'. */
 	private void exitAction_main_region_brew() {
-		timer.unsetTimer(this, 4);
+		timer.unsetTimer(this, 5);
 	}
 	
 	/* Exit action for state 'dropTeaBag'. */
 	private void exitAction_main_region_dropTeaBag() {
-		timer.unsetTimer(this, 5);
+		timer.unsetTimer(this, 6);
 	}
 	
 	/* Exit action for state 'pooringIngredients'. */
 	private void exitAction_main_region_pooringIngredients() {
-		timer.unsetTimer(this, 6);
+		timer.unsetTimer(this, 7);
 		
 		sCInterface.getPoorI().exit();
 	}
 	
 	/* Exit action for state 'addMilk'. */
 	private void exitAction_main_region_addMilk() {
-		timer.unsetTimer(this, 7);
+		timer.unsetTimer(this, 8);
 	}
 	
 	/* 'default' enter sequence for state prepareIngredient */
@@ -706,6 +699,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 	
 	/* 'default' enter sequence for state cupPositionned */
 	private void enterSequence_main_region_prepareIngredient_r1_cupPositionned_default() {
+		entryAction_main_region_prepareIngredient_r1_cupPositionned();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_prepareIngredient_r1_cupPositionned;
 	}
@@ -715,6 +709,12 @@ public class TeaStatemachine implements ITeaStatemachine {
 		entryAction_main_region_prepareIngredient_r2_Heating();
 		nextStateIndex = 1;
 		stateVector[1] = State.main_region_prepareIngredient_r2_Heating;
+	}
+	
+	/* 'default' enter sequence for state hot */
+	private void enterSequence_main_region_prepareIngredient_r2_hot_default() {
+		nextStateIndex = 1;
+		stateVector[1] = State.main_region_prepareIngredient_r2_hot;
 	}
 	
 	/* 'default' enter sequence for state DrinkDistribute */
@@ -799,6 +799,8 @@ public class TeaStatemachine implements ITeaStatemachine {
 	private void exitSequence_main_region_prepareIngredient_r1_cupPositionned() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_prepareIngredient_r1_cupPositionned();
 	}
 	
 	/* Default exit sequence for state Heating */
@@ -807,6 +809,12 @@ public class TeaStatemachine implements ITeaStatemachine {
 		stateVector[1] = State.$NullState$;
 		
 		exitAction_main_region_prepareIngredient_r2_Heating();
+	}
+	
+	/* Default exit sequence for state hot */
+	private void exitSequence_main_region_prepareIngredient_r2_hot() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for state DrinkDistribute */
@@ -893,6 +901,9 @@ public class TeaStatemachine implements ITeaStatemachine {
 		case main_region_prepareIngredient_r2_Heating:
 			exitSequence_main_region_prepareIngredient_r2_Heating();
 			break;
+		case main_region_prepareIngredient_r2_hot:
+			exitSequence_main_region_prepareIngredient_r2_hot();
+			break;
 		default:
 			break;
 		}
@@ -920,6 +931,9 @@ public class TeaStatemachine implements ITeaStatemachine {
 		switch (stateVector[1]) {
 		case main_region_prepareIngredient_r2_Heating:
 			exitSequence_main_region_prepareIngredient_r2_Heating();
+			break;
+		case main_region_prepareIngredient_r2_hot:
+			exitSequence_main_region_prepareIngredient_r2_hot();
 			break;
 		default:
 			break;
@@ -1012,7 +1026,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_prepareIngredient_r2_Heating)) && timeEvents[2])) {
+			if (((timeEvents[2] && isStateActive(State.main_region_prepareIngredient_r2_hot)) && true)) {
 				exitSequence_main_region_prepareIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1026,7 +1040,25 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((timeEvents[2] && isStateActive(State.main_region_prepareIngredient_r1_cupPositionned)) && true)) {
+			if (timeEvents[3]) {
+				exitSequence_main_region_prepareIngredient_r2_Heating();
+				enterSequence_main_region_prepareIngredient_r2_hot_default();
+				main_region_prepareIngredient_react(false);
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			did_transition = main_region_prepareIngredient_react(try_transition);
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_prepareIngredient_r2_hot_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (((true && isStateActive(State.main_region_prepareIngredient_r1_cupPositionned)) && timeEvents[2])) {
 				exitSequence_main_region_prepareIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1043,7 +1075,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[3]) {
+			if (timeEvents[4]) {
 				exitSequence_main_region_DrinkDistribute();
 				enterSequence_main_region_Ready_default();
 				react();
@@ -1061,7 +1093,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[4]) {
+			if (timeEvents[5]) {
 				exitSequence_main_region_brew();
 				enterSequence_main_region_dropTeaBag_default();
 				react();
@@ -1079,7 +1111,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[5]) {
+			if (timeEvents[6]) {
 				exitSequence_main_region_dropTeaBag();
 				react_main_region__choice_0();
 			} else {
@@ -1123,7 +1155,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 			}
 		}
 		if (did_transition==false) {
-			if (timeEvents[6]) {
+			if (timeEvents[7]) {
 				sCInterface.getPoorI().runCycle();
 			}
 			did_transition = react();
@@ -1135,7 +1167,7 @@ public class TeaStatemachine implements ITeaStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[7]) {
+			if (timeEvents[8]) {
 				exitSequence_main_region_addMilk();
 				enterSequence_main_region_DrinkDistribute_default();
 				react();

@@ -17,8 +17,6 @@ public interface ITeaStatemachine extends ITimerCallback,IStatemachine {
 		
 		public void raiseIsInfused();
 		
-		public void raiseIsHot();
-		
 		public void raiseDrinkPickedUp();
 		
 		public void raisePrepare();

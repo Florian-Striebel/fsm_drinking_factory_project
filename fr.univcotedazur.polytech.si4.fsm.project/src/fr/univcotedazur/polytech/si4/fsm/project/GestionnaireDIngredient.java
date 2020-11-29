@@ -12,7 +12,7 @@ public class GestionnaireDIngredient {
 	public GestionnaireDIngredient() {
 		nbIngredients = new ArrayList<>();
 		for(int i=0;i<Ingredient.values().length;i++) {
-			nbIngredients.add(1);
+			nbIngredients.add(2);
 		}
 	}
 	

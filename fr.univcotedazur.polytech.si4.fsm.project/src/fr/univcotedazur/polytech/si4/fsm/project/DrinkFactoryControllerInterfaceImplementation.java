@@ -24,7 +24,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
-		price = 1000;
+		price = 10^5;
 		df = new DecimalFormat("0.00");
 		coffee= new CoffeePreparation(fact);
 		tea = new TeaPreparation(fact);
@@ -44,13 +44,17 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.theFSM.setIsPaid(false);
 		factory.theFSM.setIsSelected(false);
 		factory.theFSM.setIsValidate(true);
+		factory.userUseIsCup = false;
 		coins = 0;
+		price = 10^5;
 		factory.setPictureCup("./picts/vide2.jpg");
 		factory.reactivateNFC();
 		setEnableeButtons(true);
 		factory.disableDrinkIndisponnible();
 		factory.takeDrinkButton.setVisible(false);
 		factory.optionPanel.disableOptionIndisponnible();
+		factory.addCupButton.setVisible(true);
+		factory.selection = null;
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
@@ -61,7 +65,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	}
 	@Override
 	public void onDoSelectionRaised() {
-		price = (float)factory.calculPrixAvecReduction(factory.getNfcId(), factory.selection.getPrice())+factory.optionPanel.optionPrice();
+		price = (float)factory.calculPrixAvecReduction(factory.getNfcId(), factory.selection.getPrice())+factory.optionPanel.optionPrice()+
+				(factory.userUseIsCup?-0.10f:0);
 		factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName()+
 				"<br/>Prix: "+df.format(price)+"€");
 		factory.displayValidate();
@@ -94,13 +99,16 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoStartPreparationRaised() {
+		factory.changeButton.setVisible(false);
+		factory.lblValidate.setVisible(false);
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
 		setEnableeButtons(false);
+
 	}
 
 	@Override
 	public void onDoPreparationRaised() {
-		factory.ajouterPrixBoissonAClient(factory.getNfcId(), factory.selection.getPrice());
+		factory.ajouterPrixBoissonAClient(factory.getNfcId(), price);
 		factory.messagesToUser.setText("<html>Préparation en cours de "+factory.selection.getName());
 		factory.messageForPayment.setText("");
 		factory.optionPanel.decrementeOptions();
@@ -119,8 +127,6 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		} else if(factory.selection.equals(Drink.SOUP)) {
 			factory.decremente(Ingredient.DOSESOUPE);
 			factory.getProgressBar().setValue(0);
-			factory.validateButton.setVisible(false);
-			factory.lblValidate.setVisible(false);
 			soup.prepare(factory.getSugarSize(), factory.getDrinkSize(), factory.getTemperature(),factory.optionPanel.getOptions(),factory.userUseIsCup);
 
 		}
@@ -161,6 +167,15 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onIncreaseBarRaised() {
 		factory.getProgressBar().setValue(factory.getProgressBar().getValue()+1);
+	}
+
+
+	@Override
+	public void onAddedCupRaised() {
+		price += -0.10f;
+		if(factory.selection !=null)
+			factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName()+
+				"<br/>Prix: "+df.format(price)+"€");
 	}
 		
 }

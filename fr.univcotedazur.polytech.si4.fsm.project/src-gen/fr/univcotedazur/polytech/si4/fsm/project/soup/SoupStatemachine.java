@@ -16,24 +16,6 @@ public class SoupStatemachine implements ISoupStatemachine {
 		public List<SCInterfaceListener> getListeners() {
 			return listeners;
 		}
-		private boolean isHot;
-		
-		
-		public void raiseIsHot() {
-			synchronized(SoupStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							isHot = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
 		private boolean drinkPickedUp;
 		
 		
@@ -227,7 +209,6 @@ public class SoupStatemachine implements ISoupStatemachine {
 		}
 		
 		protected void clearEvents() {
-			isHot = false;
 			drinkPickedUp = false;
 			spiceFinishPoored = false;
 			prepare = false;
@@ -257,10 +238,12 @@ public class SoupStatemachine implements ISoupStatemachine {
 		main_region_preparationIngredient_r1_poorIngredient_r2_spicesPoored,
 		main_region_preparationIngredient_r1_Poored,
 		main_region_preparationIngredient_r2_beginHeating,
+		main_region_preparationIngredient_r2_hot,
 		main_region_DrinkDistribute,
 		main_region_Ready,
 		main_region_poorMoreIngredient,
 		main_region_poorMoreIngredient_r1_poorDrink,
+		main_region_poorMoreIngredient_r1_drinkPoored,
 		main_region_poorMoreIngredient_r2_addBreadCroutons,
 		main_region_poorMoreIngredient_r2_optionFinished,
 		$NullState$
@@ -272,7 +255,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[10];
+	private final boolean[] timeEvents = new boolean[12];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -368,6 +351,9 @@ public class SoupStatemachine implements ISoupStatemachine {
 			case main_region_preparationIngredient_r2_beginHeating:
 				main_region_preparationIngredient_r2_beginHeating_react(true);
 				break;
+			case main_region_preparationIngredient_r2_hot:
+				main_region_preparationIngredient_r2_hot_react(true);
+				break;
 			case main_region_DrinkDistribute:
 				main_region_DrinkDistribute_react(true);
 				break;
@@ -376,6 +362,9 @@ public class SoupStatemachine implements ISoupStatemachine {
 				break;
 			case main_region_poorMoreIngredient_r1_poorDrink:
 				main_region_poorMoreIngredient_r1_poorDrink_react(true);
+				break;
+			case main_region_poorMoreIngredient_r1_drinkPoored:
+				main_region_poorMoreIngredient_r1_drinkPoored_react(true);
 				break;
 			case main_region_poorMoreIngredient_r2_addBreadCroutons:
 				main_region_poorMoreIngredient_r2_addBreadCroutons_react(true);
@@ -449,7 +438,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 		switch (state) {
 		case main_region_preparationIngredient:
 			return stateVector[0].ordinal() >= State.
-					main_region_preparationIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_preparationIngredient_r2_beginHeating.ordinal();
+					main_region_preparationIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_preparationIngredient_r2_hot.ordinal();
 		case main_region_preparationIngredient_r1_positionningCup:
 			return stateVector[0] == State.main_region_preparationIngredient_r1_positionningCup;
 		case main_region_preparationIngredient_r1_cupPositionned:
@@ -469,6 +458,8 @@ public class SoupStatemachine implements ISoupStatemachine {
 			return stateVector[0] == State.main_region_preparationIngredient_r1_Poored;
 		case main_region_preparationIngredient_r2_beginHeating:
 			return stateVector[2] == State.main_region_preparationIngredient_r2_beginHeating;
+		case main_region_preparationIngredient_r2_hot:
+			return stateVector[2] == State.main_region_preparationIngredient_r2_hot;
 		case main_region_DrinkDistribute:
 			return stateVector[0] == State.main_region_DrinkDistribute;
 		case main_region_Ready:
@@ -478,6 +469,8 @@ public class SoupStatemachine implements ISoupStatemachine {
 					main_region_poorMoreIngredient.ordinal()&& stateVector[0].ordinal() <= State.main_region_poorMoreIngredient_r2_optionFinished.ordinal();
 		case main_region_poorMoreIngredient_r1_poorDrink:
 			return stateVector[0] == State.main_region_poorMoreIngredient_r1_poorDrink;
+		case main_region_poorMoreIngredient_r1_drinkPoored:
+			return stateVector[0] == State.main_region_poorMoreIngredient_r1_drinkPoored;
 		case main_region_poorMoreIngredient_r2_addBreadCroutons:
 			return stateVector[1] == State.main_region_poorMoreIngredient_r2_addBreadCroutons;
 		case main_region_poorMoreIngredient_r2_optionFinished:
@@ -520,10 +513,6 @@ public class SoupStatemachine implements ISoupStatemachine {
 	
 	public SCInterface getSCInterface() {
 		return sCInterface;
-	}
-	
-	public synchronized void raiseIsHot() {
-		sCInterface.raiseIsHot();
 	}
 	
 	public synchronized void raiseDrinkPickedUp() {
@@ -649,28 +638,38 @@ public class SoupStatemachine implements ISoupStatemachine {
 		timer.setTimer(this, 4, 100, true);
 	}
 	
+	/* Entry action for state 'Poored'. */
+	private void entryAction_main_region_preparationIngredient_r1_Poored() {
+		timer.setTimer(this, 5, 100, true);
+	}
+	
 	/* Entry action for state 'beginHeating'. */
 	private void entryAction_main_region_preparationIngredient_r2_beginHeating() {
-		timer.setTimer(this, 5, sCInterface.getTimeToHeating(), false);
+		timer.setTimer(this, 6, sCInterface.getTimeToHeating(), false);
 	}
 	
 	/* Entry action for state 'DrinkDistribute'. */
 	private void entryAction_main_region_DrinkDistribute() {
-		timer.setTimer(this, 6, 100, false);
+		timer.setTimer(this, 7, 100, false);
 		
 		sCInterface.raisePreparationFinished();
 	}
 	
 	/* Entry action for state 'poorDrink'. */
 	private void entryAction_main_region_poorMoreIngredient_r1_poorDrink() {
-		timer.setTimer(this, 7, sCInterface.getTimePoorDrink(), false);
+		timer.setTimer(this, 8, sCInterface.getTimePoorDrink(), false);
+	}
+	
+	/* Entry action for state 'drinkPoored'. */
+	private void entryAction_main_region_poorMoreIngredient_r1_drinkPoored() {
+		timer.setTimer(this, 9, 100, true);
 	}
 	
 	/* Entry action for state 'addBreadCroutons'. */
 	private void entryAction_main_region_poorMoreIngredient_r2_addBreadCroutons() {
-		timer.setTimer(this, 8, sCInterface.getBreadTime(), false);
+		timer.setTimer(this, 10, ((3000 + sCInterface.getBreadTime())), false);
 		
-		timer.setTimer(this, 9, (3 * 1000), false);
+		timer.setTimer(this, 11, (3 * 1000), false);
 	}
 	
 	/* Exit action for state 'positionningCup'. */
@@ -698,26 +697,36 @@ public class SoupStatemachine implements ISoupStatemachine {
 		timer.unsetTimer(this, 4);
 	}
 	
+	/* Exit action for state 'Poored'. */
+	private void exitAction_main_region_preparationIngredient_r1_Poored() {
+		timer.unsetTimer(this, 5);
+	}
+	
 	/* Exit action for state 'beginHeating'. */
 	private void exitAction_main_region_preparationIngredient_r2_beginHeating() {
-		timer.unsetTimer(this, 5);
+		timer.unsetTimer(this, 6);
 	}
 	
 	/* Exit action for state 'DrinkDistribute'. */
 	private void exitAction_main_region_DrinkDistribute() {
-		timer.unsetTimer(this, 6);
+		timer.unsetTimer(this, 7);
 	}
 	
 	/* Exit action for state 'poorDrink'. */
 	private void exitAction_main_region_poorMoreIngredient_r1_poorDrink() {
-		timer.unsetTimer(this, 7);
+		timer.unsetTimer(this, 8);
+	}
+	
+	/* Exit action for state 'drinkPoored'. */
+	private void exitAction_main_region_poorMoreIngredient_r1_drinkPoored() {
+		timer.unsetTimer(this, 9);
 	}
 	
 	/* Exit action for state 'addBreadCroutons'. */
 	private void exitAction_main_region_poorMoreIngredient_r2_addBreadCroutons() {
-		timer.unsetTimer(this, 8);
+		timer.unsetTimer(this, 10);
 		
-		timer.unsetTimer(this, 9);
+		timer.unsetTimer(this, 11);
 	}
 	
 	/* 'default' enter sequence for state positionningCup */
@@ -769,6 +778,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 	
 	/* 'default' enter sequence for state Poored */
 	private void enterSequence_main_region_preparationIngredient_r1_Poored_default() {
+		entryAction_main_region_preparationIngredient_r1_Poored();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_preparationIngredient_r1_Poored;
 	}
@@ -778,6 +788,12 @@ public class SoupStatemachine implements ISoupStatemachine {
 		entryAction_main_region_preparationIngredient_r2_beginHeating();
 		nextStateIndex = 2;
 		stateVector[2] = State.main_region_preparationIngredient_r2_beginHeating;
+	}
+	
+	/* 'default' enter sequence for state hot */
+	private void enterSequence_main_region_preparationIngredient_r2_hot_default() {
+		nextStateIndex = 2;
+		stateVector[2] = State.main_region_preparationIngredient_r2_hot;
 	}
 	
 	/* 'default' enter sequence for state DrinkDistribute */
@@ -804,6 +820,13 @@ public class SoupStatemachine implements ISoupStatemachine {
 		entryAction_main_region_poorMoreIngredient_r1_poorDrink();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_poorMoreIngredient_r1_poorDrink;
+	}
+	
+	/* 'default' enter sequence for state drinkPoored */
+	private void enterSequence_main_region_poorMoreIngredient_r1_drinkPoored_default() {
+		entryAction_main_region_poorMoreIngredient_r1_drinkPoored();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_poorMoreIngredient_r1_drinkPoored;
 	}
 	
 	/* 'default' enter sequence for state addBreadCroutons */
@@ -906,6 +929,8 @@ public class SoupStatemachine implements ISoupStatemachine {
 	private void exitSequence_main_region_preparationIngredient_r1_Poored() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_preparationIngredient_r1_Poored();
 	}
 	
 	/* Default exit sequence for state beginHeating */
@@ -914,6 +939,12 @@ public class SoupStatemachine implements ISoupStatemachine {
 		stateVector[2] = State.$NullState$;
 		
 		exitAction_main_region_preparationIngredient_r2_beginHeating();
+	}
+	
+	/* Default exit sequence for state hot */
+	private void exitSequence_main_region_preparationIngredient_r2_hot() {
+		nextStateIndex = 2;
+		stateVector[2] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for state DrinkDistribute */
@@ -942,6 +973,14 @@ public class SoupStatemachine implements ISoupStatemachine {
 		stateVector[0] = State.$NullState$;
 		
 		exitAction_main_region_poorMoreIngredient_r1_poorDrink();
+	}
+	
+	/* Default exit sequence for state drinkPoored */
+	private void exitSequence_main_region_poorMoreIngredient_r1_drinkPoored() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_poorMoreIngredient_r1_drinkPoored();
 	}
 	
 	/* Default exit sequence for state addBreadCroutons */
@@ -985,6 +1024,9 @@ public class SoupStatemachine implements ISoupStatemachine {
 		case main_region_poorMoreIngredient_r1_poorDrink:
 			exitSequence_main_region_poorMoreIngredient_r1_poorDrink();
 			break;
+		case main_region_poorMoreIngredient_r1_drinkPoored:
+			exitSequence_main_region_poorMoreIngredient_r1_drinkPoored();
+			break;
 		default:
 			break;
 		}
@@ -1009,6 +1051,9 @@ public class SoupStatemachine implements ISoupStatemachine {
 		switch (stateVector[2]) {
 		case main_region_preparationIngredient_r2_beginHeating:
 			exitSequence_main_region_preparationIngredient_r2_beginHeating();
+			break;
+		case main_region_preparationIngredient_r2_hot:
+			exitSequence_main_region_preparationIngredient_r2_hot();
 			break;
 		default:
 			break;
@@ -1083,6 +1128,9 @@ public class SoupStatemachine implements ISoupStatemachine {
 		case main_region_preparationIngredient_r2_beginHeating:
 			exitSequence_main_region_preparationIngredient_r2_beginHeating();
 			break;
+		case main_region_preparationIngredient_r2_hot:
+			exitSequence_main_region_preparationIngredient_r2_hot();
+			break;
 		default:
 			break;
 		}
@@ -1093,6 +1141,9 @@ public class SoupStatemachine implements ISoupStatemachine {
 		switch (stateVector[0]) {
 		case main_region_poorMoreIngredient_r1_poorDrink:
 			exitSequence_main_region_poorMoreIngredient_r1_poorDrink();
+			break;
+		case main_region_poorMoreIngredient_r1_drinkPoored:
+			exitSequence_main_region_poorMoreIngredient_r1_drinkPoored();
 			break;
 		default:
 			break;
@@ -1297,7 +1348,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_preparationIngredient_r2_beginHeating)) && timeEvents[5])) {
+			if (((timeEvents[5] && isStateActive(State.main_region_preparationIngredient_r2_hot)) && true)) {
 				exitSequence_main_region_preparationIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1311,7 +1362,25 @@ public class SoupStatemachine implements ISoupStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((timeEvents[5] && isStateActive(State.main_region_preparationIngredient_r1_Poored)) && true)) {
+			if (timeEvents[6]) {
+				exitSequence_main_region_preparationIngredient_r2_beginHeating();
+				enterSequence_main_region_preparationIngredient_r2_hot_default();
+				main_region_preparationIngredient_react(false);
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			did_transition = main_region_preparationIngredient_react(try_transition);
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_preparationIngredient_r2_hot_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (((true && isStateActive(State.main_region_preparationIngredient_r1_Poored)) && timeEvents[5])) {
 				exitSequence_main_region_preparationIngredient();
 				react_main_region__sync0();
 			} else {
@@ -1328,7 +1397,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[6]) {
+			if (timeEvents[7]) {
 				exitSequence_main_region_DrinkDistribute();
 				enterSequence_main_region_Ready_default();
 				react();
@@ -1375,7 +1444,21 @@ public class SoupStatemachine implements ISoupStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((timeEvents[7] && isStateActive(State.main_region_poorMoreIngredient_r2_optionFinished)) && true)) {
+			if (timeEvents[8]) {
+				exitSequence_main_region_poorMoreIngredient_r1_poorDrink();
+				enterSequence_main_region_poorMoreIngredient_r1_drinkPoored_default();
+			} else {
+				did_transition = false;
+			}
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_poorMoreIngredient_r1_drinkPoored_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (((timeEvents[9] && isStateActive(State.main_region_poorMoreIngredient_r2_optionFinished)) && true)) {
 				exitSequence_main_region_poorMoreIngredient();
 				react_main_region__sync1();
 			} else {
@@ -1389,7 +1472,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[8]) {
+			if (timeEvents[10]) {
 				exitSequence_main_region_poorMoreIngredient_r2_addBreadCroutons();
 				enterSequence_main_region_poorMoreIngredient_r2_optionFinished_default();
 				main_region_poorMoreIngredient_react(false);
@@ -1398,7 +1481,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 			}
 		}
 		if (did_transition==false) {
-			if (timeEvents[9]) {
+			if (timeEvents[11]) {
 				sCInterface.raiseAddingBread();
 			}
 			did_transition = main_region_poorMoreIngredient_react(try_transition);
@@ -1410,7 +1493,7 @@ public class SoupStatemachine implements ISoupStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_poorMoreIngredient_r1_poorDrink)) && timeEvents[7])) {
+			if (((true && isStateActive(State.main_region_poorMoreIngredient_r1_drinkPoored)) && timeEvents[9])) {
 				exitSequence_main_region_poorMoreIngredient();
 				react_main_region__sync1();
 			} else {

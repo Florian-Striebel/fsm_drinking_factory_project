@@ -17,24 +17,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		public List<SCInterfaceListener> getListeners() {
 			return listeners;
 		}
-		private boolean isHot;
-		
-		
-		public void raiseIsHot() {
-			synchronized(ExpressoStatemachine.this) {
-				inEventQueue.add(
-					new Runnable() {
-						@Override
-						public void run() {
-							isHot = true;
-							singleCycle();
-						}
-					}
-				);
-				runCycle();
-			}
-		}
-		
 		private boolean drinkPickedUp;
 		
 		
@@ -196,7 +178,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		}
 		
 		protected void clearEvents() {
-			isHot = false;
 			drinkPickedUp = false;
 			prepare = false;
 		}
@@ -224,6 +205,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		main_region_PlacingPod_r1_Ingredient_r2_coffeeGround,
 		main_region_PlacingPod_r1_Poored,
 		main_region_PlacingPod_r2_beginHeating,
+		main_region_PlacingPod_r2_hot,
 		main_region_expressoDistributed,
 		main_region_Ready,
 		main_region_pooringIngredients,
@@ -237,7 +219,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[8];
+	private final boolean[] timeEvents = new boolean[9];
 	
 	private BlockingQueue<Runnable> inEventQueue = new LinkedBlockingQueue<Runnable>();
 	private boolean isRunningCycle = false;
@@ -326,6 +308,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			case main_region_PlacingPod_r2_beginHeating:
 				main_region_PlacingPod_r2_beginHeating_react(true);
 				break;
+			case main_region_PlacingPod_r2_hot:
+				main_region_PlacingPod_r2_hot_react(true);
+				break;
 			case main_region_expressoDistributed:
 				main_region_expressoDistributed_react(true);
 				break;
@@ -404,7 +389,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		switch (state) {
 		case main_region_PlacingPod:
 			return stateVector[0].ordinal() >= State.
-					main_region_PlacingPod.ordinal()&& stateVector[0].ordinal() <= State.main_region_PlacingPod_r2_beginHeating.ordinal();
+					main_region_PlacingPod.ordinal()&& stateVector[0].ordinal() <= State.main_region_PlacingPod_r2_hot.ordinal();
 		case main_region_PlacingPod_r1_grindcoffee:
 			return stateVector[0] == State.main_region_PlacingPod_r1_grindcoffee;
 		case main_region_PlacingPod_r1_Ingredient:
@@ -422,6 +407,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			return stateVector[0] == State.main_region_PlacingPod_r1_Poored;
 		case main_region_PlacingPod_r2_beginHeating:
 			return stateVector[2] == State.main_region_PlacingPod_r2_beginHeating;
+		case main_region_PlacingPod_r2_hot:
+			return stateVector[2] == State.main_region_PlacingPod_r2_hot;
 		case main_region_expressoDistributed:
 			return stateVector[0] == State.main_region_expressoDistributed;
 		case main_region_Ready:
@@ -468,10 +455,6 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	public SCInterface getSCInterface() {
 		return sCInterface;
-	}
-	
-	public synchronized void raiseIsHot() {
-		sCInterface.raiseIsHot();
 	}
 	
 	public synchronized void raiseDrinkPickedUp() {
@@ -580,28 +563,33 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		timer.setTimer(this, 3, 100, true);
 	}
 	
+	/* Entry action for state 'Poored'. */
+	private void entryAction_main_region_PlacingPod_r1_Poored() {
+		timer.setTimer(this, 4, 100, true);
+	}
+	
 	/* Entry action for state 'beginHeating'. */
 	private void entryAction_main_region_PlacingPod_r2_beginHeating() {
-		timer.setTimer(this, 4, sCInterface.getTimeToHeating(), false);
+		timer.setTimer(this, 5, sCInterface.getTimeToHeating(), false);
 	}
 	
 	/* Entry action for state 'expressoDistributed'. */
 	private void entryAction_main_region_expressoDistributed() {
-		timer.setTimer(this, 5, 100, false);
+		timer.setTimer(this, 6, 100, false);
 		
 		sCInterface.raisePreparationFinished();
 	}
 	
 	/* Entry action for state 'pooringIngredients'. */
 	private void entryAction_main_region_pooringIngredients() {
-		timer.setTimer(this, 6, 100, true);
+		timer.setTimer(this, 7, 100, true);
 		
 		sCInterface.getPoorI().enter();
 	}
 	
 	/* Entry action for state 'addMilk'. */
 	private void entryAction_main_region_addMilk() {
-		timer.setTimer(this, 7, sCInterface.getMilkTime(), false);
+		timer.setTimer(this, 8, sCInterface.getMilkTime(), false);
 		
 		sCInterface.raiseAddingMilk();
 	}
@@ -626,26 +614,31 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		timer.unsetTimer(this, 3);
 	}
 	
+	/* Exit action for state 'Poored'. */
+	private void exitAction_main_region_PlacingPod_r1_Poored() {
+		timer.unsetTimer(this, 4);
+	}
+	
 	/* Exit action for state 'beginHeating'. */
 	private void exitAction_main_region_PlacingPod_r2_beginHeating() {
-		timer.unsetTimer(this, 4);
+		timer.unsetTimer(this, 5);
 	}
 	
 	/* Exit action for state 'expressoDistributed'. */
 	private void exitAction_main_region_expressoDistributed() {
-		timer.unsetTimer(this, 5);
+		timer.unsetTimer(this, 6);
 	}
 	
 	/* Exit action for state 'pooringIngredients'. */
 	private void exitAction_main_region_pooringIngredients() {
-		timer.unsetTimer(this, 6);
+		timer.unsetTimer(this, 7);
 		
 		sCInterface.getPoorI().exit();
 	}
 	
 	/* Exit action for state 'addMilk'. */
 	private void exitAction_main_region_addMilk() {
-		timer.unsetTimer(this, 7);
+		timer.unsetTimer(this, 8);
 	}
 	
 	/* 'default' enter sequence for state PlacingPod */
@@ -696,6 +689,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	
 	/* 'default' enter sequence for state Poored */
 	private void enterSequence_main_region_PlacingPod_r1_Poored_default() {
+		entryAction_main_region_PlacingPod_r1_Poored();
 		nextStateIndex = 0;
 		stateVector[0] = State.main_region_PlacingPod_r1_Poored;
 	}
@@ -705,6 +699,12 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		entryAction_main_region_PlacingPod_r2_beginHeating();
 		nextStateIndex = 2;
 		stateVector[2] = State.main_region_PlacingPod_r2_beginHeating;
+	}
+	
+	/* 'default' enter sequence for state hot */
+	private void enterSequence_main_region_PlacingPod_r2_hot_default() {
+		nextStateIndex = 2;
+		stateVector[2] = State.main_region_PlacingPod_r2_hot;
 	}
 	
 	/* 'default' enter sequence for state expressoDistributed */
@@ -813,6 +813,8 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 	private void exitSequence_main_region_PlacingPod_r1_Poored() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_region_PlacingPod_r1_Poored();
 	}
 	
 	/* Default exit sequence for state beginHeating */
@@ -821,6 +823,12 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		stateVector[2] = State.$NullState$;
 		
 		exitAction_main_region_PlacingPod_r2_beginHeating();
+	}
+	
+	/* Default exit sequence for state hot */
+	private void exitSequence_main_region_PlacingPod_r2_hot() {
+		nextStateIndex = 2;
+		stateVector[2] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for state expressoDistributed */
@@ -899,6 +907,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		case main_region_PlacingPod_r2_beginHeating:
 			exitSequence_main_region_PlacingPod_r2_beginHeating();
 			break;
+		case main_region_PlacingPod_r2_hot:
+			exitSequence_main_region_PlacingPod_r2_hot();
+			break;
 		default:
 			break;
 		}
@@ -968,6 +979,9 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		switch (stateVector[2]) {
 		case main_region_PlacingPod_r2_beginHeating:
 			exitSequence_main_region_PlacingPod_r2_beginHeating();
+			break;
+		case main_region_PlacingPod_r2_hot:
+			exitSequence_main_region_PlacingPod_r2_hot();
 			break;
 		default:
 			break;
@@ -1133,7 +1147,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((true && isStateActive(State.main_region_PlacingPod_r2_beginHeating)) && timeEvents[4])) {
+			if ((timeEvents[4] && isStateActive(State.main_region_PlacingPod_r2_hot))) {
 				exitSequence_main_region_PlacingPod();
 				react_main_region__sync0();
 			} else {
@@ -1147,7 +1161,25 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (((timeEvents[4] && isStateActive(State.main_region_PlacingPod_r1_Poored)) && true)) {
+			if (timeEvents[5]) {
+				exitSequence_main_region_PlacingPod_r2_beginHeating();
+				enterSequence_main_region_PlacingPod_r2_hot_default();
+				main_region_PlacingPod_react(false);
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			did_transition = main_region_PlacingPod_react(try_transition);
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_PlacingPod_r2_hot_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if ((isStateActive(State.main_region_PlacingPod_r1_Poored) && timeEvents[4])) {
 				exitSequence_main_region_PlacingPod();
 				react_main_region__sync0();
 			} else {
@@ -1164,7 +1196,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[5]) {
+			if (timeEvents[6]) {
 				exitSequence_main_region_expressoDistributed();
 				enterSequence_main_region_Ready_default();
 				react();
@@ -1208,7 +1240,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 			}
 		}
 		if (did_transition==false) {
-			if (timeEvents[6]) {
+			if (timeEvents[7]) {
 				sCInterface.getPoorI().runCycle();
 			}
 			did_transition = react();
@@ -1220,7 +1252,7 @@ public class ExpressoStatemachine implements IExpressoStatemachine {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[7]) {
+			if (timeEvents[8]) {
 				exitSequence_main_region_addMilk();
 				enterSequence_main_region_expressoDistributed_default();
 				react();

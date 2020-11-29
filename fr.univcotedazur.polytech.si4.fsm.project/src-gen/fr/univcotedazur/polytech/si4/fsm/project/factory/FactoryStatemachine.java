@@ -196,6 +196,42 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean addCup;
+		
+		
+		public void raiseAddCup() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							addCup = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
+		private boolean addedCup;
+		
+		
+		public boolean isRaisedAddedCup() {
+			synchronized(FactoryStatemachine.this) {
+				return addedCup;
+			}
+		}
+		
+		protected void raiseAddedCup() {
+			synchronized(FactoryStatemachine.this) {
+				addedCup = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onAddedCupRaised();
+				}
+			}
+		}
+		
 		private boolean doTakeDrink;
 		
 		
@@ -479,9 +515,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			preparationFinished = false;
 			takeDrink = false;
 			startBar = false;
+			addCup = false;
 		}
 		protected void clearOutEvents() {
 		
+		addedCup = false;
 		doTakeDrink = false;
 		doRefund = false;
 		doRestart = false;
@@ -511,8 +549,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		main_region_Ready_r2_ordering_r3_waitingSelection,
 		main_region_Ready_r2_ordering_r3_selected,
 		main_region_Ready_r2_ordering_r4_waitingPayment,
-		main_region_Ready_r2_ordering_r4_paidWithCoin,
 		main_region_Ready_r2_ordering_r4_paidByNFC,
+		main_region_Ready_r2_ordering_r4_paidWithCoin,
 		main_region_Ready_r2_giveChange,
 		main_region_refund,
 		main_region_clean,
@@ -613,11 +651,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			case main_region_Ready_r2_ordering_r4_waitingPayment:
 				main_region_Ready_r2_ordering_r4_waitingPayment_react(true);
 				break;
-			case main_region_Ready_r2_ordering_r4_paidWithCoin:
-				main_region_Ready_r2_ordering_r4_paidWithCoin_react(true);
-				break;
 			case main_region_Ready_r2_ordering_r4_paidByNFC:
 				main_region_Ready_r2_ordering_r4_paidByNFC_react(true);
+				break;
+			case main_region_Ready_r2_ordering_r4_paidWithCoin:
+				main_region_Ready_r2_ordering_r4_paidWithCoin_react(true);
 				break;
 			case main_region_Ready_r2_giveChange:
 				main_region_Ready_r2_giveChange_react(true);
@@ -713,17 +751,17 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			return stateVector[0] == State.main_region_Ready_r1_waitingAction;
 		case main_region_Ready_r2_ordering:
 			return stateVector[1].ordinal() >= State.
-					main_region_Ready_r2_ordering.ordinal()&& stateVector[1].ordinal() <= State.main_region_Ready_r2_ordering_r4_paidByNFC.ordinal();
+					main_region_Ready_r2_ordering.ordinal()&& stateVector[1].ordinal() <= State.main_region_Ready_r2_ordering_r4_paidWithCoin.ordinal();
 		case main_region_Ready_r2_ordering_r3_waitingSelection:
 			return stateVector[1] == State.main_region_Ready_r2_ordering_r3_waitingSelection;
 		case main_region_Ready_r2_ordering_r3_selected:
 			return stateVector[1] == State.main_region_Ready_r2_ordering_r3_selected;
 		case main_region_Ready_r2_ordering_r4_waitingPayment:
 			return stateVector[2] == State.main_region_Ready_r2_ordering_r4_waitingPayment;
-		case main_region_Ready_r2_ordering_r4_paidWithCoin:
-			return stateVector[2] == State.main_region_Ready_r2_ordering_r4_paidWithCoin;
 		case main_region_Ready_r2_ordering_r4_paidByNFC:
 			return stateVector[2] == State.main_region_Ready_r2_ordering_r4_paidByNFC;
+		case main_region_Ready_r2_ordering_r4_paidWithCoin:
+			return stateVector[2] == State.main_region_Ready_r2_ordering_r4_paidWithCoin;
 		case main_region_Ready_r2_giveChange:
 			return stateVector[1] == State.main_region_Ready_r2_giveChange;
 		case main_region_refund:
@@ -819,6 +857,14 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	public synchronized void raiseStartBar() {
 		sCInterface.raiseStartBar();
+	}
+	
+	public synchronized void raiseAddCup() {
+		sCInterface.raiseAddCup();
+	}
+	
+	public synchronized boolean isRaisedAddedCup() {
+		return sCInterface.isRaisedAddedCup();
 	}
 	
 	public synchronized boolean isRaisedDoTakeDrink() {
@@ -1002,16 +1048,16 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[2] = State.main_region_Ready_r2_ordering_r4_waitingPayment;
 	}
 	
-	/* 'default' enter sequence for state paidWithCoin */
-	private void enterSequence_main_region_Ready_r2_ordering_r4_paidWithCoin_default() {
-		nextStateIndex = 2;
-		stateVector[2] = State.main_region_Ready_r2_ordering_r4_paidWithCoin;
-	}
-	
 	/* 'default' enter sequence for state paidByNFC */
 	private void enterSequence_main_region_Ready_r2_ordering_r4_paidByNFC_default() {
 		nextStateIndex = 2;
 		stateVector[2] = State.main_region_Ready_r2_ordering_r4_paidByNFC;
+	}
+	
+	/* 'default' enter sequence for state paidWithCoin */
+	private void enterSequence_main_region_Ready_r2_ordering_r4_paidWithCoin_default() {
+		nextStateIndex = 2;
+		stateVector[2] = State.main_region_Ready_r2_ordering_r4_paidWithCoin;
 	}
 	
 	/* 'default' enter sequence for state giveChange */
@@ -1145,14 +1191,14 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[2] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state paidWithCoin */
-	private void exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin() {
+	/* Default exit sequence for state paidByNFC */
+	private void exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC() {
 		nextStateIndex = 2;
 		stateVector[2] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state paidByNFC */
-	private void exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC() {
+	/* Default exit sequence for state paidWithCoin */
+	private void exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin() {
 		nextStateIndex = 2;
 		stateVector[2] = State.$NullState$;
 	}
@@ -1262,11 +1308,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		case main_region_Ready_r2_ordering_r4_waitingPayment:
 			exitSequence_main_region_Ready_r2_ordering_r4_waitingPayment();
 			break;
-		case main_region_Ready_r2_ordering_r4_paidWithCoin:
-			exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin();
-			break;
 		case main_region_Ready_r2_ordering_r4_paidByNFC:
 			exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC();
+			break;
+		case main_region_Ready_r2_ordering_r4_paidWithCoin:
+			exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin();
 			break;
 		default:
 			break;
@@ -1307,11 +1353,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		case main_region_Ready_r2_ordering_r4_waitingPayment:
 			exitSequence_main_region_Ready_r2_ordering_r4_waitingPayment();
 			break;
-		case main_region_Ready_r2_ordering_r4_paidWithCoin:
-			exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin();
-			break;
 		case main_region_Ready_r2_ordering_r4_paidByNFC:
 			exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC();
+			break;
+		case main_region_Ready_r2_ordering_r4_paidWithCoin:
+			exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin();
 			break;
 		default:
 			break;
@@ -1338,11 +1384,11 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		case main_region_Ready_r2_ordering_r4_waitingPayment:
 			exitSequence_main_region_Ready_r2_ordering_r4_waitingPayment();
 			break;
-		case main_region_Ready_r2_ordering_r4_paidWithCoin:
-			exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin();
-			break;
 		case main_region_Ready_r2_ordering_r4_paidByNFC:
 			exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC();
+			break;
+		case main_region_Ready_r2_ordering_r4_paidWithCoin:
+			exitSequence_main_region_Ready_r2_ordering_r4_paidWithCoin();
 			break;
 		default:
 			break;
@@ -1460,7 +1506,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 						exitSequence_main_region_Ready_r1_waitingAction();
 						enterSequence_main_region_Ready_r1_Timer_default();
 					} else {
-						did_transition = false;
+						if (sCInterface.addCup) {
+							exitSequence_main_region_Ready_r1_waitingAction();
+							enterSequence_main_region_Ready_r1_Timer_default();
+						} else {
+							did_transition = false;
+						}
 					}
 				}
 			}
@@ -1541,6 +1592,38 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		if (did_transition==false) {
+			if (sCInterface.addCup) {
+				sCInterface.raiseAddedCup();
+			}
+			did_transition = main_region_Ready_r2_ordering_react(try_transition);
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_Ready_r2_ordering_r4_paidByNFC_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.addCoin) {
+				exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC();
+				sCInterface.raiseDoBackCoin();
+				
+				enterSequence_main_region_Ready_r2_ordering_r4_paidByNFC_default();
+				main_region_Ready_r2_ordering_react(false);
+			} else {
+				if ((sCInterface.getIsSelected() && sCInterface.getIsValidate())) {
+					exitSequence_main_region_Ready();
+					enterSequence_main_region_preparation_default();
+					react();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+			if (sCInterface.addCup) {
+				sCInterface.raiseAddedCup();
+			}
 			did_transition = main_region_Ready_r2_ordering_react(try_transition);
 		}
 		return did_transition;
@@ -1569,32 +1652,9 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		if (did_transition==false) {
-			did_transition = main_region_Ready_r2_ordering_react(try_transition);
-		}
-		return did_transition;
-	}
-	
-	private boolean main_region_Ready_r2_ordering_r4_paidByNFC_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.addCoin) {
-				exitSequence_main_region_Ready_r2_ordering_r4_paidByNFC();
-				sCInterface.raiseDoBackCoin();
-				
-				enterSequence_main_region_Ready_r2_ordering_r4_paidByNFC_default();
-				main_region_Ready_r2_ordering_react(false);
-			} else {
-				if ((sCInterface.getIsSelected() && sCInterface.getIsValidate())) {
-					exitSequence_main_region_Ready();
-					enterSequence_main_region_preparation_default();
-					react();
-				} else {
-					did_transition = false;
-				}
+			if (sCInterface.addCup) {
+				sCInterface.raiseAddedCup();
 			}
-		}
-		if (did_transition==false) {
 			did_transition = main_region_Ready_r2_ordering_react(try_transition);
 		}
 		return did_transition;

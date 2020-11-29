@@ -61,6 +61,7 @@ public class DrinkFactoryMachine extends JFrame {
 	protected OptionPanel optionPanel;
 	protected boolean userUseIsCup;
 	private HashMap<Integer, Integer> temperature;
+	private MouseAdapter adapterForValidate; 
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -388,7 +389,10 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				setPictureCup("./picts/ownCup.jpg");
 				theFSM.raiseDoAction();
+				theFSM.raiseAddCup();
 				userUseIsCup = true;
+				addCupButton.setVisible(false);
+
 			}
 		});
 		cancelButton.addMouseListener(new MouseAdapter() {
@@ -456,18 +460,26 @@ public class DrinkFactoryMachine extends JFrame {
 
 			}
 		});
+		adapterForValidate = new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				validateButton.setVisible(true);
+				lblValidate.setForeground(Color.WHITE);
+				theFSM.setIsValidate(false);
+			}
+		};
 		validateButton.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				theFSM.setIsValidate(true);
-				theFSM.raiseDoAction();
+				changeButton.setVisible(true);
 				sugarSlider.setEnabled(false);
 				lblSugar.setEnabled(false);
-				removeSpicesListener();
+				sugarSlider.removeMouseListener(adapterForValidate);
 				validateButton.setVisible(false);
-				changeButton.setVisible(true);
 				lblValidate.setText("<html>Changer les épices");
+				theFSM.setIsValidate(true);
+				theFSM.raiseDoAction();
 				
 			}
 		});
@@ -481,7 +493,7 @@ public class DrinkFactoryMachine extends JFrame {
 				lblSugar.setEnabled(true);
 				changeButton.setVisible(false);
 				lblValidate.setText("<html>Veuillez choisir la quantité d'épices");
-				addSpicesListener();
+				sugarSlider.addMouseListener(adapterForValidate);
 				lblValidate.setForeground(Color.RED);
 			}
 		});
@@ -527,38 +539,23 @@ public class DrinkFactoryMachine extends JFrame {
 		
 
 	}
-	private void addSpicesListener() {
-		sugarSlider.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				validateButton.setVisible(true);
-				lblValidate.setForeground(Color.WHITE);
-				theFSM.setIsValidate(false);
-			}
-		});
-	}
-	private void removeSpicesListener() {
-		if(lblSugar.getText().equals("Spices"))
-			sugarSlider.removeMouseListener(sugarSlider.getMouseListeners()[sugarSlider.getMouseListeners().length-1]);
-
-	}
 	public void displayValidate() {
+		lblValidate.setForeground(Color.RED);
+		lblValidate.setText("<html>Veuillez choisir la quantité d'épices");
 		if (selection.equals(Drink.SOUP)) {
-			addSpicesListener();
+			sugarSlider.addMouseListener(adapterForValidate);
 			lblValidate.setVisible(true);
+			theFSM.setIsValidate(false);
 			sugarSlider.setValue(0);
 			lblSugar.setText("Spices");
 		} else {
-			if(!changeButton.isVisible())
-				removeSpicesListener();
+			sugarSlider.removeMouseListener(adapterForValidate);
 			lblSugar.setText("Sugar");
 			lblSugar.setEnabled(true);
 			validateButton.setVisible(false);
 			theFSM.setIsValidate(true);
 			changeButton.setVisible(false);
 			lblValidate.setVisible(false);
-			sugarSlider.setValue(1);
-			lblValidate.setForeground(Color.RED);
 			sugarSlider.setEnabled(true);
 		}
 

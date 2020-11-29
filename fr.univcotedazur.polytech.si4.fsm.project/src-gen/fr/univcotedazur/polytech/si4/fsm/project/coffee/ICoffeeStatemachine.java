@@ -13,8 +13,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public interface ICoffeeStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterface {
 	
-		public void raiseIsHot();
-		
 		public void raisePrepare();
 		
 		public boolean isRaisedPlacePod();

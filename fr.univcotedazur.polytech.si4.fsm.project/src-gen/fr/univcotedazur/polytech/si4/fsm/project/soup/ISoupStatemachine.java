@@ -12,8 +12,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public interface ISoupStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterface {
 	
-		public void raiseIsHot();
-		
 		public void raiseDrinkPickedUp();
 		
 		public void raiseSpiceFinishPoored();
