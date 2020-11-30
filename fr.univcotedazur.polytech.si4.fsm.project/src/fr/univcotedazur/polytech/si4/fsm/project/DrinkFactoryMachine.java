@@ -2,11 +2,15 @@ package fr.univcotedazur.polytech.si4.fsm.project;
 
 import drink.Drink;
 import drink.Ingredient;
+import drink.ItemStock;
 import drink.Option;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -17,6 +21,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -70,7 +75,7 @@ public class DrinkFactoryMachine extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args)  {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -149,6 +154,10 @@ public class DrinkFactoryMachine extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		contentPane.setFocusable(true);
+		contentPane.requestFocus();
+		
+
 		
 		messagesToUser = new JLabel("<html>Choisissez votre boisson");
 		messagesToUser.setForeground(Color.WHITE);
@@ -282,13 +291,13 @@ public class DrinkFactoryMachine extends JFrame {
 		temperatureSlider.setLabelTable(temperatureTable);
 
 		contentPane.add(temperatureSlider);
-
+/*
 		icedTeaButton = new JButton("Iced Tea");
 		icedTeaButton.setForeground(Color.WHITE);
 		icedTeaButton.setBackground(Color.DARK_GRAY);
 		icedTeaButton.setBounds(12, 182, 96, 25);
 		contentPane.add(icedTeaButton);
-
+*/
 		lblSugar = new JLabel("Sugar");
 		lblSugar.setForeground(Color.WHITE);
 		lblSugar.setBackground(Color.DARK_GRAY);
@@ -382,7 +391,10 @@ public class DrinkFactoryMachine extends JFrame {
 		cancelButton.setForeground(Color.WHITE);
 		cancelButton.setBackground(Color.DARK_GRAY);
 		panel_2.add(cancelButton);
+		
 
+		disableDrinkIndisponnible();
+		
 		// listeners
 		addCupButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -429,7 +441,7 @@ public class DrinkFactoryMachine extends JFrame {
 				}
 			}
 		});
-		icedTeaButton.addMouseListener(new MouseAdapter() {
+	/*	icedTeaButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (((JButton) e.getSource()).isEnabled()) {
@@ -437,7 +449,7 @@ public class DrinkFactoryMachine extends JFrame {
 				}
 
 			}
-		});
+		});*/
 		teaButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -537,7 +549,68 @@ public class DrinkFactoryMachine extends JFrame {
 			}
 		});
 		
+		contentPane.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
 
+				
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+
+				if(e.isControlDown()) {
+					theFSM.raiseAddStock();
+					Component[] save =contentPane.getComponents();
+					contentPane.removeAll();
+					contentPane.repaint();
+					JLabel label =new JLabel("modifier stock de la machine :");
+					label.setBounds(12,12,300,50);
+					label.setForeground(Color.WHITE);
+					contentPane.add(label);
+					List<ItemStock> items = new ArrayList<>();
+					
+					for(Ingredient i:Ingredient.values()) {
+						ItemStock stock = new ItemStock(i, (int)gIngredient.getStock(i));
+						items.add(stock);
+						contentPane.add(stock.getStockPane());
+					}
+					
+					JButton buttonValidate = new JButton("Valider");
+					buttonValidate.setBounds(30,(gIngredient.nbIngredients.size()+1)*50,96,40);
+					contentPane.add(buttonValidate);
+					contentPane.revalidate();
+					contentPane.repaint();
+					
+					buttonValidate.addMouseListener(
+							new MouseAdapter() {
+								@Override
+								public void mouseClicked(MouseEvent e) {
+									for(ItemStock item: items) {
+										gIngredient.setNbIngrédients(item.getStock(), item.getIngredient());
+									}
+									contentPane.removeAll();
+									for(Component c:save) {
+										contentPane.add(c);
+									}	
+									contentPane.revalidate();
+									contentPane.repaint();
+									ReenableDrink();
+									theFSM.raiseStockAdded();
+								}
+
+							}
+					);
+				}
+			}
+		});
 	}
 	public void displayValidate() {
 		lblValidate.setForeground(Color.RED);
@@ -595,7 +668,24 @@ public class DrinkFactoryMachine extends JFrame {
 	}
 
 	public void ReenableDrink() {
-
+		List<Ingredient> indisponnible = gIngredient.ListIngredientFini();
+		if (!indisponnible.contains(Ingredient.DOSETTECAFE)) {
+			coffeeButton.setEnabled(true);
+			coffeeButton.validate();
+		}
+		if (!indisponnible.contains(Ingredient.DOSESOUPE)) {
+			soupButton.setEnabled(true);
+			soupButton.validate();
+		}
+		if (!indisponnible.contains(Ingredient.DOSEGRAINCAFE)) {
+			expressoButton.setEnabled(true);
+			expressoButton.validate();
+		}
+		if (!indisponnible.contains(Ingredient.SACHETTHE)) {
+			teaButton.setEnabled(true);
+			teaButton.validate();
+		}
 	}
+
 
 }

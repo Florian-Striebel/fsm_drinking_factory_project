@@ -214,6 +214,60 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			}
 		}
 		
+		private boolean addStock;
+		
+		
+		public void raiseAddStock() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							addStock = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
+		private boolean stockAdded;
+		
+		
+		public void raiseStockAdded() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							stockAdded = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
+		private boolean doAddStock;
+		
+		
+		public boolean isRaisedDoAddStock() {
+			synchronized(FactoryStatemachine.this) {
+				return doAddStock;
+			}
+		}
+		
+		protected void raiseDoAddStock() {
+			synchronized(FactoryStatemachine.this) {
+				doAddStock = true;
+				for (SCInterfaceListener listener : listeners) {
+					listener.onDoAddStockRaised();
+				}
+			}
+		}
+		
 		private boolean addedCup;
 		
 		
@@ -516,9 +570,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			takeDrink = false;
 			startBar = false;
 			addCup = false;
+			addStock = false;
+			stockAdded = false;
 		}
 		protected void clearOutEvents() {
 		
+		doAddStock = false;
 		addedCup = false;
 		doTakeDrink = false;
 		doRefund = false;
@@ -559,6 +616,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		main_region_preparation_r1_drinkPreparation,
 		main_region_preparation_r2_progressBar,
 		main_region_preparation_r2_waittingStartPreparation,
+		main_region_addingStock,
 		$NullState$
 	};
 	
@@ -678,6 +736,9 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			case main_region_preparation_r2_waittingStartPreparation:
 				main_region_preparation_r2_waittingStartPreparation_react(true);
 				break;
+			case main_region_addingStock:
+				main_region_addingStock_react(true);
+				break;
 			default:
 				// $NullState$
 			}
@@ -779,6 +840,8 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			return stateVector[1] == State.main_region_preparation_r2_progressBar;
 		case main_region_preparation_r2_waittingStartPreparation:
 			return stateVector[1] == State.main_region_preparation_r2_waittingStartPreparation;
+		case main_region_addingStock:
+			return stateVector[0] == State.main_region_addingStock;
 		default:
 			return false;
 		}
@@ -861,6 +924,18 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	public synchronized void raiseAddCup() {
 		sCInterface.raiseAddCup();
+	}
+	
+	public synchronized void raiseAddStock() {
+		sCInterface.raiseAddStock();
+	}
+	
+	public synchronized void raiseStockAdded() {
+		sCInterface.raiseStockAdded();
+	}
+	
+	public synchronized boolean isRaisedDoAddStock() {
+		return sCInterface.isRaisedDoAddStock();
 	}
 	
 	public synchronized boolean isRaisedAddedCup() {
@@ -1112,6 +1187,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[1] = State.main_region_preparation_r2_waittingStartPreparation;
 	}
 	
+	/* 'default' enter sequence for state addingStock */
+	private void enterSequence_main_region_addingStock_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_region_addingStock;
+	}
+	
 	/* 'default' enter sequence for region main region */
 	private void enterSequence_main_region_default() {
 		react_main_region__entry_Default();
@@ -1259,6 +1340,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		stateVector[1] = State.$NullState$;
 	}
 	
+	/* Default exit sequence for state addingStock */
+	private void exitSequence_main_region_addingStock() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
 	/* Default exit sequence for region main region */
 	private void exitSequence_main_region() {
 		switch (stateVector[0]) {
@@ -1279,6 +1366,9 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 			break;
 		case main_region_preparation_r1_drinkPreparation:
 			exitSequence_main_region_preparation_r1_drinkPreparation();
+			break;
+		case main_region_addingStock:
+			exitSequence_main_region_addingStock();
 			break;
 		default:
 			break;
@@ -1530,7 +1620,15 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 				enterSequence_main_region_refund_default();
 				react();
 			} else {
-				did_transition = false;
+				if (sCInterface.addStock) {
+					exitSequence_main_region_Ready();
+					sCInterface.raiseDoAddStock();
+					
+					enterSequence_main_region_addingStock_default();
+					react();
+				} else {
+					did_transition = false;
+				}
 			}
 		}
 		if (did_transition==false) {
@@ -1801,6 +1899,27 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		}
 		if (did_transition==false) {
 			did_transition = main_region_preparation_react(try_transition);
+		}
+		return did_transition;
+	}
+	
+	private boolean main_region_addingStock_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.stockAdded) {
+				exitSequence_main_region_addingStock();
+				sCInterface.raiseDoRestart();
+				
+				enterSequence_main_region_Ready_r1_default();
+				enterSequence_main_region_Ready_r2_ordering_default();
+				react();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+			did_transition = react();
 		}
 		return did_transition;
 	}

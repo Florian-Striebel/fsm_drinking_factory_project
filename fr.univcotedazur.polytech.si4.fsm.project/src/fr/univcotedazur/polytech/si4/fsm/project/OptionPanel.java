@@ -160,6 +160,7 @@ public class OptionPanel extends JFrame {
 	    chkMilk.setVisible(true);
 	    chkMapple.setVisible(true);
 	    optionPanel.setVisible(true);
+	    disableOptionIndisponnible();
 
 	}
 	public void optionsForTea(String selection) {
@@ -175,6 +176,7 @@ public class OptionPanel extends JFrame {
 	    chkMilk.setVisible(true);
 	    chkMapple.setVisible(true);
 	    optionPanel.setVisible(true);
+	    disableOptionIndisponnible();
 
 	}
 	
@@ -191,6 +193,7 @@ public class OptionPanel extends JFrame {
 	    chkMapple.setVisible(false);
 	    chkCroutons.setVisible(true);
 	    optionPanel.setVisible(true);
+	    disableOptionIndisponnible();
 
 	}
 	public JPanel getOptionPanel() {
@@ -235,6 +238,9 @@ public class OptionPanel extends JFrame {
 	
 	public void disableOptionIndisponnible() {
 		List<Ingredient> indisponnible = drinkFactoryMachine.gIngredient.ListIngredientFini();
+		for(Ingredient i: indisponnible) {
+			System.out.println("indispo"+i.name());
+		}
 		if (indisponnible.contains(Ingredient.CROUTONS)) {
 			chkCroutons.setEnabled(false);
 			chkCroutons.invalidate();

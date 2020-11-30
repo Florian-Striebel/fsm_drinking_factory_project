@@ -17,5 +17,5 @@ public enum Ingredient {
 	public int getPos() {
 		return pos;
 	}
-
+	
 }

@@ -158,7 +158,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.soupButton.setEnabled(enabled);
 		factory.expressoButton.setEnabled(enabled);
 		factory.teaButton.setEnabled(enabled);
-		factory.icedTeaButton.setEnabled(enabled);
+		//factory.icedTeaButton.setEnabled(enabled);
 		factory.addCupButton.setEnabled(enabled);
 
 	}
@@ -176,6 +176,12 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		if(factory.selection !=null)
 			factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName()+
 				"<br/>Prix: "+df.format(price)+"€");
+	}
+
+
+	@Override
+	public void onDoAddStockRaised() {
+		System.out.println("add stock for the drinkFactory");
 	}
 		
 }
