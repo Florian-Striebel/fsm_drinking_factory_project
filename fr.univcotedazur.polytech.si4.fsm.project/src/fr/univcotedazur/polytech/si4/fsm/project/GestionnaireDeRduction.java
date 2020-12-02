@@ -87,16 +87,16 @@ public class GestionnaireDeRduction {
 	public String messageReduction(String id,double prix) {
 		DecimalFormat df = new DecimalFormat("0.00");
 		if(!drinkPaidByNfcForAUser.containsKey(id))
-			return "<html>Il vous reste 10 achats<br>avant de profiter du programme fidélité";
+			return "<html>Il vous reste 9 achats<br>avant de profiter du programme fidélité";
 		if(drinkPaidByNfcForAUser.get(id).size()+1<10) {
-			return "<html>Il vous reste "+(nombreDAchatAvantReduc(id))+" achats<br>avant de profiter du programme fidélité";
+			return "<html>Il vous reste "+(nombreDAchatAvantReduc(id)-1)+" achats<br>avant de profiter du programme fidélité";
 		}
 		else if(drinkPaidByNfcForAUser.get(id).size()+1==10) {
 			return "<html>Félicitation,votre prochaine achat  est gratuit <br>(dans la limite de "+ df.format(calculPrixMoy10BoissonMessage(drinkPaidByNfcForAUser.get(id),prix))+
 				"€<br>sinon une réduction sera appliqué)";
 		}
-		double prixReduc= calculPrixAvecReduction(id, prix);
-		return prixReduc==0?"Achat gratuit":"<html>Réduction: <br>vous avez payé "+df.format(prixReduc)+"€";
+	
+		return prix==0?"Achat gratuit":"<html>Réduction: <br>vous avez payé "+df.format(prix)+"€";
 	}
 	private double calculPrixMoy10DerBoisson(List<Double> prix) {
 		Double moyenne = 0.0;
