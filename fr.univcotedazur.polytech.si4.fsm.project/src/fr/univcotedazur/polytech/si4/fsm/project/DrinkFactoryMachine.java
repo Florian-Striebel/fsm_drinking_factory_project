@@ -63,10 +63,12 @@ public class DrinkFactoryMachine extends JFrame {
 	protected JTextField nfcUserId;
 	protected GestionnaireDeRduction gReduc;
 	protected GestionnaireDIngredient gIngredient;
-	protected OptionPanel optionPanel;
+	protected OptionPanel optionPanel; 
 	protected boolean userUseIsCup;
 	private HashMap<Integer, Integer> temperature;
 	private MouseAdapter adapterForValidate; 
+	protected  boolean isPaidByNfc;
+	
 	/**
 	 * @wbp.nonvisual location=311,475
 	 */
@@ -541,8 +543,9 @@ public class DrinkFactoryMachine extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (nfcUserId.getText().isEmpty()) {
 					messagesToUser.setText("bad read nfc");
-				} else {
+				 } else {
 					nfcUserId.setEditable(false);
+					isPaidByNfc=true;
 					theFSM.raisePaidNFC();
 					theFSM.raiseDoAction();
 				}
@@ -639,8 +642,8 @@ public class DrinkFactoryMachine extends JFrame {
 	}
 
 	public void ajouterPrixBoissonAClient(String nfcId, float price) {
-		gReduc.ajouterPrixBoissonAClient(nfcId, price);
-
+		if(isPaidByNfc)
+			gReduc.ajouterPrixBoissonAClient(nfcId, price);
 	}
 
 	public void disableDrinkIndisponnible() {

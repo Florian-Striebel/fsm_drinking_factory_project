@@ -24,7 +24,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	public DrinkFactoryControllerInterfaceImplementation(DrinkFactoryMachine fact) {
 		coins =0;
 		factory = fact;
-		price = 10^5;
+		price = Float.POSITIVE_INFINITY;
 		df = new DecimalFormat("0.00");
 		coffee= new CoffeePreparation(fact);
 		tea = new TeaPreparation(fact);
@@ -55,6 +55,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.optionPanel.disableOptionIndisponnible();
 		factory.addCupButton.setVisible(true);
 		factory.selection = null;
+		factory.nfcUserId.setText("");
+		factory.isPaidByNfc=false;
 	}
 	@Override
 	public void onDoPaymentByNFCRaised() {
@@ -99,6 +101,12 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoStartPreparationRaised() {
+		if(factory.isPaidByNfc)
+			factory.messageForPayment.setText("vous avez payez:"+ factory.calculPrixAvecReduction(factory.getNfcId(), price));
+		else {
+			factory.messageForPayment.setText("test");
+			System.out.println("test");
+		}
 		factory.changeButton.setVisible(false);
 		factory.lblValidate.setVisible(false);
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
@@ -111,6 +119,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		factory.ajouterPrixBoissonAClient(factory.getNfcId(), price);
 		factory.messagesToUser.setText("<html>Préparation en cours de "+factory.selection.getName());
 		factory.messageForPayment.setText("");
+
 		factory.optionPanel.decrementeOptions();
 		if(factory.selection.equals(Drink.COFFE)) {
 			factory.decremente(Ingredient.DOSETTECAFE);
@@ -135,6 +144,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoRefundRaised() {
 			factory.messagesToUser.setText("<html>Operation annulée<br/>Remboursement de "+df.format(coins)+"€");
+			factory.nfcUserId.setText("");
+			factory.isPaidByNfc=false;
 			factory.theFSM.raiseRefunded();
 
 	}

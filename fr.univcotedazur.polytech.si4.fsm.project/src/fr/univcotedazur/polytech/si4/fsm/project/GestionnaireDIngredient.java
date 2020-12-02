@@ -59,7 +59,7 @@ public class GestionnaireDIngredient {
 	
 	public void decremente(Ingredient i) {
 		
-		nbIngredients.put(i.name(), nbIngredients.get(i)-1);
+		nbIngredients.put(i.name(), nbIngredients.get(i.name())-1);
 		stockerModification();
 	}
 	
