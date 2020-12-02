@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,10 @@ public class GestionnaireDeRduction {
 
 	public void ajouterPrixBoissonAClient(String id, double prix) {
 		if (drinkPaidByNfcForAUser.containsKey(id)) {
-			drinkPaidByNfcForAUser.get(id).add(prix);
+			if(drinkPaidByNfcForAUser.get(id).size()>=10)
+				drinkPaidByNfcForAUser.get(id).removeAll(drinkPaidByNfcForAUser.get(id));
+			else
+				drinkPaidByNfcForAUser.get(id).add(prix);
 		} else {
 			List<Double> list = new ArrayList<>();
 			list.add(prix);
@@ -63,7 +67,7 @@ public class GestionnaireDeRduction {
 
 	public int nombreDAchatAvantReduc(String id) {
 		if (drinkPaidByNfcForAUser.containsKey(id)) {
-			return 10 - drinkPaidByNfcForAUser.get(id).size() % 10;
+			return 10 - drinkPaidByNfcForAUser.get(id).size();
 		} else {
 			System.out.println(id + "list" + drinkPaidByNfcForAUser.get(id));
 			return 10;
@@ -72,7 +76,7 @@ public class GestionnaireDeRduction {
 
 	public double calculPrixAvecReduction(String id, double prixBoisson) {
 
-		if (drinkPaidByNfcForAUser.get(id) != null && drinkPaidByNfcForAUser.get(id).size() % 10 == 0) {
+		if (drinkPaidByNfcForAUser.get(id) != null && drinkPaidByNfcForAUser.get(id).size() == 10) {
 			return Math.max(0, prixBoisson - calculPrixMoy10DerBoisson(drinkPaidByNfcForAUser.get(id)));
 		} else {
 			return prixBoisson;
@@ -80,15 +84,34 @@ public class GestionnaireDeRduction {
 
 	}
 
+	public String messageReduction(String id,double prix) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		if(!drinkPaidByNfcForAUser.containsKey(id))
+			return "<html>Il vous reste 10 achats<br>avant de profiter du programme fidélité";
+		if(drinkPaidByNfcForAUser.get(id).size()+1<10) {
+			return "<html>Il vous reste "+(nombreDAchatAvantReduc(id))+" achats<br>avant de profiter du programme fidélité";
+		}
+		else if(drinkPaidByNfcForAUser.get(id).size()+1==10) {
+			return "<html>Félicitation,votre prochaine achat  est gratuit <br>(dans la limite de "+ df.format(calculPrixMoy10BoissonMessage(drinkPaidByNfcForAUser.get(id),prix))+
+				"€<br>sinon une réduction sera appliqué)";
+		}
+		double prixReduc= calculPrixAvecReduction(id, prix);
+		return prixReduc==0?"Achat gratuit":"<html>Réduction: <br>vous avez payé "+df.format(prixReduc)+"€";
+	}
 	private double calculPrixMoy10DerBoisson(List<Double> prix) {
 		Double moyenne = 0.0;
-		for (int i = 10; i <= 1; i--) {
-			moyenne = prix.get(prix.size() - i);
+		for (int i = 0; i < 10; i++) {
+			moyenne += prix.get(i);
 		}
 
 		return moyenne / 10;
 	}
-
+	private double calculPrixMoy10BoissonMessage(List<Double> prix,double prix1) {
+		List<Double> prix2 = new ArrayList<Double>(prix);
+		prix2.add(prix1);
+		return calculPrixMoy10DerBoisson(prix2);
+	}
+	
 	private void stockerModification() {
 		try {
 			String json = gson.toJson(drinkPaidByNfcForAUser);

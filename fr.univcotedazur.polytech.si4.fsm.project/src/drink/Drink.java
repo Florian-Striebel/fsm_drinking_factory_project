@@ -1,10 +1,10 @@
 package drink;
 
 public enum Drink {
-	COFFE("coffee",0.35f),
-	EXPRESSO("Expresso", 0.50f),
-	TEA("Tea", 0.40f),
-	SOUP("Soup", 0.75f);
+	COFFE("café",0.35f),
+	EXPRESSO("expresso", 0.50f),
+	TEA("thé", 0.40f),
+	SOUP("soupe", 0.75f);
 
 	private String name;
 	private float price;

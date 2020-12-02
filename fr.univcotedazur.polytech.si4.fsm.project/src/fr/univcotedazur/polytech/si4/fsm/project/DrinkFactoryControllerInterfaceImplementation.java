@@ -102,11 +102,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	@Override
 	public void onDoStartPreparationRaised() {
 		if(factory.isPaidByNfc)
-			factory.messageForPayment.setText("vous avez payez:"+ factory.calculPrixAvecReduction(factory.getNfcId(), price));
-		else {
-			factory.messageForPayment.setText("test");
-			System.out.println("test");
-		}
+			factory.messageForPayment.setText(factory.messageNFCPrixBoissonAClient(factory.getNfcId(), price));
 		factory.changeButton.setVisible(false);
 		factory.lblValidate.setVisible(false);
 		factory.messagesToUser.setText("<html>Debut de la préparation de  "+factory.selection.getName());
@@ -116,7 +112,7 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 
 	@Override
 	public void onDoPreparationRaised() {
-		factory.ajouterPrixBoissonAClient(factory.getNfcId(), price);
+		factory.ajouterPrixBoissonAClient(factory.getNfcId(),price);
 		factory.messagesToUser.setText("<html>Préparation en cours de "+factory.selection.getName());
 		factory.messageForPayment.setText("");
 
