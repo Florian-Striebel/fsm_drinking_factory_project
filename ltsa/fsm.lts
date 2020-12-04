@@ -1,0 +1,14 @@
+Selection = (selected -> Selection | selected -> STOP).
+Payment = (paidNFC -> NFC | paidNFC -> STOP | addFirstCoin -> Coin),
+NFC = (addCoin -> back -> NFC | addCoin -> back -> STOP),
+Coin = (addCoin -> Coin | addCoin -> change -> STOP).
+
+
+||Choice = (Selection || Payment)
+
+assert Prop = [](paidNFC -> (<>end))
+assert Prop1 = [](paidNFC -> (<>!change))
+assert Prop2 = [](addFirstCoin -> (<>!paidNFC))
+assert Prop3 = [](paidNFC -> (<>!addFirstCoin))
+assert Prop4 = [](paidNFC -> (<>!back))
+assert Prop5 = [](paidNFC -> (<>end))
