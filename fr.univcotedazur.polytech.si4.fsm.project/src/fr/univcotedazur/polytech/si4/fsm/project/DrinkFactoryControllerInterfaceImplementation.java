@@ -183,6 +183,9 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 		if(factory.selection !=null)
 			factory.messagesToUser.setText("<html>Vous avez choisi la boisson "+factory.selection.getName()+
 				"<br/>Prix: "+df.format(price)+"€");
+		if(coins>= price)
+			factory.theFSM.setIsPaid(true);
+		factory.theFSM.raiseDoAction();
 	}
 
 
