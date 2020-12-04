@@ -12,6 +12,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public interface IFactoryStatemachine extends ITimerCallback,IStatemachine {
 	public interface SCInterface {
 	
+		public void raiseSliderMoved();
+		
 		public void raiseDoAction();
 		
 		public void raisePaidNFC();

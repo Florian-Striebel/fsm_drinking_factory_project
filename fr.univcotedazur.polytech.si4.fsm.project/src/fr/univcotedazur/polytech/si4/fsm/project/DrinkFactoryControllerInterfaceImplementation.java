@@ -1,6 +1,5 @@
 package fr.univcotedazur.polytech.si4.fsm.project;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 import drink.Drink;
@@ -143,7 +142,6 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 			factory.nfcUserId.setText("");
 			factory.isPaidByNfc=false;
 			factory.theFSM.raiseRefunded();
-
 	}
 
 	@Override
@@ -193,7 +191,8 @@ public class DrinkFactoryControllerInterfaceImplementation implements SCInterfac
 	public void onDoAddStockRaised() {
 		System.out.println("add stock for the drinkFactory");
 	}
-		
+
+
 }
 
 

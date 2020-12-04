@@ -16,6 +16,24 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		public List<SCInterfaceListener> getListeners() {
 			return listeners;
 		}
+		private boolean sliderMoved;
+		
+		
+		public void raiseSliderMoved() {
+			synchronized(FactoryStatemachine.this) {
+				inEventQueue.add(
+					new Runnable() {
+						@Override
+						public void run() {
+							sliderMoved = true;
+							singleCycle();
+						}
+					}
+				);
+				runCycle();
+			}
+		}
+		
 		private boolean doAction;
 		
 		
@@ -559,6 +577,7 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 		}
 		
 		protected void clearEvents() {
+			sliderMoved = false;
 			doAction = false;
 			paidNFC = false;
 			selected = false;
@@ -880,6 +899,10 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 	
 	public SCInterface getSCInterface() {
 		return sCInterface;
+	}
+	
+	public synchronized void raiseSliderMoved() {
+		sCInterface.raiseSliderMoved();
 	}
 	
 	public synchronized void raiseDoAction() {
@@ -1600,7 +1623,12 @@ public class FactoryStatemachine implements IFactoryStatemachine {
 							exitSequence_main_region_Ready_r1_waitingAction();
 							enterSequence_main_region_Ready_r1_Timer_default();
 						} else {
-							did_transition = false;
+							if (sCInterface.sliderMoved) {
+								exitSequence_main_region_Ready_r1_waitingAction();
+								enterSequence_main_region_Ready_r1_Timer_default();
+							} else {
+								did_transition = false;
+							}
 						}
 					}
 				}

@@ -14,6 +14,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ProgressBarUI;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.FactoryStatemachine;
 import fr.univcotedazur.polytech.si4.fsm.project.factory.IFactoryStatemachine.SCInterfaceListener;
@@ -397,7 +401,44 @@ public class DrinkFactoryMachine extends JFrame {
 
 		disableDrinkIndisponnible();
 		
+		
+		
 		// listeners
+		sugarSlider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				System.out.println("change");
+				theFSM.raiseDoAction();
+				theFSM.raiseSliderMoved();
+					
+			}
+		});
+		
+		sizeSlider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				System.out.println("change");
+				theFSM.raiseDoAction();
+				theFSM.raiseSliderMoved();
+					
+			}
+		});
+		
+		
+		temperatureSlider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				System.out.println("change");
+				theFSM.raiseDoAction();
+				theFSM.raiseSliderMoved();
+					
+			}	
+		});
+		
+		
 		addCupButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
